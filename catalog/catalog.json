@@ -1363,7 +1363,7 @@
         "count_grid_paths"
       ],
       "caps": [
-        "PATH_MAX"
+        "GRID_PATH_CAP"
       ],
       "value_type": false
     }
@@ -1744,7 +1744,7 @@
     },
     {
       "field": "path",
-      "macro": "PATH_MAX",
+      "macro": "GRID_PATH_CAP",
       "label": "路径计数网格行/列容量",
       "default": 105,
       "low": 1,

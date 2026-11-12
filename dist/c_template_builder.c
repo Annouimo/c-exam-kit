@@ -113,7 +113,7 @@ static const char *pieces[]={
 "int lower_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
 "int answer_ok(long long x) {\n    /* TODO: 改成从假到真的单调条件；此处仅为示例 */\n    return x >= 10;\n}\nlong long first_true(long long left, long long right) {\n    /* 要求闭区间内至少一个真值，left<=right；right-left不溢出 */\n    while (left < right) {\n        long long mid = left + (right-left)/2;\n        if (answer_ok(mid)) right = mid;\n        else left = mid+1;\n    }\n    return left;\n}\n",
 "#define STACK_CAP 10005\ntypedef struct { char data[STACK_CAP]; int size; } CharStack;\nvoid stack_init(CharStack *s) { s->size=0; }\nint stack_empty(CharStack *s) { return s->size==0; }\nvoid stack_push(CharStack *s, char value) { s->data[s->size++]=value; }\nchar stack_top(CharStack *s) { return s->data[s->size-1]; }\nvoid stack_pop(CharStack *s) { s->size--; }\nint brackets_match(char text[]) {\n    static CharStack s;\n    stack_init(&s);\n    for(int i=0; text[i]; i++) {\n        char ch=text[i];\n        if(ch=='(' || ch=='[' || ch=='{') stack_push(&s,ch);\n        else if(ch==')' || ch==']' || ch=='}') {\n            if(stack_empty(&s)) return 0;\n            char t=stack_top(&s);\n            if(!((t=='('&&ch==')')||(t=='['&&ch==']')||(t=='{'&&ch=='}'))) return 0;\n            stack_pop(&s);\n        }\n    }\n    return stack_empty(&s);\n}\n",
-"#define PATH_MAX 105\nint blocked[PATH_MAX][PATH_MAX];\nlong long path_dp[PATH_MAX][PATH_MAX];\nlong long count_grid_paths(int rows, int cols) {\n    memset(path_dp,0,sizeof path_dp);\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {\n        if(blocked[r][c]) continue;\n        if(r==0 && c==0) path_dp[r][c]=1;\n        else {\n            if(r) path_dp[r][c]+=path_dp[r-1][c];\n            if(c) path_dp[r][c]+=path_dp[r][c-1];\n        }\n    }\n    return path_dp[rows-1][cols-1];\n}\n",
+"#define GRID_PATH_CAP 105\nint blocked[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long path_dp[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long count_grid_paths(int rows, int cols) {\n    memset(path_dp,0,sizeof path_dp);\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {\n        if(blocked[r][c]) continue;\n        if(r==0 && c==0) path_dp[r][c]=1;\n        else {\n            if(r) path_dp[r][c]+=path_dp[r-1][c];\n            if(c) path_dp[r][c]+=path_dp[r][c-1];\n        }\n    }\n    return path_dp[rows-1][cols-1];\n}\n",
 "typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(int a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
 "#define WORD_CAP 105\ntypedef struct { char text[WORD_CAP]; int original; } Word;\nint cmp_word(const void *p, const void *q) {\n    const Word *a=(const Word *)p,*b=(const Word *)q;\n    size_t x=strlen(a->text),y=strlen(b->text);\n    if(x!=y) return x<y?-1:1;\n    int cmp=strcmp(a->text,b->text);\n    if(cmp) return cmp;\n    return (a->original>b->original)-(a->original<b->original);\n}\n",
 "#define MATRIX_MAX 105\nvoid matrix_multiply(long long a[][MATRIX_MAX], long long b[][MATRIX_MAX],\n                     long long result[][MATRIX_MAX], int n, int m, int p) {\n    for(int i=0;i<n;i++) for(int j=0;j<p;j++) {\n        result[i][j]=0;\n        for(int k=0;k<m;k++) result[i][j]+=a[i][k]*b[k][j];\n    }\n}\n",
@@ -567,7 +567,7 @@ static const Component components[]={
 {"缓存递归计算结果（斐波那契示例）","缓存递归计算结果","把算过的结果存下来，后续直接使用；示例为F(0)=0、F(1)=1，n为0..92；换题需改初值和递推关系。","","init_memo：首次或状态含义改变时调用，再使用fib_memo。\nfib_memo：F(0)=0,F(1)=1；n为0..92；换题须改状态与转移。",7,0,{48,49,50,51,-1}},
 {"后进先出栈与括号匹配","后进先出栈/括号匹配","最后放进去的字符最先取出；栈容量要够，取顶/弹出前不能是空栈；括号检查忽略其他字符。","STACK_CAP","stack_init(&s); stack_push(&s,ch); stack_top(&s); stack_pop(&s)。brackets_match(text)返回1/0，内部每次重置栈且不按值复制大对象。",7,0,{88,-1}},
 {"判断网格可达性、统计连通区域（DFS）","网格可达/区域大小","0表示不能走，1表示能走；四方向移动，每格只访问一次；可查可达性或区域大小，不求最短路。","GRID_MAX","dfs_grid：先填rows/cols、0/1网格并清visited；返回本次新访问格数，访问标记不撤销；不是最短路。",7,0,{74,75,76,77,78,-1}},
-{"统计网格中只向右、向下走的路径数","向右向下路径计数","只允许向右或向下；0下标，先设置障碍，每次自动清路径计数；结果不超过long long。","PATH_MAX","memset(blocked,0,sizeof blocked); 设置障碍后count_grid_paths(rows,cols)。每次清dp；起点或终点被阻挡返回0；改转移适配题意。",7,0,{89,-1}},
+{"统计网格中只向右、向下走的路径数","向右向下路径计数","只允许向右或向下；0下标，先设置障碍，每次自动清路径计数；结果不超过long long。","GRID_PATH_CAP","memset(blocked,0,sizeof blocked); 设置障碍后count_grid_paths(rows,cols)。每次清dp；起点或终点被阻挡返回0；改转移适配题意。",7,0,{89,-1}},
 };
 static const char *group_names[]={
 "整数、数位与二进制",
@@ -709,7 +709,7 @@ static const Setting settings[]={
 {"RMQ_MAX","区间最大值查询：数组最多有几个元素","RMQ_LOG",offsetof(Config,rmq),100000,1,2000000,0},
 {"FREQ_MAX","要计数的最大数值（只支持非负整数）","",offsetof(Config,freq),200000,1,2000000,0},
 {"STACK_CAP","栈最多需要存几个字符","",offsetof(Config,stack),10005,1,200000,0},
-{"PATH_MAX","路径计数网格行/列容量","",offsetof(Config,path),105,1,2000,0},
+{"GRID_PATH_CAP","路径计数网格行/列容量","",offsetof(Config,path),105,1,2000,0},
 {"WORD_CAP","单词最大字符数（不含终止符）","",offsetof(Config,word),105,1,10000,1},
 {"MATRIX_MAX","矩阵最大行数/列数","",offsetof(Config,matrix),105,1,1000,0},
 {"ARRAY_MAX","数组/记录最大元素数","",offsetof(Config,array),100010,1,2000000,0},
@@ -1054,7 +1054,7 @@ static void string_literal(const char *s,char out[1024]) {
     char *p=out;*p++='"';
     while(*s) {
         unsigned char ch=(unsigned char)*s++;
-        if(ch=='"'||ch=='\\') {*p++='\\';*p++=(char)ch;}
+        if(ch=='"'||ch=='\\'||ch=='?') {*p++='\\';*p++=(char)ch;}
         else if(ch<32||ch==127) {snprintf(p,5,"\\%03o",ch);p+=4;}
         else *p++=(char)ch;
     }

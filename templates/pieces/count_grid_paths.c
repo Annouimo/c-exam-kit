@@ -1,6 +1,6 @@
-#define PATH_MAX 105
-int blocked[PATH_MAX][PATH_MAX];
-long long path_dp[PATH_MAX][PATH_MAX];
+#define GRID_PATH_CAP 105
+int blocked[GRID_PATH_CAP][GRID_PATH_CAP];
+long long path_dp[GRID_PATH_CAP][GRID_PATH_CAP];
 long long count_grid_paths(int rows, int cols) {
     memset(path_dp,0,sizeof path_dp);
     for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {

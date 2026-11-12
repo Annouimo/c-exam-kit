@@ -344,7 +344,7 @@ static void string_literal(const char *s,char out[1024]) {
     char *p=out;*p++='"';
     while(*s) {
         unsigned char ch=(unsigned char)*s++;
-        if(ch=='"'||ch=='\\') {*p++='\\';*p++=(char)ch;}
+        if(ch=='"'||ch=='\\'||ch=='?') {*p++='\\';*p++=(char)ch;}
         else if(ch<32||ch==127) {snprintf(p,5,"\\%03o",ch);p+=4;}
         else *p++=(char)ch;
     }

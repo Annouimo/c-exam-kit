@@ -124,7 +124,7 @@ assert(round_decimal(-2.5,0)==-3);
         exe=self.d/'boundaries.exe';compile_c(path,exe);run([exe])
 
     def test_separator_escaping_and_empty_arrays(self):
-        separators=[' ', '+', ', ', '', '"%\\', ' → ', '\t']
+        separators=[' ', '+', ', ', '', '??/', '"%\\', ' → ', '\t']
         for index,separator in enumerate(separators):
             # Feed separator as bytes through stdin so the harness itself needs no escaping logic.
             exe=self.harness('''int main(void) {
