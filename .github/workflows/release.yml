@@ -90,9 +90,31 @@ jobs:
         run: |
           version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['version'])")"
           if gh release view "v$version" >/dev/null 2>&1; then
-            echo "Release v$version already exists; bump version to publish a new one."
-            exit 0
+            if [ "$(gh release view "v$version" --json isDraft --jq .isDraft)" = false ]; then
+              echo "Published release v$version already exists; bump version to publish another."
+              exit 0
+            fi
+          else
+            gh release create "v$version" --draft --target "$GITHUB_SHA" --title "C语言考试工具包 · 脚手架 v$version" --notes-file CHANGELOG.md
           fi
           mkdir assets
           find artifacts -type f -exec cp {} assets/ \;
-          gh release create "v$version" assets/* --target "$GITHUB_SHA" --title "C语言考试工具包 · 脚手架 v$version" --notes-file CHANGELOG.md
+          handbook_version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['handbook_version'])")"
+          mv "assets/C语言考试手册-v$handbook_version.md" "assets/c-exam-handbook-v$handbook_version.md"
+          mv assets/脚手架附录.md "assets/scaffold-appendix-v$version.md"
+          mv assets/全量脚手架手册.md "assets/scaffold-manual-v$version.md"
+          for file in assets/*; do
+            uploaded=false
+            for attempt in 1 2 3; do
+              if gh release upload "v$version" "$file" --clobber; then
+                uploaded=true
+                break
+              fi
+              sleep 2
+            done
+            if [ "$uploaded" != true ]; then
+              echo "Failed to upload $file; leaving release as a draft."
+              exit 1
+            fi
+          done
+          gh release edit "v$version" --draft=false
