@@ -37,11 +37,9 @@ jobs:
           python3 tools/build.py --check
           python3 tests/test_project.py
           mkdir -p build
-          cc -std=c99 -O2 -Wall -Wextra -Werror dist/c_template_builder.c -o build/c_template_builder
-          cp dist/build_macos.sh build/build_macos.sh
-          cp dist/c_template_builder.c build/c_template_builder.c
-          cd build
-          tar -czf "c-exam-kit-${RUNNER_OS}-$(uname -m).tar.gz" c_template_builder c_template_builder.c build_macos.sh
+          source="$(python3 tools/build.py --source-name)"
+          cc -std=c99 -O2 -Wall -Wextra -Werror "dist/$source" -o build/c_scaffold
+          ./build/c_scaffold --version
       - name: Check and test (Windows)
         if: runner.os == 'Windows'
         shell: msys2 {0}
@@ -51,30 +49,69 @@ jobs:
           python3 tools/build.py --check
           python3 tests/test_project.py
           mkdir -p build
-          gcc -std=c99 -O2 -Wall -Wextra -Werror -finput-charset=UTF-8 -fexec-charset=UTF-8 dist/c_template_builder.c -o build/c_template_builder.exe -luser32
-          cp dist/build_windows.bat build/build_windows.bat
-          cp dist/c_template_builder.c build/c_template_builder.c
-          python3 -c "import zipfile; z=zipfile.ZipFile('build/c-exam-kit-Windows-x86_64.zip','w',zipfile.ZIP_DEFLATED); [z.write('build/'+p,p) for p in ['c_template_builder.exe','c_template_builder.c','build_windows.bat']]; z.close()"
-      - name: Package source and documents
-        if: runner.os == 'Linux'
+          source="$(python3 tools/build.py --source-name)"
+          gcc -std=c99 -O2 -Wall -Wextra -Werror "dist/$source" -o build/c_scaffold.exe -luser32
+          ./build/c_scaffold.exe --version
+
+  gcc9:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile ASCII source with GCC 9 and legacy character sets
+        shell: bash
         run: |
+          source="$(python3 tools/build.py --source-name)"
+          mkdir -p build
+          docker run --rm -v "$PWD:/project" -w /project -e SCAFFOLD_SOURCE="$source" gcc:9 bash -c '
+            set -eu
+            for charset in UTF-8 GBK; do
+              gcc -std=c99 -Wall -Wextra -Werror -finput-charset="$charset" -fexec-charset="$charset" "dist/$SCAFFOLD_SOURCE" -o /tmp/c_scaffold
+              /tmp/c_scaffold --version > "build/gcc9-$charset.txt"
+            done
+            cmp build/gcc9-UTF-8.txt build/gcc9-GBK.txt
+          '
+          python3 -c "from pathlib import Path; assert 'C语言脚手架' in Path('build/gcc9-GBK.txt').read_text(encoding='utf-8')"
+
+  documents:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PDF tools and Chinese fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc fonts-noto-cjk fonts-dejavu-core poppler-utils
+          python3 -m pip install -r tools/pdf-requirements.txt
+      - name: Build source package and PDF
+        shell: bash
+        run: |
+          python3 tools/build.py --check
+          python3 tools/build_pdf.py
           python3 tools/build.py --package
-          cp release/*.zip build/
-          handbook_version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['handbook_version'])")"
-          cp docs/C语言考试手册.md "build/C语言考试手册-v$handbook_version.md"
-          cp docs/脚手架附录.md build/脚手架附录.md
-          cp docs/全量脚手架手册.md build/全量脚手架手册.md
+          mkdir assets
+          version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['version'])")"
+          handbook="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['handbook_version'])")"
+          source="$(python3 tools/build.py --source-name)"
+          cp "dist/$source" assets/
+          cp release/*.zip assets/
+          cp release/*.pdf assets/
+          cp docs/C语言考试手册.md "assets/c-exam-handbook-v$handbook.md"
+          cp docs/脚手架附录.md "assets/scaffold-appendix-v$version.md"
+          cp docs/全量脚手架手册.md "assets/scaffold-manual-v$version.md"
+          pdftotext "release/c-exam-handbook-v$handbook.pdf" build-pdf-text.txt
+          grep -q '脚手架' build-pdf-text.txt
+          grep -q '四舍五入' build-pdf-text.txt
+          grep -q '指定字符' build-pdf-text.txt
+          test -z "$(find assets -type f \( -name '*.exe' -o -name '*.tar.gz' \))"
       - uses: actions/upload-artifact@v4
         with:
-          name: package-${{ runner.os }}
-          path: |
-            build/*.tar.gz
-            build/*.zip
-            build/*.md
-            build/c_template_builder.c
+          name: source-and-documents
+          path: assets/*
 
   release:
-    needs: build
+    needs: [build, gcc9, documents]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -82,6 +119,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
+          name: source-and-documents
           path: artifacts
       - name: Publish versioned release
         env:
@@ -99,10 +137,6 @@ jobs:
           fi
           mkdir assets
           find artifacts -type f -exec cp {} assets/ \;
-          handbook_version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['handbook_version'])")"
-          mv "assets/C语言考试手册-v$handbook_version.md" "assets/c-exam-handbook-v$handbook_version.md"
-          mv assets/脚手架附录.md "assets/scaffold-appendix-v$version.md"
-          mv assets/全量脚手架手册.md "assets/scaffold-manual-v$version.md"
           for file in assets/*; do
             uploaded=false
             for attempt in 1 2 3; do

@@ -16,6 +16,7 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('builder',ROOT/'tools/build.py')
 builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
 DATA=builder.load_catalog()
+SOURCE=ROOT/'dist'/builder.source_filename(DATA)
 CC=os.environ.get('CC') or shutil.which('cc') or shutil.which('gcc')
 if not CC:raise SystemExit('A C99 compiler is required; set CC or install GCC/Clang.')
 PLATFORM_LIBS=['-luser32'] if os.name=='nt' else []
@@ -39,8 +40,8 @@ class ProjectTests(unittest.TestCase):
     def setUpClass(cls):
         cls.temp=tempfile.TemporaryDirectory(prefix='c-exam-test-');cls.d=Path(cls.temp.name)
         cls.exe=cls.d/'builder.exe'
-        compile_c(ROOT/'dist/c_template_builder.c',cls.exe)
-        cls.prefix='#define main builder_main\n#include '+json.dumps((ROOT/'dist/c_template_builder.c').as_posix())+'\n#undef main\n'
+        compile_c(SOURCE,cls.exe)
+        cls.prefix='#define main builder_main\n#include '+json.dumps((SOURCE).as_posix())+'\n#undef main\n'
 
     @classmethod
     def tearDownClass(cls):cls.temp.cleanup()
@@ -60,6 +61,78 @@ class ProjectTests(unittest.TestCase):
         self.assertEqual(len(re.findall(r'^- \d+\. ',appendix,re.M)),len(DATA['components']))
         self.assertIn('https://github.com/Annouimo/c-exam-kit/releases',before.decode())
         self.assertIn(DATA['version'],run([self.exe,'--version']))
+
+    def test_ascii_distribution_and_legacy_compiler_charsets(self):
+        raw=SOURCE.read_bytes();raw.decode('ascii')
+        self.assertIn('COMPILE AND RUN THIS PROGRAM FIRST',raw[:2000].decode())
+        self.assertEqual(SOURCE.name,f'c_scaffold_v{DATA["version"]}.c')
+        self.assertFalse((ROOT/'dist/c_template_builder.c').exists())
+        expected=run([self.exe,'--version'])
+        exe=self.d/'legacy_charset.exe'
+        run([CC,'-std=c99','-Wall','-Wextra','-Werror','-finput-charset=GBK','-fexec-charset=GBK',SOURCE,'-o',exe]+PLATFORM_LIBS)
+        self.assertEqual(run([exe,'--version']),expected)
+        # Octal byte escapes must not swallow a following ASCII hex/digit character.
+        text='const char *s="中A9文"; /* 中文说明 */\n'
+        encoded=builder.ascii_c(text);encoded.encode('ascii')
+        self.assertIn(r'\344\270\255A9',encoded)
+
+    @unittest.skipUnless(os.name=='nt','Windows redirected legacy-IDE encoding')
+    def test_windows_gbk_stdio_and_utf8_saved_source(self):
+        out=self.d/'中文脚手架.c'
+        data=f'2\n0\n\n2\n{out}\n'.encode('gbk')
+        p=subprocess.run([str(self.exe),'--plain','--stdio-encoding=gbk'],input=data,capture_output=True,timeout=15)
+        self.assertEqual(p.returncode,0,p.stderr)
+        text=p.stdout.decode('gbk')
+        self.assertIn('代码已保存',text)
+        self.assertIn('设计者',out.read_text(encoding='utf-8'))
+        # A UTF-8 character split across fputc calls still becomes one GBK character.
+        exe=self.harness('''int main(void) {
+    io_stdio_encoding("gbk");
+    const unsigned char s[]={0xe4,0xb8,0xad,0xe6,0x96,0x87,'A',0};
+    for(int i=0;s[i];i++)fputc(s[i],stdout);
+    return 0;
+}
+''','bytewise_gbk')
+        p=subprocess.run([str(exe)],capture_output=True)
+        self.assertEqual(p.stdout.decode('gbk'),'中文A')
+
+    @unittest.skipUnless(os.name=='nt','Native Windows Unicode console')
+    def test_windows_unicode_console_ignores_legacy_codepage(self):
+        exe=self.harness('''int main(void) {
+    FreeConsole();
+    if(!AllocConsole())return 77;
+    SetConsoleCP(437);SetConsoleOutputCP(437);
+    HANDLE output=GetStdHandle(STD_OUTPUT_HANDLE),input=GetStdHandle(STD_INPUT_HANDLE);
+    COORD origin={0,0};SetConsoleCursorPosition(output,origin);
+    const unsigned char s[]={0xe4,0xb8,0xad,0xe6,0x96,0x87,'A',0};
+    for(int i=0;s[i];i++)if(fputc(s[i],stdout)==EOF)return 1;
+    CHAR_INFO cells[16];COORD size={16,1},zero={0,0};SMALL_RECT rect={0,0,15,0};
+    if(!ReadConsoleOutputW(output,cells,size,zero,&rect))return 2;
+    int first=0,second=0,ascii=0;
+    for(int i=0;i<16;i++) {
+        if(cells[i].Char.UnicodeChar==0x4e2d)first=1;
+        if(cells[i].Char.UnicodeChar==0x6587)second=1;
+        if(cells[i].Char.UnicodeChar=='A')ascii=1;
+    }
+    if(!first||!second||!ascii)return 3;
+    DWORD mode;GetConsoleMode(input,&mode);SetConsoleMode(input,(mode|ENABLE_LINE_INPUT)&~ENABLE_ECHO_INPUT);
+    wchar_t line[]={0x4e2d,0x6587,L'\\r'};
+    INPUT_RECORD events[3];memset(events,0,sizeof events);
+    for(int i=0;i<3;i++) {
+        events[i].EventType=KEY_EVENT;events[i].Event.KeyEvent.bKeyDown=TRUE;
+        events[i].Event.KeyEvent.wRepeatCount=1;
+        events[i].Event.KeyEvent.uChar.UnicodeChar=line[i];
+        if(i==2)events[i].Event.KeyEvent.wVirtualKeyCode=VK_RETURN;
+    }
+    DWORD written;if(!WriteConsoleInputW(input,events,3,&written)||written!=3)return 4;
+    char text[32];if(io_read_line(text,sizeof text)!=1)return 5;
+    if(strcmp(text,"\\344\\270\\255\\346\\226\\207"))return 6;
+    FreeConsole();return 0;
+}
+''','native_console')
+        p=subprocess.run([str(exe)],capture_output=True,timeout=15)
+        if p.returncode==77:self.skipTest('Runner cannot allocate a native console')
+        self.assertEqual(p.returncode,0,p.stderr)
 
     def test_all_components_and_skeletons_compile(self):
         folder=self.d/'generated';folder.mkdir()
@@ -198,7 +271,7 @@ int main(void) {
 }
 ''',encoding='utf-8')
         backend=self.d/'clipboard_backend';compile_c(p,backend)
-        source=(ROOT/'dist/c_template_builder.c').read_text(encoding='utf-8').replace('"/usr/bin/pbcopy"',json.dumps(backend.as_posix()))
+        source=(SOURCE).read_text(encoding='utf-8').replace('"/usr/bin/pbcopy"',json.dumps(backend.as_posix()))
         p=self.d/'mock_mac_builder.c';p.write_text(source,encoding='utf-8')
         exe=self.d/'mock_mac_builder';run([CC,'-std=c99','-Wall','-Wextra','-Werror','-D__APPLE__',p,'-o',exe])
         env=os.environ.copy();env['MOCK_CLIPBOARD']=str(self.d/'copied.c')

@@ -2,7 +2,7 @@
 标题: C 语言考试手册
 副标题:
 发表日期: 2026-11-10
-更新日期: 2026-11-12
+更新日期: 2026-11-13
 slug: c-language-exam-guide
 ---
 > Author：Annouimo
@@ -13,10 +13,13 @@ slug: c-language-exam-guide
 
 ## 脚手架介绍
 
-> 手册版本：v1.4 · 配套脚手架：v0.4.0  
+> 手册版本：v1.5 · 配套脚手架：v0.5.0
+>
 > 开源仓库：[Annouimo/c-exam-kit](https://github.com/Annouimo/c-exam-kit) · [版本下载与更新](https://github.com/Annouimo/c-exam-kit/releases)
 
-**下载建议：优先在上述 Release 页面选择与你的操作系统和CPU架构对应的编译成品，解压后运行。若成品无法运行或有兼容问题，可下载单文件源代码 `c_template_builder.c` 自行编译；编译方法见仓库 README。**
+**下载与使用：阅读资料优先下载 PDF 手册；使用生成器请下载 `c_scaffold_v0.5.0.c`，先编译运行，再按菜单选择组件。这个文件是生成程序，不是用来直接搜索函数的传统模板集合；直接搜索复制代码请看《全量脚手架手册》。新版 Release 不再附编译好的二进制。**
+
+源文件采用纯 ASCII 兼容形式，运行后显示中文。Windows 独立控制台自动使用 Unicode；旧 IDE 内置窗口若仍乱码，可在程序运行参数中加入 `--plain --stdio-encoding=gbk`，或在独立控制台运行。生成的代码、文件和剪贴板内容保持 UTF-8。
 
 **C 语言脚手架**是一款离线代码装配工具：按题目选择输入输出方式和所需函数，生成方便修改的 C 代码框架。
 
@@ -71,6 +74,7 @@ slug: c-language-exam-guide
 ## 数学库：math.h
 
 `<math.h>` 提供数学函数原型和数学常量。下表只列 `double` 版本，便于复习和查表；其他浮点类型版本不展开。
+
 ### math.h 常用函数
 
 | 函数      | math.h 中的 double 原型                       | 简短描述    | 详细描述                         |
@@ -83,6 +87,7 @@ slug: c-language-exam-guide
 | `ceil`  | `double ceil(double x);`                  | 向上取整    | 返回大于或等于 x 的最小整数值。            |
 | `floor` | `double floor(double x);`                 | 向下取整    | 返回小于或等于 x 的最大整数值。            |
 | `fabs`  | `double fabs(double x);`                  | 绝对值     | 返回 x 的绝对值。整数绝对值在 `stdlib.h`。 |
+
 ## 输入输出：stdio.h
 
 ### stdio.h 库变量/宏
@@ -223,7 +228,7 @@ void demo_qsort_bsearch(void) {
 
 ## 脚手架目录与使用
 
-配套脚手架版本：v0.4.0。
+配套脚手架版本：v0.5.0。
 
 先选输入输出骨架，再选函数组件与可选main片段、配置类型和容量。默认复制纯源码到剪贴板，控制台显示本次所选功能的说明；输入 `c` 查看源码、`s` 另存文件，回车退出。复制失败可改为保存文件。按 `TODO` 补齐题目逻辑，函数需要自己调用；仅函数模式适合接入已有程序。
 

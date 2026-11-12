@@ -1,10 +1,20 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
-gcc -std=c99 -O2 -Wall -Wextra -finput-charset=UTF-8 -fexec-charset=UTF-8 c_template_builder.c -o c_template_builder.exe -luser32
+set "scaffold_source="
+set /a scaffold_count=0
+for %%F in (c_scaffold_v*.c) do (
+  set "scaffold_source=%%F"
+  set /a scaffold_count+=1 >nul
+)
+if not "%scaffold_count%"=="1" (
+  echo Expected exactly one versioned c_scaffold_v*.c file.
+  pause
+  exit /b 1
+)
+gcc -std=c99 -O2 -Wall -Wextra "%scaffold_source%" -o c_scaffold.exe -luser32
 if errorlevel 1 (
-  echo 编译失败，请检查 GCC / MinGW 是否安装并加入 PATH。
+  echo Compilation failed. Check GCC / MinGW and PATH.
 ) else (
-  echo 编译完成，运行 c_template_builder.exe。
+  echo Compiled. Run c_scaffold.exe.
 )
 pause

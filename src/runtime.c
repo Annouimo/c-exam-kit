@@ -1,3 +1,7 @@
+/* C语言脚手架生成器：请先编译运行，再按菜单选择组件。
+ * C Scaffold Generator: compile and run this program before selecting components.
+ * 分发版由构建脚本生成ASCII单文件；中文开发源码保留在src/与templates/。
+ */
 #define COUNT ((int)(sizeof components/sizeof components[0]))
 #define PIECES ((int)(sizeof pieces/sizeof pieces[0]))
 #define GROUPS ((int)(sizeof group_names/sizeof group_names[0]))
@@ -35,17 +39,9 @@ static Config defaults(void) {
     return c;
 }
 static int read_line(char *s, size_t cap) {
-    if (!fgets(s,(int)cap,stdin)) return 0;
-    size_t n=strlen(s);
-    if(n && s[n-1]=='\n') s[--n]=0;
-    else if(!feof(stdin)) {
-        int ch;
-        while((ch=getchar())!='\n' && ch!=EOF) {}
-        emphasis(stdout,"输入过长","请缩短后重新输入。",1);
-        return -1;
-    }
-    if(n && s[n-1]=='\r') s[n-1]=0;
-    return 1;
+    int result=io_read_line(s,cap);
+    if(result<0)emphasis(stdout,"输入无效","内容过长或编码无效，请检查后重新输入。",1);
+    return result;
 }
 static int ask(const char *label, int def, int low, int high) {
     char s[128],*end;
@@ -63,13 +59,10 @@ static int ask(const char *label, int def, int low, int high) {
 }
 static void terminal_init(int plain) {
 #ifdef _WIN32
-    interactive=_isatty(_fileno(stdin)) && _isatty(_fileno(stdout));
-    if(interactive) {
-        SetConsoleCP(CP_UTF8); SetConsoleOutputCP(CP_UTF8);
-        if(!plain) {
-            DWORD mode; HANDLE h=GetStdHandle(STD_OUTPUT_HANDLE);
-            clear_enabled=GetConsoleMode(h,&mode) && SetConsoleMode(h,mode|0x0004);
-        }
+    interactive=io_console(STD_INPUT_HANDLE)&&io_console(STD_OUTPUT_HANDLE);
+    if(interactive && !plain) {
+        DWORD mode; HANDLE h=GetStdHandle(STD_OUTPUT_HANDLE);
+        clear_enabled=GetConsoleMode(h,&mode) && SetConsoleMode(h,mode|0x0004);
     }
 #else
     interactive=isatty(0)&&isatty(1);
@@ -109,6 +102,7 @@ static int display_width(const char *s) {
 static void screen(int step,const char *title) {
     if(clear_enabled) fputs("\033[2J\033[H",stdout);
     printf("C语言脚手架 v%s | 设计者：%s\n",APP_VERSION,APP_DESIGNER);
+    puts("选择组件生成代码，粘贴到编辑器后按题意修改。");
     printf("[");
     for(int i=1;i<=4;i++) fputs(i<=step?"##":"--",stdout);
     printf("] %d/4 %s\n",step,title);
@@ -613,7 +607,7 @@ static void handbook(FILE *f) {
 static void after_output(const char *source,size_t length,const Config *c,int delivered) {
     explain(stdout,c);
     if(!delivered)emphasis(stdout,"代码尚未取出","本次没有成功复制或保存。请用s保存文件，或用c显示后手动复制。",1);
-    if(!interactive||feof(stdin))return;
+    if(!interactive||io_input_ended||feof(stdin))return;
     char s[64];
     for(;;) {
         emphasis(stdout,"可选操作","直接回车退出；输入c查看源码；输入s另存为文件。",0);
@@ -627,21 +621,33 @@ static void after_output(const char *source,size_t length,const Config *c,int de
     }
 }
 static void pause_exit(void) {
-    if(!interactive||feof(stdin))return;
+    if(!interactive||io_input_ended||feof(stdin))return;
     char s[8];emphasis(stdout,"操作","按回车退出。",0);fflush(stdout);
     while(read_line(s,sizeof s)<0) {}
 }
 int main(int argc,char **argv) {
-    if(argc==2&&!strcmp(argv[1],"--version")) {
+    int plain=0,version=0;const char *manual=NULL;
+    for(int i=1;i<argc;i++) {
+        if(!strcmp(argv[i],"--plain"))plain=1;
+        else if(!strcmp(argv[i],"--version"))version=1;
+        else if(!strcmp(argv[i],"--manual")&&i+1<argc)manual=argv[++i];
+        else if(!strncmp(argv[i],"--stdio-encoding=",17)) {
+            if(!io_stdio_encoding(argv[i]+17)) {
+                fputs("Unsupported encoding. Use utf8, or gbk on Windows.\n",stderr);return 1;
+            }
+        } else {
+            fputs("Usage: c_scaffold [--plain] [--stdio-encoding=utf8|gbk] [--version | --manual PATH]\n",stderr);return 1;
+        }
+    }
+    if(version&&manual) {fputs("Choose --version or --manual, not both.\n",stderr);return 1;}
+    terminal_init(plain);
+    if(version) {
         printf("C语言脚手架 v%s | 设计者：%s\n",APP_VERSION,APP_DESIGNER);return 0;
     }
-    if(argc==3&&!strcmp(argv[1],"--manual")) {
-        FILE *probe=open_file(argv[2],"rb");if(probe){fclose(probe);emphasis(stderr,"未保存","文件已存在，请换路径。",1);return 1;}
-        FILE *f=open_file(argv[2],"wb");if(!f){perror(argv[2]);return 1;}handbook(f);return close_output(f);
+    if(manual) {
+        FILE *probe=open_file(manual,"rb");if(probe){fclose(probe);emphasis(stderr,"未保存","文件已存在，请换路径。",1);return 1;}
+        FILE *f=open_file(manual,"wb");if(!f){perror(manual);return 1;}handbook(f);return close_output(f);
     }
-    int plain=argc==2&&!strcmp(argv[1],"--plain");
-    if(argc>1&&!plain){fputs("用法：程序 [--plain] 或 程序 --manual 路径 或 程序 --version\n",stderr);return 1;}
-    terminal_init(plain);
     Config c=defaults();int stage=1;
     while(1) {
         if(stage==1) {
