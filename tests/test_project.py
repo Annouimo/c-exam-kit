@@ -69,8 +69,10 @@ class ProjectTests(unittest.TestCase):
         self.assertFalse((ROOT/'dist/c_template_builder.c').exists())
         expected=run([self.exe,'--version'])
         exe=self.d/'legacy_charset.exe'
-        run([CC,'-std=c99','-Wall','-Wextra','-Werror','-finput-charset=GBK','-fexec-charset=GBK',SOURCE,'-o',exe]+PLATFORM_LIBS)
-        self.assertEqual(run([exe,'--version']),expected)
+        if 'clang' not in run([CC,'--version']).lower():
+            # GBK compiler flags belong to GCC; Clang accepts only UTF-8 here.
+            run([CC,'-std=c99','-Wall','-Wextra','-Werror','-finput-charset=GBK','-fexec-charset=GBK',SOURCE,'-o',exe]+PLATFORM_LIBS)
+            self.assertEqual(run([exe,'--version']),expected)
         # Octal byte escapes must not swallow a following ASCII hex/digit character.
         text='const char *s="中A9文"; /* 中文说明 */\n'
         encoded=builder.ascii_c(text);encoded.encode('ascii')
@@ -102,7 +104,12 @@ class ProjectTests(unittest.TestCase):
     FreeConsole();
     if(!AllocConsole())return 77;
     SetConsoleCP(437);SetConsoleOutputCP(437);
-    HANDLE output=GetStdHandle(STD_OUTPUT_HANDLE),input=GetStdHandle(STD_INPUT_HANDLE);
+    /* AllocConsole preserves inherited pipe handles under STARTF_USESTDHANDLES.
+     * Open the actual console devices explicitly for this native-console test. */
+    HANDLE output=CreateFileW(L"CONOUT$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+    HANDLE input=CreateFileW(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
+    if(output==INVALID_HANDLE_VALUE||input==INVALID_HANDLE_VALUE)return 78;
+    SetStdHandle(STD_OUTPUT_HANDLE,output);SetStdHandle(STD_INPUT_HANDLE,input);
     COORD origin={0,0};SetConsoleCursorPosition(output,origin);
     const unsigned char s[]={0xe4,0xb8,0xad,0xe6,0x96,0x87,'A',0};
     for(int i=0;s[i];i++)if(fputc(s[i],stdout)==EOF)return 1;
@@ -131,7 +138,7 @@ class ProjectTests(unittest.TestCase):
 }
 ''','native_console')
         p=subprocess.run([str(exe)],capture_output=True,timeout=15)
-        if p.returncode==77:self.skipTest('Runner cannot allocate a native console')
+        if p.returncode in [77,78]:self.skipTest('Runner cannot allocate/open a native console')
         self.assertEqual(p.returncode,0,p.stderr)
 
     def test_all_components_and_skeletons_compile(self):
