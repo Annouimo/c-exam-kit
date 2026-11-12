@@ -1,0 +1,98 @@
+name: Check, build and release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-python
+      - name: Check and test (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          python3 tools/build.py --check
+          python3 tests/test_project.py
+          mkdir -p build
+          cc -std=c99 -O2 -Wall -Wextra -Werror dist/c_template_builder.c -o build/c_template_builder
+          cp dist/build_macos.sh build/build_macos.sh
+          cp dist/c_template_builder.c build/c_template_builder.c
+          cd build
+          tar -czf "c-exam-kit-${RUNNER_OS}-$(uname -m).tar.gz" c_template_builder c_template_builder.c build_macos.sh
+      - name: Check and test (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        env:
+          CC: gcc
+        run: |
+          python3 tools/build.py --check
+          python3 tests/test_project.py
+          mkdir -p build
+          gcc -std=c99 -O2 -Wall -Wextra -Werror -finput-charset=UTF-8 -fexec-charset=UTF-8 dist/c_template_builder.c -o build/c_template_builder.exe -luser32
+          cp dist/build_windows.bat build/build_windows.bat
+          cp dist/c_template_builder.c build/c_template_builder.c
+          python3 -c "import zipfile; z=zipfile.ZipFile('build/c-exam-kit-Windows-x86_64.zip','w',zipfile.ZIP_DEFLATED); [z.write('build/'+p,p) for p in ['c_template_builder.exe','c_template_builder.c','build_windows.bat']]; z.close()"
+      - name: Package source and documents
+        if: runner.os == 'Linux'
+        run: |
+          python3 tools/build.py --package
+          cp release/*.zip build/
+          handbook_version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['handbook_version'])")"
+          cp docs/C语言考试手册.md "build/C语言考试手册-v$handbook_version.md"
+          cp docs/脚手架附录.md build/脚手架附录.md
+          cp docs/全量脚手架手册.md build/全量脚手架手册.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ runner.os }}
+          path: |
+            build/*.tar.gz
+            build/*.zip
+            build/*.md
+            build/c_template_builder.c
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Publish versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['version'])")"
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo "Release v$version already exists; bump version to publish a new one."
+            exit 0
+          fi
+          mkdir assets
+          find artifacts -type f -exec cp {} assets/ \;
+          gh release create "v$version" assets/* --target "$GITHUB_SHA" --title "C语言考试工具包 · 脚手架 v$version" --notes-file CHANGELOG.md
