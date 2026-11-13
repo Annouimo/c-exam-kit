@@ -1,5 +1,5 @@
 {
-  "version": "0.5.0",
+  "version": "0.6.0",
   "designer": "Annouimo",
   "groups": [
     "整数与数位",
@@ -1818,7 +1818,7 @@
       "log_macro": ""
     }
   ],
-  "handbook_version": "1.5",
+  "handbook_version": "1.6",
   "group_ids": [
     "integers",
     "bits",

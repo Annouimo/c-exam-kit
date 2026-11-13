@@ -4,6 +4,8 @@ on:
   push:
     branches: [main, 'feat/handbook-topic-templates']
   workflow_dispatch:
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
@@ -110,7 +112,7 @@ jobs:
           path: assets/*
 
   release:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [build, gcc9, documents]
     runs-on: ubuntu-latest
     permissions:
@@ -127,13 +129,14 @@ jobs:
         shell: bash
         run: |
           version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['version'])")"
+          python3 tools/release_notes.py > release-notes.md
           if gh release view "v$version" >/dev/null 2>&1; then
             if [ "$(gh release view "v$version" --json isDraft --jq .isDraft)" = false ]; then
               echo "Published release v$version already exists; bump version to publish another."
               exit 0
             fi
           else
-            gh release create "v$version" --draft --target "$GITHUB_SHA" --title "C语言考试工具包 · 脚手架 v$version" --notes-file CHANGELOG.md
+            gh release create "v$version" --draft --target "$GITHUB_SHA" --title "C语言考试工具包 · 脚手架 v$version" --notes-file release-notes.md
           fi
           mkdir assets
           find artifacts -type f -exec cp {} assets/ \;

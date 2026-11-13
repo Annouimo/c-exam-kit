@@ -344,44 +344,95 @@ static void string_literal(const char *s,char out[1024]) {
     }
     *p++='"';*p=0;
 }
-static void expand(FILE *f,const char *s,const Config *c,int indent) {
+/* Assemble generated source in memory; no temporary file or writable temp directory. */
+typedef struct {
+    char *text;
+    size_t length, capacity;
+    int failed;
+} CodeBuffer;
+static int buf_reserve(CodeBuffer *b,size_t additional) {
+    if(b->failed)return 0;
+    if(additional>(size_t)-1-b->length-1) {b->failed=1;return 0;}
+    size_t need=b->length+additional+1;
+    if(need<=b->capacity)return 1;
+    size_t cap=b->capacity?b->capacity:4096;
+    while(cap<need) {
+        if(cap>((size_t)-1)/2) {cap=need;break;}
+        cap*=2;
+    }
+    char *p=(char *)realloc(b->text,cap);
+    if(!p) {b->failed=1;return 0;}
+    b->text=p;b->capacity=cap;
+    return 1;
+}
+static void buf_write(CodeBuffer *b,const char *s,size_t n) {
+    if(!buf_reserve(b,n))return;
+    if(n)memcpy(b->text+b->length,s,n);
+    b->length+=n;
+    b->text[b->length]=0;
+}
+static void buf_puts(const char *s,CodeBuffer *b) {
+    buf_write(b,s,strlen(s));
+}
+static void buf_putc(int c,CodeBuffer *b) {
+    char ch=(char)c;
+    buf_write(b,&ch,1);
+}
+static void buf_printf(CodeBuffer *b,const char *fmt,...) {
+    if(b->failed)return;
+    va_list args,copy;
+    va_start(args,fmt);
+    va_copy(copy,args);
+    int size=vsnprintf(NULL,0,fmt,copy);
+    va_end(copy);
+    if(size<0 || !buf_reserve(b,(size_t)size)) {
+        b->failed=1;
+        va_end(args);
+        return;
+    }
+    vsnprintf(b->text+b->length,b->capacity-b->length,fmt,args);
+    b->length+=(size_t)size;
+    va_end(args);
+}
+
+static void expand(CodeBuffer *f,const char *s,const Config *c,int indent) {
     int start=1;
     char literal[1024];string_literal(c->separator,literal);
     const char *keys[]={"SEPARATOR_LITERAL","VALUE_SCAN","VALUE_PRINT","VALUE"};
     const char *values[]={literal,c->wide?"\"%lld\"":"\"%d\"",c->wide?"\"%lld\"":"\"%d\"",c->wide?"long long":"int"};
     while(*s) {
-        if(start && *s!='\n') {for(int i=0;i<indent;i++)fputc(' ',f);start=0;}
+        if(start && *s!='\n') {for(int i=0;i<indent;i++)buf_putc(' ',f);start=0;}
         int found=0;
         for(int i=0;i<4;i++) {
             size_t n=strlen(keys[i]);
             if(!strncmp(s,keys[i],n) && !(s[n]>='A'&&s[n]<='Z') && s[n]!='_') {
-                fputs(values[i],f);s+=n;found=1;break;
+                buf_puts(values[i],f);s+=n;found=1;break;
             }
         }
-        if(!found) {char ch=*s++;fputc(ch,f);if(ch=='\n')start=1;}
+        if(!found) {char ch=*s++;buf_putc(ch,f);if(ch=='\n')start=1;}
     }
 }
 
-static void emit_inputs(FILE *f,const Config *c,int indent) {
+static void emit_inputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0)
         expand(f,fragments[i].code,c,indent);
 }
-static void emit_outputs(FILE *f,const Config *c,int indent) {
+static void emit_outputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0)
         expand(f,fragments[i].code,c,indent);
 }
-static void emit_body(FILE *f,const Config *c,int indent) {
+static void emit_body(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0) {
-        expand(f,"/* 可选片段：",c,indent);fputs(fragments[i].name,f);fputs(" */\n",f);
+        expand(f,"/* 可选片段：",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
         expand(f,fragments[i].code,c,indent);
     }
     expand(f,"\n/* TODO: 按题目计算，按需调用上面的函数 */\n\n",c,indent);
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0) {
-        expand(f,"/* 可选片段：",c,indent);fputs(fragments[i].name,f);fputs(" */\n",f);
+        expand(f,"/* 可选片段：",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
         expand(f,fragments[i].code,c,indent);
     }
 }
-static void emit_main(FILE *f,const Config *c) {
+static void emit_main(CodeBuffer *f,const Config *c) {
     const char *p=io_codes[c->io];
     while(*p) {
         if(!strncmp(p,"@BODY@",6)) {emit_body(f,c,4);p+=6;}
@@ -396,52 +447,60 @@ static void emit_main(FILE *f,const Config *c) {
         }
     }
 }
-static void emit_piece(FILE *f,int id,const Config *c) {
+static void emit_piece(CodeBuffer *f,int id,const Config *c) {
     const char *s=c->wide&&wide_pieces[id]?wide_pieces[id]:pieces[id];
     while(*s) {
         const char *e=strchr(s,'\n');size_t n=e?(size_t)(e-s)+1:strlen(s);
-        if(strncmp(s,"#define ",8)) fwrite(s,1,n,f);
+        if(strncmp(s,"#define ",8)) buf_write(f,s,n);
         s+=n;
     }
 }
-static void emit(FILE *f,const Config *c) {
-    fprintf(f,"/* C语言脚手架 v%s | 设计者：%s | C99；按题目补齐TODO，组件不自动调用。 */\n",APP_VERSION,APP_DESIGNER);
-    if(io_options[c->io].functions_only)fputs("/* 仅函数模式：接入已有程序前检查同名函数、宏、结构体与全局变量。 */\n",f);
-    fputs("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n",f);
+static void emit(CodeBuffer *f,const Config *c) {
+    buf_puts("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n",f);
+    if(io_options[c->io].functions_only)buf_puts("/* 仅函数模式：接入已有程序前检查同名函数、宏、结构体与全局变量。 */\n",f);
     for(int i=0;i<SETTINGS;i++) {
         const Setting *s=&settings[i];
         if(!has_cap(c,s->macro))continue;
         int value=setting_read(c,s);
-        fprintf(f,"#define %s %d\n",s->macro,value);
+        buf_printf(f,"#define %s %d\n",s->macro,value);
         if(s->log_macro[0]) {
             int levels=0;for(int n=value;n;n/=2)levels++;
-            fprintf(f,"#define %s %d\n",s->log_macro,levels);
+            buf_printf(f,"#define %s %d\n",s->log_macro,levels);
         }
     }
-    fputc('\n',f);
+    buf_putc('\n',f);
     int emitted[PIECES]={0};
     for(int i=0;i<COUNT;i++)if(c->selected[i]) {
-        fprintf(f,"/* ===== %d %s =====\n * %s\n */\n",i+1,components[i].name,components[i].note);
+        buf_printf(f,"/* ===== %d %s =====\n * %s\n */\n",i+1,components[i].name,components[i].note);
         for(int j=0;components[i].ids[j]>=0;j++) {
             int id=components[i].ids[j];
             if(emitted[id])continue;
             /* Each source function carries a short usage note; full details stay in console/manual. */
-            if(piece_hints[id][0])fprintf(f,"/* %s */\n",piece_hints[id]);
-            emit_piece(f,id,c);fputc('\n',f);emitted[id]=1;
+            if(piece_hints[id][0])buf_printf(f,"/* %s */\n",piece_hints[id]);
+            emit_piece(f,id,c);buf_putc('\n',f);emitted[id]=1;
         }
     }
-    if(!io_options[c->io].functions_only) {fputs("/* ===== 输入输出骨架 ===== */\n",f);emit_main(f,c);}
+    if(!io_options[c->io].functions_only) {buf_puts("/* ===== 输入输出骨架 ===== */\n",f);emit_main(f,c);}
 }
 static char *generate(const Config *c,size_t *size) {
-    FILE *f=tmpfile();if(!f)return NULL;
-    emit(f,c);
-    if(ferror(f)||fflush(f)!=0) {fclose(f);return NULL;}
-    long length=ftell(f);
-    if(length<0||fseek(f,0,SEEK_SET)!=0) {fclose(f);return NULL;}
-    char *s=(char *)malloc((size_t)length+1);
-    if(!s) {fclose(f);return NULL;}
-    if(fread(s,1,(size_t)length,f)!=(size_t)length) {free(s);fclose(f);return NULL;}
-    s[length]=0;*size=(size_t)length;fclose(f);return s;
+    CodeBuffer output={0};
+    emit(&output,c);
+    if(output.failed || !output.text) {
+        free(output.text);
+        return NULL;
+    }
+    *size=output.length;
+    return output.text;
+}
+/* The manual shares the same in-memory emitter, then writes to its chosen file. */
+static void emit_to_file(FILE *f,const Config *c,int part,const char *snippet) {
+    CodeBuffer output={0};
+    if(part==0)emit_main(&output,c);
+    else if(part==1)emit(&output,c);
+    else expand(&output,snippet,c,0);
+    if(!output.failed && output.text)
+        fwrite(output.text,1,output.length,f);
+    free(output.text);
 }
 static int clipboard_copy(const char *s,size_t n) {
 #ifdef _WIN32
@@ -578,7 +637,7 @@ static void handbook(FILE *f) {
         if(io_options[i].functions_only){fputs("只输出函数、结构体、宏和依赖，接入已有程序前检查重名。\n\n",f);continue;}
         fputs("```c\n",f);
         for(int j=0;j<SETTINGS;j++)if(has_cap(&c,settings[j].macro))fprintf(f,"#define %s %d\n",settings[j].macro,settings[j].def);
-        emit_main(f,&c);fputs("```\n\n",f);
+        emit_to_file(f,&c,0,NULL);fputs("```\n\n",f);
     }
     fputs("## 组件索引\n\n",f);
     for(int g=0;g<GROUPS;g++) {
@@ -592,7 +651,7 @@ static void handbook(FILE *f) {
         for(int i=0;i<COUNT;i++)if(components[i].group==g) {
             Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;
             fprintf(f,"#### %d. %s\n\n",i+1,components[i].name);explain(f,&c);
-            fputs("\n```c\n",f);emit(f,&c);fputs("```\n\n",f);
+            fputs("\n```c\n",f);emit_to_file(f,&c,1,NULL);fputs("```\n\n",f);
         }
     }
     fputs("## 可选main内片段\n\n片段只提供结构，不自动接线；输出片段放在处理之后；变量名/下标/作用域由题目决定。示例VALUE为int、读入%d，可在程序配置为long long。\n\n",f);
@@ -600,7 +659,7 @@ static void handbook(FILE *f) {
     for(int i=0;i<FRAGMENTS;i++) {
         if(i==0 || fragments[i].group!=fragments[i-1].group)fprintf(f,"### %s\n\n",fragment_group_names[fragments[i].group]);
         fprintf(f,"#### %d. %s\n\n%s\n\n```c\n",i+1,fragments[i].name,fragments[i].help);
-        expand(f,fragments[i].code,&c,0);fputs("```\n\n",f);
+        emit_to_file(f,&c,2,fragments[i].code);fputs("```\n\n",f);
     }
     fputs("## 自测与提交检查\n\n- 多组数据：上一组的计数、访问表或缓存是否残留？\n- 数组：0/1下标、空输入、单元素、重复元素、全负数据。\n- 字符串：空行、末行无换行、前导空格、刚好到容量；fgets长度包含终止符。\n- 数值：类型和scanf格式匹配、乘法先提升类型、位号不超64。\n- 输出：小数位、分隔符、末尾换行、无解文字；不输出生成器提示。\n- 二分：数组有序、整数条件单调且有解、浮点端点连续异号。\n",f);
 }
