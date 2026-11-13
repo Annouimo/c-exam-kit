@@ -117,7 +117,8 @@ def main():
                 elif kind=='Header':
                     level,attrs,content=value;p=para(inline(content),'h'+str(min(4,max(2,level))))
                     p.section_level=level;p.section_text=re.sub('<[^>]+>','',inline(content))
-                    if level==2 and p.section_text in pdf['page_break_before']:flow.append(PageBreak())
+                    chapter_title=re.sub(r'^[一二三四五六七八九十]+、','',p.section_text)
+                    if level==2 and chapter_title in pdf['page_break_before']:flow.append(PageBreak())
                     flow.append(p)
                 elif kind=='CodeBlock':
                     code=[Spacer(1,5)]+[para(line,'code') for line in highlight_lines(value[1],pdf['code_colors'])]+[Spacer(1,7)]

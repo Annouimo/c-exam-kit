@@ -127,6 +127,15 @@
       0.15,
       0.34,
       0.35
+    ],
+    "7": [
+      0.15,
+      0.1,
+      0.17,
+      0.15,
+      0.13,
+      0.14,
+      0.16
     ]
   },
   "table_width_rules": [
@@ -139,15 +148,36 @@
         0.13,
         0.35
       ]
+    },
+    {
+      "columns": 3,
+      "first_header_contains": "类别",
+      "widths": [
+        0.2,
+        0.35,
+        0.45
+      ]
+    },
+    {
+      "columns": 4,
+      "first_header_contains": "用途",
+      "widths": [
+        0.15,
+        0.24,
+        0.27,
+        0.34
+      ]
     }
   ],
-  "page_break_before": [],
+  "page_break_before": [
+    "其他常用操作"
+  ],
   "inline_code_size": 7.5,
   "keep_code_lines": 30,
   "metadata_paragraphs": 3,
   "table_padding": {
     "horizontal": 6,
-    "vertical": 3
+    "vertical": 2.5
   },
   "code_colors": {
     "text": "#233143",
