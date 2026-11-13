@@ -15,65 +15,7 @@
     "releases_url": "https://github.com/Annouimo/c-exam-kit/releases"
   },
   "manual_export_label": "导出全量脚手架手册",
-  "scaffold_topics": {
-    "math": [
-      "base_digits",
-      "gcd_lcm",
-      "prime_trial",
-      "prime_sieve",
-      "factorial_basic",
-      "power_equal",
-      "rounding",
-      "polynomial",
-      "quadratic",
-      "bisect_root",
-      "complex"
-    ],
-    "arrays": [
-      "frequency",
-      "longest_run",
-      "max_subarray",
-      "forward_difference",
-      "prefix_sum",
-      "rmq",
-      "matrix_multiply",
-      "sort_numbers",
-      "sort_search",
-      "sort_records",
-      "original_position",
-      "bounds",
-      "rank_unique",
-      "binary_answer"
-    ],
-    "strings": [
-      "string_basics",
-      "sort_strings",
-      "longest_char_run"
-    ],
-    "dates": [
-      "dates",
-      "date_shift",
-      "times"
-    ],
-    "bits": [
-      "binary_display",
-      "bit_operations"
-    ],
-    "bigints": [
-      "big_add",
-      "big_subtract",
-      "big_multiply",
-      "big_divide",
-      "big_divide_small",
-      "big_factorial"
-    ],
-    "recursion": [
-      "memo_recursion",
-      "stack",
-      "grid_dfs",
-      "grid_paths"
-    ]
-  },
   "appendix_template": "docs/templates/scaffold_appendix.md",
-  "appendix_output": "release/scaffold-appendix-{{ scaffold_version }}.md"
+  "appendix_output": "release/scaffold-appendix-{{ scaffold_version }}.md",
+  "chapter_numbering": "chinese"
 }

@@ -2,13 +2,14 @@
   "version": "0.5.0",
   "designer": "Annouimo",
   "groups": [
-    "整数、数位与二进制",
+    "整数与数位",
+    "二进制与位操作",
+    "数学计算",
+    "大整数运算（超出long long）",
     "数组统计与区间计算",
     "排序与查找",
     "字符串处理",
     "日期与时间",
-    "数学计算",
-    "大整数运算（超出long long）",
     "递归、栈与网格"
   ],
   "io_groups": [
@@ -679,40 +680,6 @@
       "value_type": false
     },
     {
-      "name": "输出指定位数二进制串与循环移动二进制位",
-      "short_name": "定宽二进制/循环移位",
-      "note": "unsigned long long按64位；1<=width<=64，out至少width+1；k>=0。",
-      "help": "fixed_binary(x,32,out)显示低32位；负数可先转unsigned long long。rotate_left64/right64按64位循环，k=0不移64位。",
-      "group": 0,
-      "id": "binary_display",
-      "summary": "定宽二进制串、64位循环移位。",
-      "pieces": [
-        "fixed_binary"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
-      "name": "读取、修改二进制位及统计1的个数（64位）",
-      "short_name": "读改二进制位/数1",
-      "note": "用unsigned long long存64位非负数；位号0..63，1ULL用于构造掩码。",
-      "help": "get_bit：unsigned输入；pos从0开始，返回0或1。\nset_bit：返回修改后的unsigned值；使用x=set_bit(x,pos)。\nclear_bit：返回修改后的unsigned值；使用x=clear_bit(x,pos)。\ntoggle_bit：返回修改后的unsigned值；使用x=toggle_bit(x,pos)。\npow2u：返回1U<<n；n小于unsigned的位数。\nis_power_of_two：是返回1，否则0；0返回0。\ncount_ones：如count_ones(13U)返回3。",
-      "group": 0,
-      "id": "bit_operations",
-      "summary": "64位取位、置位、翻转、2的幂和二进制1计数。",
-      "pieces": [
-        "get_bit",
-        "set_bit",
-        "clear_bit",
-        "toggle_bit",
-        "pow2u",
-        "is_power_of_two",
-        "count_ones"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
       "name": "最大公约数与最小公倍数",
       "short_name": "最大公约数/最小公倍数",
       "note": "不输入LLONG_MIN；LCM不溢出。",
@@ -760,316 +727,35 @@
       "value_type": false
     },
     {
-      "name": "统计每个整数出现的次数",
-      "short_name": "统计各数出现次数",
-      "note": "元素为0..FREQ_MAX；每次建表清零。",
-      "help": "build_frequency(a,n); frequency[x]就是x的出现次数。值域过大或有负数时改用排序分组，不能直接作下标。",
+      "name": "输出指定位数二进制串与循环移动二进制位",
+      "short_name": "定宽二进制/循环移位",
+      "note": "unsigned long long按64位；1<=width<=64，out至少width+1；k>=0。",
+      "help": "fixed_binary(x,32,out)显示低32位；负数可先转unsigned long long。rotate_left64/right64按64位循环，k=0不移64位。",
       "group": 1,
-      "id": "frequency",
-      "summary": "非负小值域的出现次数统计。",
+      "id": "binary_display",
+      "summary": "定宽二进制串、64位循环移位。",
       "pieces": [
-        "build_frequency"
+        "fixed_binary"
       ],
-      "caps": [
-        "FREQ_MAX"
-      ],
+      "caps": [],
       "value_type": false
     },
     {
-      "name": "找最长相等段或逐项加1的连续段",
-      "short_name": "最长相等段/逐项加1段",
-      "note": "consecutive=0找相等元素连续段，=1找后一项比前一项大1的连续段；0下标。",
-      "help": "longest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "name": "读取、修改二进制位及统计1的个数（64位）",
+      "short_name": "读改二进制位/数1",
+      "note": "用unsigned long long存64位非负数；位号0..63，1ULL用于构造掩码。",
+      "help": "get_bit：unsigned输入；pos从0开始，返回0或1。\nset_bit：返回修改后的unsigned值；使用x=set_bit(x,pos)。\nclear_bit：返回修改后的unsigned值；使用x=clear_bit(x,pos)。\ntoggle_bit：返回修改后的unsigned值；使用x=toggle_bit(x,pos)。\npow2u：返回1U<<n；n小于unsigned的位数。\nis_power_of_two：是返回1，否则0；0返回0。\ncount_ones：如count_ones(13U)返回3。",
       "group": 1,
-      "id": "longest_run",
-      "summary": "相等段或逐项加1的最长连续段。",
+      "id": "bit_operations",
+      "summary": "64位取位、置位、翻转、2的幂和二进制1计数。",
       "pieces": [
-        "longest_run"
-      ],
-      "caps": [],
-      "value_type": true
-    },
-    {
-      "name": "求连续一段元素的最大和",
-      "short_name": "求连续子段最大和",
-      "note": "n>=1；非空连续子段，全负时返回最大元素；和不溢出。",
-      "help": "max_subarray_sum：n>=1、非空子段；全负数返回最大元素；返回long long。\n普通数组元素类型按本次配置；循环下标仍为int。",
-      "group": 1,
-      "id": "max_subarray",
-      "summary": "非空连续子段的最大和。",
-      "pieces": [
-        "max_subarray_sum"
-      ],
-      "caps": [
-        "ARRAY_MAX"
-      ],
-      "value_type": true
-    },
-    {
-      "name": "求前面的元素减后面的元素的最大差",
-      "short_name": "求前减后最大差",
-      "note": "n>=2；差值为前减后；保留负答案。",
-      "help": "max_forward_diff：n>=2；求max(a[i]-a[j])且i<j，保留负答案。\n普通数组元素类型按本次配置；循环下标仍为int。",
-      "group": 1,
-      "id": "forward_difference",
-      "summary": "限定前元素减后元素的最大差。",
-      "pieces": [
-        "max_forward_diff"
-      ],
-      "caps": [
-        "ARRAY_MAX"
-      ],
-      "value_type": true
-    },
-    {
-      "name": "多次查询数组某段的和（前缀和）",
-      "short_name": "多次查询区间和",
-      "note": "1下标；和使用long long；数组不修改。",
-      "help": "build_prefix：a[1..n]；prefix至少n+1个long long；设置prefix[0]=0。\nrange_sum：返回prefix[right]-prefix[left-1]；1<=left<=right<=n。\n普通数组元素类型按本次配置；循环下标仍为int。",
-      "group": 1,
-      "id": "prefix_sum",
-      "summary": "前缀和建表、区间求和。",
-      "pieces": [
-        "build_prefix",
-        "range_sum"
-      ],
-      "caps": [
-        "ARRAY_MAX"
-      ],
-      "value_type": true
-    },
-    {
-      "name": "反复查询某段的最大值（ST表/RMQ）",
-      "short_name": "反复查询区间最大值",
-      "note": "数组建表后不再修改；先build_rmq，再按0下标闭区间查询最大值。",
-      "help": "build_rmq：a[0..n-1]，1<=n<=RMQ_MAX；建表后数组不修改，每组重新建表。\nrange_max：建表后调用，0<=left<=right<n，闭区间查询；改最小值需同时修改建表与查询。",
-      "group": 1,
-      "id": "rmq",
-      "summary": "静态数组区间最大值查询。",
-      "pieces": [
-        "state_st",
-        "state_log2_floor",
-        "build_rmq",
-        "range_max"
-      ],
-      "caps": [
-        "RMQ_MAX"
-      ],
-      "value_type": false
-    },
-    {
-      "name": "两个矩阵相乘",
-      "short_name": "矩阵相乘",
-      "note": "a为n*m，b为m*p，输出n*p；固定列容量，三数组不重叠，中间结果不溢出。",
-      "help": "matrix_multiply(a,b,c,n,m,p)。大矩阵放全局/static；复杂度O(nmp)。",
-      "group": 1,
-      "id": "matrix_multiply",
-      "summary": "固定列容量的矩阵乘法。",
-      "pieces": [
-        "matrix_multiply"
-      ],
-      "caps": [
-        "MATRIX_MAX"
-      ],
-      "value_type": false
-    },
-    {
-      "name": "给整数数组升序排序、在已排序数组中查找",
-      "short_name": "数组按数值排序",
-      "note": "提供升序比较函数、qsort实际调用封装及bsearch查找；查找要求已经排序，返回排序后的下标。",
-      "help": "sort_int_array(a,n); int pos=bsearch_sorted_int(a,n,key);\n需要自定义排序时仍可使用qsort(a,n,sizeof a[0],cmp_int)。返回-1表示未找到。",
-      "group": 2,
-      "id": "sort_numbers",
-      "summary": "整数数组升序排序；在已排序数组中查值。",
-      "pieces": [
-        "cmp_int",
-        "sort_int_array",
-        "bsearch_sorted_int"
-      ],
-      "caps": [
-        "ARRAY_MAX"
-      ],
-      "value_type": true
-    },
-    {
-      "name": "手写数组排序与查找（冒泡、线性、二分）",
-      "short_name": "手写排序/查找",
-      "note": "0下标；二分要求升序；失败-1，重复返回任意匹配。",
-      "help": "swap_int：传地址：swap_int(&a,&b)。\nbubble_sort：把a[0..n-1]原地升序排序。\nlinear_search：返回首次匹配的0下标，失败-1。\nbinary_search：a必须升序；返回任意匹配的0下标，失败-1。\n普通数组元素类型按本次配置；循环下标仍为int。",
-      "group": 2,
-      "id": "sort_search",
-      "summary": "交换、冒泡排序、线性查找和二分查找。",
-      "pieces": [
-        "swap_int",
-        "bubble_sort",
-        "linear_search",
-        "binary_search"
-      ],
-      "caps": [],
-      "value_type": true
-    },
-    {
-      "name": "记录按多个条件排序（结构体比较函数）",
-      "short_name": "结构体按多条件排序",
-      "note": "记录字段为score与id：先score从大到小，再id从小到大；传给qsort，字段与规则按题目修改。",
-      "help": "cmp_record：Record含id、score；先score降序，再id升序；qsort时传此函数。",
-      "group": 2,
-      "id": "sort_records",
-      "summary": "按分数和编号排序的比较器示例。",
-      "pieces": [
-        "type_Record",
-        "cmp_record"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
-      "name": "查询数值在原数组首次出现的位置",
-      "short_name": "查原数组首次位置",
-      "note": "原位置从1开始；排序值与原下标；找不到-1。",
-      "help": "cmp_entry：Entry含value/index；按值升序，再原下标升序。\nfirst_original：先填Entry.index为原1下标，并用cmp_entry排序；返回最小原下标，失败-1。",
-      "group": 2,
-      "id": "original_position",
-      "summary": "按值查询原数组首次出现位置。",
-      "pieces": [
-        "type_Entry",
-        "cmp_entry",
-        "first_original"
-      ],
-      "caps": [
-        "ARRAY_MAX"
-      ],
-      "value_type": false
-    },
-    {
-      "name": "查找第一个不小于或大于目标值的位置",
-      "short_name": "找首个>=或>目标位置",
-      "note": "数组必须从小到大排列；分别找第一个>=key、第一个>key的位置；找不到返回n，不能直接访问a[n]。",
-      "help": "l=lower_bound_int(a,n,key); r=upper_bound_int(a,n,key); r-l为出现次数。访问a[l]前先确认l<n。",
-      "group": 2,
-      "id": "bounds",
-      "summary": "升序数组首个不小于/大于目标的位置。",
-      "pieces": [
-        "lower_bound_int"
-      ],
-      "caps": [],
-      "value_type": true
-    },
-    {
-      "name": "记录排序后的位置，并给有序数组去重",
-      "short_name": "排序位置记录/去重",
-      "note": "original填原来的0下标，rank返回排序后的0下标；去重只对已经排好序的数组使用。",
-      "help": "填a[i].original=i后make_rank(a,n,rank)。同值按原顺序确定位置，不自动处理并列名次。unique_sorted(a,n)原地去重并返回新长度；分组扫描可用片段。",
-      "group": 2,
-      "id": "rank_unique",
-      "summary": "原位置到排序位置的映射、排序后去重。",
-      "pieces": [
-        "cmp_rank_item"
-      ],
-      "caps": [],
-      "value_type": true
-    },
-    {
-      "name": "去行末换行、判断回文与处理子串",
-      "short_name": "去换行/回文/子串",
-      "note": "按字节处理；key非空。count_substring的overlap为1允许重叠，0不重叠。",
-      "help": "trim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)。去换行不会删掉没有换行的最后一个字符；erase_first一次删除，反复调用会重新匹配新串。",
-      "group": 3,
-      "id": "string_basics",
-      "summary": "去行末换行、回文、删除子串和重叠/非重叠计数。",
-      "pieces": [
-        "trim_newline"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
-      "name": "字符串按长度、字典顺序排序",
-      "short_name": "字符串按条件排序",
-      "note": "先短字符串在前，等长时按字典顺序，完全相同再按原下标；数组留终止符空间。",
-      "help": "qsort(a,n,sizeof a[0],cmp_word)。只按字典序时删去长度比较。比较器必须有负/0/正三种结果，不仅返回真假。",
-      "group": 3,
-      "id": "sort_strings",
-      "summary": "字符串按长度、字典序和原下标排序。",
-      "pieces": [
-        "cmp_word"
-      ],
-      "caps": [
-        "WORD_CAP"
-      ],
-      "value_type": false
-    },
-    {
-      "id": "longest_char_run",
-      "name": "指定字符的最长连续出现次数",
-      "short_name": "指定字符最长连续段",
-      "group": 3,
-      "pieces": [
-        "longest_char_run"
-      ],
-      "caps": [],
-      "value_type": false,
-      "help": "函数：int longest_char_run(const char s[], char target)\nlongest_char_run(\"aaabbbaaaa\", 'a')返回4，传'b'返回3；空串或没有目标字符返回0。",
-      "note": "target由调用者传入；按单字节字符处理，适用于课程中的英文字母、数字、标点。",
-      "summary": "求字符串中指定字符连续出现的最大次数。"
-    },
-    {
-      "name": "闰年、下一天与两个日期相差天数",
-      "short_name": "闰年/下一天/日期差",
-      "note": "合法公历日期，1..9999年；日期差不含首尾双计数。",
-      "help": "is_leap：闰年返回1，否则0。\ndays_in_month：返回y年m月天数；月份不合法返回0。\nis_valid_date：Date含y/m/d；合法公历日期且年份1..9999返回1，否则0。\nday_of_year：输入合法Date；1月1日返回1。\nnext_day：输入合法Date，返回新日期；不跨越9999年上限；x=next_day(x)。\ndate_to_days：合法日期；以公元1年1月1日为0。\ndate_diff：返回两合法日期的绝对天数差；不含首尾双计数。",
-      "group": 4,
-      "id": "dates",
-      "summary": "闰年、日期合法性、年内序号、下一天和日期差。",
-      "pieces": [
-        "type_Date",
-        "is_leap",
-        "days_in_month",
-        "is_valid_date",
-        "day_of_year",
-        "next_day",
-        "date_to_days",
-        "date_diff"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
-      "name": "计算某日期前后若干天的日期",
-      "short_name": "日期加减若干天",
-      "note": "沿用Date及日期序号；输入与结果均为1..9999年合法公历日期。",
-      "help": "x=add_days(x,k)；k可负。days_to_date(serial)将以1-1-1为0的序号转回日期。",
-      "group": 4,
-      "id": "date_shift",
-      "summary": "日期与天数序号互转、日期加减k天。",
-      "pieces": [
-        "type_Date",
-        "is_leap",
-        "days_in_month",
-        "is_valid_date",
-        "day_of_year",
-        "next_day",
-        "date_to_days",
-        "date_diff",
-        "days_to_date"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
-      "name": "时间转秒、时间差与时间进位",
-      "short_name": "时间转秒/时间差",
-      "note": "一天内合法时间；差值不自动跨天。",
-      "help": "time_to_sec：Time含h/m/s；一天内合法时间，返回从0点起的秒数。\ntime_diff：返回两时间的绝对秒差，不自动跨天。\nnext_second：返回新Time；午夜回到0点，不更新日期。\nnext_minute：分钟加1、秒保持；午夜回到0点，不更新日期。",
-      "group": 4,
-      "id": "times",
-      "summary": "时间转秒、时间差、下一秒和下一分钟。",
-      "pieces": [
-        "type_Time",
-        "time_to_sec",
-        "time_diff",
-        "next_second",
-        "next_minute"
+        "get_bit",
+        "set_bit",
+        "clear_bit",
+        "toggle_bit",
+        "pow2u",
+        "is_power_of_two",
+        "count_ones"
       ],
       "caps": [],
       "value_type": false
@@ -1078,7 +764,7 @@
       "id": "factorial_basic",
       "name": "基础阶乘（0到20，long long）",
       "short_name": "基础阶乘（0到20）",
-      "group": 5,
+      "group": 2,
       "pieces": [
         "factorial_basic"
       ],
@@ -1093,7 +779,7 @@
       "short_name": "整数求幂/小数判等",
       "note": "ipow指数非负；feq用于有限数、绝对误差，eps>0。",
       "help": "ipow：exp>=0；返回base的exp次幂，约定0^0=1；不允许溢出。\nfeq：有限数且eps>0；绝对误差不超过eps返回1，否则0。",
-      "group": 5,
+      "group": 2,
       "id": "power_equal",
       "summary": "整数求幂、按绝对误差判断浮点相等。",
       "pieces": [
@@ -1107,7 +793,7 @@
       "id": "rounding",
       "name": "四舍五入：取整数或保留指定小数位",
       "short_name": "四舍五入",
-      "group": 5,
+      "group": 2,
       "pieces": [
         "rounding"
       ],
@@ -1122,7 +808,7 @@
       "short_name": "代入x求多项式值",
       "note": "a[i]对应x的i次方；中间值不溢出。",
       "help": "poly_eval：a[i]是x的i次方系数，共degree+1项；返回整数结果，不溢出。",
-      "group": 5,
+      "group": 2,
       "id": "polynomial",
       "summary": "秦九韶法求多项式值。",
       "pieces": [
@@ -1136,7 +822,7 @@
       "short_name": "求二次方程的根",
       "note": "kind=-1非二次，0复根，1重根，2异实根；输出按题目处理。",
       "help": "solve_quadratic：r=solve_quadratic(a,b,c,eps)；kind=-1非二次，0复根(re±im*i)，1重根，2异实根(x1<x2)。",
-      "group": 5,
+      "group": 2,
       "id": "quadratic",
       "summary": "区分实根、重根、复根及非二次情况。",
       "pieces": [
@@ -1151,7 +837,7 @@
       "short_name": "二分求函数零点",
       "note": "函数在区间内连续，两端为零或一正一负；先按题目修改root_f，再求f(x)=0。",
       "help": "root_f：TODO：按题目改函数体；当前示例x*x-2。\nbisect_root：left<right，连续，端点为根或异号；eps>0是区间宽度容差；返回一个近似根。",
-      "group": 5,
+      "group": 2,
       "id": "bisect_root",
       "summary": "连续函数在异号区间内二分求根。",
       "pieces": [
@@ -1162,25 +848,11 @@
       "value_type": false
     },
     {
-      "name": "查找第一个满足条件的整数（二分答案）",
-      "short_name": "找首个满足条件的整数",
-      "note": "用于条件从“不满足”变成“满足”的整数范围；右端必须满足，先修改answer_ok为题目条件。",
-      "help": "first_true(l,r)求第一个满足条件的整数；与浮点求根、数组查找不同。示例x>=10必须替换。",
-      "group": 5,
-      "id": "binary_answer",
-      "summary": "寻找单调条件首次成立的整数。",
-      "pieces": [
-        "answer_ok"
-      ],
-      "caps": [],
-      "value_type": false
-    },
-    {
       "name": "复数的加、减、乘、除",
       "short_name": "复数四则运算",
       "note": "除数非零；数据适中。",
       "help": "complex_add：Complex含re/im；返回a+b。\ncomplex_sub：返回a-b。\ncomplex_mul：返回a*b；数据适中，乘法中间值不溢出。\ncomplex_div：返回a/b；b不为0+0i，平方中间值不溢出/下溢。",
-      "group": 5,
+      "group": 2,
       "id": "complex",
       "summary": "复数加、减、乘、除。",
       "pieces": [
@@ -1198,7 +870,7 @@
       "short_name": "加法",
       "note": "非负十进制；输入、中间数、结果均须满足配置位数。",
       "help": "big_zero：返回BigInt零值；数位低位在前。\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。\nbig_cmp：a<b返回-1，相等0，a>b返回1。\nbig_add：返回a+b。",
-      "group": 6,
+      "group": 3,
       "id": "big_add",
       "summary": "非负大整数相加。",
       "pieces": [
@@ -1219,7 +891,7 @@
       "short_name": "减法",
       "note": "非负十进制；输入、中间数、结果均须满足配置位数。",
       "help": "big_zero：返回BigInt零值；数位低位在前。\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。\nbig_cmp：a<b返回-1，相等0，a>b返回1。\nbig_sub_abs：要求a>=b；返回a-b；通常由big_sub或big_divmod内部使用。\nbig_sub：BigInt c; int sign=big_sub(a,b,&c)；c为绝对值，sign为-1/0/1；负号自行输出。",
-      "group": 6,
+      "group": 3,
       "id": "big_subtract",
       "summary": "大整数相减，单独返回符号。",
       "pieces": [
@@ -1241,7 +913,7 @@
       "short_name": "乘法",
       "note": "非负十进制；输入、中间数、结果均须满足配置位数。",
       "help": "big_zero：返回BigInt零值；数位低位在前。\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。\nbig_cmp：a<b返回-1，相等0，a>b返回1。\nbig_mul：返回a*b；容量须容纳两输入位数之和。",
-      "group": 6,
+      "group": 3,
       "id": "big_multiply",
       "summary": "大整数相乘。",
       "pieces": [
@@ -1262,7 +934,7 @@
       "short_name": "相除：商与余数",
       "note": "非负整数；除数非零；得到商与余数，输出变量须不同。",
       "help": "big_zero：返回BigInt零值；数位低位在前。\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。\nbig_cmp：a<b返回-1，相等0，a>b返回1。\nbig_sub_abs：要求a>=b；返回a-b；通常由big_sub或big_divmod内部使用。\nbig_divmod：BigInt q,rem; big_divmod(a,b,&q,&rem)；b>0，q/rem使用不同变量。",
-      "group": 6,
+      "group": 3,
       "id": "big_divide",
       "summary": "大整数除法，得到商与余数。",
       "pieces": [
@@ -1284,7 +956,7 @@
       "short_name": "除以小整数",
       "note": "1<=除数<=10^9；输入和结果不超过配置位数。",
       "help": "big_zero：返回BigInt零值；数位低位在前。\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。\nbig_cmp：a<b返回-1，相等0，a>b返回1。\nbig_div_small：int rem; BigInt q=big_div_small(a,b,&rem)；1<=b<=10^9；返回商并写余数。",
-      "group": 6,
+      "group": 3,
       "id": "big_divide_small",
       "summary": "大整数除以小整数。",
       "pieces": [
@@ -1305,7 +977,7 @@
       "short_name": "计算阶乘",
       "note": "n>=0；请按最大n!的结果位数配置容量，0!=1。",
       "help": "big_zero：返回BigInt零值；数位低位在前。\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。\nbig_cmp：a<b返回-1，相等0，a>b返回1。\nbig_mul_small：返回a*b；0<=b<=10^9，阶乘复用此函数。\nbig_factorial：n>=0且n<=10^9；返回n!，0!=1；容量按结果位数配置，朴素循环适用于课程规模。",
-      "group": 6,
+      "group": 3,
       "id": "big_factorial",
       "summary": "高精度阶乘。",
       "pieces": [
@@ -1323,11 +995,340 @@
       "value_type": false
     },
     {
+      "name": "统计每个整数出现的次数",
+      "short_name": "统计各数出现次数",
+      "note": "元素为0..FREQ_MAX；每次建表清零。",
+      "help": "build_frequency(a,n); frequency[x]就是x的出现次数。值域过大或有负数时改用排序分组，不能直接作下标。",
+      "group": 4,
+      "id": "frequency",
+      "summary": "非负小值域的出现次数统计。",
+      "pieces": [
+        "build_frequency"
+      ],
+      "caps": [
+        "FREQ_MAX"
+      ],
+      "value_type": false
+    },
+    {
+      "name": "找最长相等段或逐项加1的连续段",
+      "short_name": "最长相等段/逐项加1段",
+      "note": "consecutive=0找相等元素连续段，=1找后一项比前一项大1的连续段；0下标。",
+      "help": "longest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "group": 4,
+      "id": "longest_run",
+      "summary": "相等段或逐项加1的最长连续段。",
+      "pieces": [
+        "longest_run"
+      ],
+      "caps": [],
+      "value_type": true
+    },
+    {
+      "name": "求连续一段元素的最大和",
+      "short_name": "求连续子段最大和",
+      "note": "n>=1；非空连续子段，全负时返回最大元素；和不溢出。",
+      "help": "max_subarray_sum：n>=1、非空子段；全负数返回最大元素；返回long long。\n普通数组元素类型按本次配置；循环下标仍为int。",
+      "group": 4,
+      "id": "max_subarray",
+      "summary": "非空连续子段的最大和。",
+      "pieces": [
+        "max_subarray_sum"
+      ],
+      "caps": [
+        "ARRAY_MAX"
+      ],
+      "value_type": true
+    },
+    {
+      "name": "求前面的元素减后面的元素的最大差",
+      "short_name": "求前减后最大差",
+      "note": "n>=2；差值为前减后；保留负答案。",
+      "help": "max_forward_diff：n>=2；求max(a[i]-a[j])且i<j，保留负答案。\n普通数组元素类型按本次配置；循环下标仍为int。",
+      "group": 4,
+      "id": "forward_difference",
+      "summary": "限定前元素减后元素的最大差。",
+      "pieces": [
+        "max_forward_diff"
+      ],
+      "caps": [
+        "ARRAY_MAX"
+      ],
+      "value_type": true
+    },
+    {
+      "name": "多次查询数组某段的和（前缀和）",
+      "short_name": "多次查询区间和",
+      "note": "1下标；和使用long long；数组不修改。",
+      "help": "build_prefix：a[1..n]；prefix至少n+1个long long；设置prefix[0]=0。\nrange_sum：返回prefix[right]-prefix[left-1]；1<=left<=right<=n。\n普通数组元素类型按本次配置；循环下标仍为int。",
+      "group": 4,
+      "id": "prefix_sum",
+      "summary": "前缀和建表、区间求和。",
+      "pieces": [
+        "build_prefix",
+        "range_sum"
+      ],
+      "caps": [
+        "ARRAY_MAX"
+      ],
+      "value_type": true
+    },
+    {
+      "name": "反复查询某段的最大值（ST表/RMQ）",
+      "short_name": "反复查询区间最大值",
+      "note": "数组建表后不再修改；先build_rmq，再按0下标闭区间查询最大值。",
+      "help": "build_rmq：a[0..n-1]，1<=n<=RMQ_MAX；建表后数组不修改，每组重新建表。\nrange_max：建表后调用，0<=left<=right<n，闭区间查询；改最小值需同时修改建表与查询。",
+      "group": 4,
+      "id": "rmq",
+      "summary": "静态数组区间最大值查询。",
+      "pieces": [
+        "state_st",
+        "state_log2_floor",
+        "build_rmq",
+        "range_max"
+      ],
+      "caps": [
+        "RMQ_MAX"
+      ],
+      "value_type": false
+    },
+    {
+      "name": "两个矩阵相乘",
+      "short_name": "矩阵相乘",
+      "note": "a为n*m，b为m*p，输出n*p；固定列容量，三数组不重叠，中间结果不溢出。",
+      "help": "matrix_multiply(a,b,c,n,m,p)。大矩阵放全局/static；复杂度O(nmp)。",
+      "group": 4,
+      "id": "matrix_multiply",
+      "summary": "固定列容量的矩阵乘法。",
+      "pieces": [
+        "matrix_multiply"
+      ],
+      "caps": [
+        "MATRIX_MAX"
+      ],
+      "value_type": false
+    },
+    {
+      "name": "给整数数组升序排序、在已排序数组中查找",
+      "short_name": "数组按数值排序",
+      "note": "提供升序比较函数、qsort实际调用封装及bsearch查找；查找要求已经排序，返回排序后的下标。",
+      "help": "sort_int_array(a,n); int pos=bsearch_sorted_int(a,n,key);\n需要自定义排序时仍可使用qsort(a,n,sizeof a[0],cmp_int)。返回-1表示未找到。",
+      "group": 5,
+      "id": "sort_numbers",
+      "summary": "整数数组升序排序；在已排序数组中查值。",
+      "pieces": [
+        "cmp_int",
+        "sort_int_array",
+        "bsearch_sorted_int"
+      ],
+      "caps": [
+        "ARRAY_MAX"
+      ],
+      "value_type": true
+    },
+    {
+      "name": "手写数组排序与查找（冒泡、线性、二分）",
+      "short_name": "手写排序/查找",
+      "note": "0下标；二分要求升序；失败-1，重复返回任意匹配。",
+      "help": "swap_int：传地址：swap_int(&a,&b)。\nbubble_sort：把a[0..n-1]原地升序排序。\nlinear_search：返回首次匹配的0下标，失败-1。\nbinary_search：a必须升序；返回任意匹配的0下标，失败-1。\n普通数组元素类型按本次配置；循环下标仍为int。",
+      "group": 5,
+      "id": "sort_search",
+      "summary": "交换、冒泡排序、线性查找和二分查找。",
+      "pieces": [
+        "swap_int",
+        "bubble_sort",
+        "linear_search",
+        "binary_search"
+      ],
+      "caps": [],
+      "value_type": true
+    },
+    {
+      "name": "记录按多个条件排序（结构体比较函数）",
+      "short_name": "结构体按多条件排序",
+      "note": "记录字段为score与id：先score从大到小，再id从小到大；传给qsort，字段与规则按题目修改。",
+      "help": "cmp_record：Record含id、score；先score降序，再id升序；qsort时传此函数。",
+      "group": 5,
+      "id": "sort_records",
+      "summary": "按分数和编号排序的比较器示例。",
+      "pieces": [
+        "type_Record",
+        "cmp_record"
+      ],
+      "caps": [],
+      "value_type": false
+    },
+    {
+      "name": "查询数值在原数组首次出现的位置",
+      "short_name": "查原数组首次位置",
+      "note": "原位置从1开始；排序值与原下标；找不到-1。",
+      "help": "cmp_entry：Entry含value/index；按值升序，再原下标升序。\nfirst_original：先填Entry.index为原1下标，并用cmp_entry排序；返回最小原下标，失败-1。",
+      "group": 5,
+      "id": "original_position",
+      "summary": "按值查询原数组首次出现位置。",
+      "pieces": [
+        "type_Entry",
+        "cmp_entry",
+        "first_original"
+      ],
+      "caps": [
+        "ARRAY_MAX"
+      ],
+      "value_type": false
+    },
+    {
+      "name": "查找第一个不小于或大于目标值的位置",
+      "short_name": "找首个>=或>目标位置",
+      "note": "数组必须从小到大排列；分别找第一个>=key、第一个>key的位置；找不到返回n，不能直接访问a[n]。",
+      "help": "l=lower_bound_int(a,n,key); r=upper_bound_int(a,n,key); r-l为出现次数。访问a[l]前先确认l<n。",
+      "group": 5,
+      "id": "bounds",
+      "summary": "升序数组首个不小于/大于目标的位置。",
+      "pieces": [
+        "lower_bound_int"
+      ],
+      "caps": [],
+      "value_type": true
+    },
+    {
+      "name": "记录排序后的位置，并给有序数组去重",
+      "short_name": "排序位置记录/去重",
+      "note": "original填原来的0下标，rank返回排序后的0下标；去重只对已经排好序的数组使用。",
+      "help": "填a[i].original=i后make_rank(a,n,rank)。同值按原顺序确定位置，不自动处理并列名次。unique_sorted(a,n)原地去重并返回新长度；分组扫描可用片段。",
+      "group": 5,
+      "id": "rank_unique",
+      "summary": "原位置到排序位置的映射、排序后去重。",
+      "pieces": [
+        "cmp_rank_item"
+      ],
+      "caps": [],
+      "value_type": true
+    },
+    {
+      "name": "查找第一个满足条件的整数（二分答案）",
+      "short_name": "找首个满足条件的整数",
+      "note": "用于条件从“不满足”变成“满足”的整数范围；右端必须满足，先修改answer_ok为题目条件。",
+      "help": "first_true(l,r)求第一个满足条件的整数；与浮点求根、数组查找不同。示例x>=10必须替换。",
+      "group": 5,
+      "id": "binary_answer",
+      "summary": "寻找单调条件首次成立的整数。",
+      "pieces": [
+        "answer_ok"
+      ],
+      "caps": [],
+      "value_type": false
+    },
+    {
+      "name": "去行末换行、判断回文与处理子串",
+      "short_name": "去换行/回文/子串",
+      "note": "按字节处理；key非空。count_substring的overlap为1允许重叠，0不重叠。",
+      "help": "trim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)。去换行不会删掉没有换行的最后一个字符；erase_first一次删除，反复调用会重新匹配新串。",
+      "group": 6,
+      "id": "string_basics",
+      "summary": "去行末换行、回文、删除子串和重叠/非重叠计数。",
+      "pieces": [
+        "trim_newline"
+      ],
+      "caps": [],
+      "value_type": false
+    },
+    {
+      "name": "字符串按长度、字典顺序排序",
+      "short_name": "字符串按条件排序",
+      "note": "先短字符串在前，等长时按字典顺序，完全相同再按原下标；数组留终止符空间。",
+      "help": "qsort(a,n,sizeof a[0],cmp_word)。只按字典序时删去长度比较。比较器必须有负/0/正三种结果，不仅返回真假。",
+      "group": 6,
+      "id": "sort_strings",
+      "summary": "字符串按长度、字典序和原下标排序。",
+      "pieces": [
+        "cmp_word"
+      ],
+      "caps": [
+        "WORD_CAP"
+      ],
+      "value_type": false
+    },
+    {
+      "id": "longest_char_run",
+      "name": "指定字符的最长连续出现次数",
+      "short_name": "指定字符最长连续段",
+      "group": 6,
+      "pieces": [
+        "longest_char_run"
+      ],
+      "caps": [],
+      "value_type": false,
+      "help": "函数：int longest_char_run(const char s[], char target)\nlongest_char_run(\"aaabbbaaaa\", 'a')返回4，传'b'返回3；空串或没有目标字符返回0。",
+      "note": "target由调用者传入；按单字节字符处理，适用于课程中的英文字母、数字、标点。",
+      "summary": "求字符串中指定字符连续出现的最大次数。"
+    },
+    {
+      "name": "闰年、下一天与两个日期相差天数",
+      "short_name": "闰年/下一天/日期差",
+      "note": "合法公历日期，1..9999年；日期差不含首尾双计数。",
+      "help": "is_leap：闰年返回1，否则0。\ndays_in_month：返回y年m月天数；月份不合法返回0。\nis_valid_date：Date含y/m/d；合法公历日期且年份1..9999返回1，否则0。\nday_of_year：输入合法Date；1月1日返回1。\nnext_day：输入合法Date，返回新日期；不跨越9999年上限；x=next_day(x)。\ndate_to_days：合法日期；以公元1年1月1日为0。\ndate_diff：返回两合法日期的绝对天数差；不含首尾双计数。",
+      "group": 7,
+      "id": "dates",
+      "summary": "闰年、日期合法性、年内序号、下一天和日期差。",
+      "pieces": [
+        "type_Date",
+        "is_leap",
+        "days_in_month",
+        "is_valid_date",
+        "day_of_year",
+        "next_day",
+        "date_to_days",
+        "date_diff"
+      ],
+      "caps": [],
+      "value_type": false
+    },
+    {
+      "name": "计算某日期前后若干天的日期",
+      "short_name": "日期加减若干天",
+      "note": "沿用Date及日期序号；输入与结果均为1..9999年合法公历日期。",
+      "help": "x=add_days(x,k)；k可负。days_to_date(serial)将以1-1-1为0的序号转回日期。",
+      "group": 7,
+      "id": "date_shift",
+      "summary": "日期与天数序号互转、日期加减k天。",
+      "pieces": [
+        "type_Date",
+        "is_leap",
+        "days_in_month",
+        "is_valid_date",
+        "day_of_year",
+        "next_day",
+        "date_to_days",
+        "date_diff",
+        "days_to_date"
+      ],
+      "caps": [],
+      "value_type": false
+    },
+    {
+      "name": "时间转秒、时间差与时间进位",
+      "short_name": "时间转秒/时间差",
+      "note": "一天内合法时间；差值不自动跨天。",
+      "help": "time_to_sec：Time含h/m/s；一天内合法时间，返回从0点起的秒数。\ntime_diff：返回两时间的绝对秒差，不自动跨天。\nnext_second：返回新Time；午夜回到0点，不更新日期。\nnext_minute：分钟加1、秒保持；午夜回到0点，不更新日期。",
+      "group": 7,
+      "id": "times",
+      "summary": "时间转秒、时间差、下一秒和下一分钟。",
+      "pieces": [
+        "type_Time",
+        "time_to_sec",
+        "time_diff",
+        "next_second",
+        "next_minute"
+      ],
+      "caps": [],
+      "value_type": false
+    },
+    {
       "name": "缓存递归计算结果（斐波那契示例）",
       "short_name": "缓存递归计算结果",
       "note": "把算过的结果存下来，后续直接使用；示例为F(0)=0、F(1)=1，n为0..92；换题需改初值和递推关系。",
       "help": "init_memo：首次或状态含义改变时调用，再使用fib_memo。\nfib_memo：F(0)=0,F(1)=1；n为0..92；换题须改状态与转移。",
-      "group": 7,
+      "group": 8,
       "id": "memo_recursion",
       "summary": "记忆化递归示例和缓存初始化。",
       "pieces": [
@@ -1344,7 +1345,7 @@
       "short_name": "后进先出栈/括号匹配",
       "note": "最后放进去的字符最先取出；栈容量要够，取顶/弹出前不能是空栈；括号检查忽略其他字符。",
       "help": "stack_init(&s); stack_push(&s,ch); stack_top(&s); stack_pop(&s)。brackets_match(text)返回1/0，内部每次重置栈且不按值复制大对象。",
-      "group": 7,
+      "group": 8,
       "id": "stack",
       "summary": "字符数组栈、括号匹配。",
       "pieces": [
@@ -1360,7 +1361,7 @@
       "short_name": "网格可达/区域大小",
       "note": "0表示不能走，1表示能走；四方向移动，每格只访问一次；可查可达性或区域大小，不求最短路。",
       "help": "dfs_grid：先填rows/cols、0/1网格并清visited；返回本次新访问格数，访问标记不撤销；不是最短路。",
-      "group": 7,
+      "group": 8,
       "id": "grid_dfs",
       "summary": "遍历四连通区域、可达性与连通块统计。",
       "pieces": [
@@ -1380,7 +1381,7 @@
       "short_name": "向右向下路径计数",
       "note": "只允许向右或向下；0下标，先设置障碍，每次自动清路径计数；结果不超过long long。",
       "help": "memset(blocked,0,sizeof blocked); 设置障碍后count_grid_paths(rows,cols)。每次清dp；起点或终点被阻挡返回0；改转移适配题意。",
-      "group": 7,
+      "group": 8,
       "id": "grid_paths",
       "summary": "仅向右/下的有障碍网格路径计数。",
       "pieces": [
@@ -1817,5 +1818,16 @@
       "log_macro": ""
     }
   ],
-  "handbook_version": "1.5"
+  "handbook_version": "1.5",
+  "group_ids": [
+    "integers",
+    "bits",
+    "math",
+    "bigints",
+    "arrays",
+    "search",
+    "strings",
+    "dates",
+    "recursion"
+  ]
 }

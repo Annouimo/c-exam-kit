@@ -61,7 +61,7 @@ class ProjectTests(unittest.TestCase):
         self.assertEqual(before,(ROOT/'docs/templates/exam_handbook.md').read_bytes())
         appendix=(ROOT/f'release/scaffold-appendix-v{DATA["version"]}.md').read_text(encoding='utf-8')
         self.assertNotIn('|',appendix)
-        self.assertEqual(len(re.findall(r'^- \d+\. ',appendix,re.M)),len(DATA['components']))
+        self.assertEqual(len(re.findall(r'^- \*\*\d+\.\*\* ',appendix,re.M)),len(DATA['components']))
         self.assertIn('https://github.com/Annouimo/c-exam-kit/releases',(ROOT/f'release/c-exam-handbook-v{DATA["handbook_version"]}.md').read_text(encoding='utf-8'))
         self.assertIn(DATA['version'],run([self.exe,'--version']))
 
@@ -69,15 +69,11 @@ class ProjectTests(unittest.TestCase):
         import copy
         import handbook
         profile=handbook.load_profile()
-        ids=[key for items in profile['scaffold_topics'].values() for key in items]
-        self.assertCountEqual(ids,[x['id'] for x in DATA['components']])
-        for kind in ['duplicate','missing','unknown']:
-            changed=copy.deepcopy(profile)
-            topic=next(iter(changed['scaffold_topics']))
-            if kind=='duplicate':changed['scaffold_topics'][topic].append(ids[0])
-            elif kind=='missing':changed['scaffold_topics'][topic].pop()
-            else:changed['scaffold_topics'][topic].append('unknown_component')
-            with self.assertRaises(ValueError):handbook.topic_catalog(DATA,changed)
+        generated=handbook.topic_catalog(DATA,profile)
+        for i,key in enumerate(DATA['group_ids']):
+            entries=re.findall(r'^- \*\*(\d+)\.\*\* (.*)$',generated['scaffold.'+key],re.M)
+            self.assertEqual(entries,[(str(n),x['name']+'：'+x['summary']) for n,x in enumerate(DATA['components'],1) if x['group']==i])
+            self.assertTrue(generated['scaffold.'+key].startswith('### 相关脚手架：'+DATA['groups'][i]))
         with self.assertRaises(ValueError):handbook.substitute('{{ unknown }}',{})
         with self.assertRaises(ValueError):handbook.table({'columns':['a'],'rows':[['a','b']]})
         with tempfile.TemporaryDirectory() as tmp:
@@ -104,13 +100,34 @@ class ProjectTests(unittest.TestCase):
         self.assertEqual(len(common),7)
         self.assertEqual({re.search(r'\b(fabs|log|log10|pow|sqrt|ceil|floor)\b',' '.join(row))[0] for row in common},
             {'fabs','log','log10','pow','sqrt','ceil','floor'})
-        expected=set('acos asin atan atan2 cos sin tan acosh asinh atanh cosh sinh tanh exp exp2 expm1 frexp ilogb ldexp log1p log2 logb modf scalbn scalbln cbrt hypot erf erfc lgamma tgamma nearbyint rint lrint llrint round lround llround trunc fmod remainder remquo copysign nan nextafter nexttoward fdim fmax fmin fma'.split())
+        expected=set('acos asin atan atan2 cos sin tan acosh asinh atanh cosh sinh tanh exp exp2 expm1 frexp ilogb ldexp log1p log2 logb modf cbrt hypot trunc fmod'.split())
         index=' '.join(x['text'] for x in reference['indexes']['math_other'])
         found=set(re.findall(r'`([a-z][a-z0-9]*)(?:\([^`]*\))?`',index))
         self.assertEqual(found,expected)
-        macros=' '.join(x['text'] for x in reference['indexes']['math_macros'])
-        self.assertIn('isfinite',macros)
-        self.assertNotIn('isfinite',found)
+        self.assertNotIn('math_macros',reference['indexes'])
+
+    def test_chapter_numbering_and_shared_menu_order(self):
+        import handbook
+        expected=['使用说明','数据类型与常量','输入输出与文本文件','整数与数学计算','数组、排序与查找','字符串处理','其他常用操作']
+        template=(ROOT/'docs/templates/exam_handbook.md').read_text(encoding='utf-8')
+        content=next(iter(handbook.handbook_outputs(DATA).values()))
+        self.assertEqual(re.findall(r'^## (.*)$',template,re.M),expected)
+        self.assertEqual(re.findall(r'^## (.*)$',content,re.M),[handbook.chinese_number(i)+'、'+title for i,title in enumerate(expected,1)])
+        groups=re.findall(r'^### 相关脚手架：(.*)$',content,re.M)
+        self.assertEqual(groups,DATA['groups'])
+        self.assertEqual(list(map(int,re.findall(r'^- \*\*(\d+)\.',content,re.M))),list(range(1,len(DATA['components'])+1)))
+        self.assertEqual(next(x['group'] for x in DATA['components'] if x['id']=='binary_answer'),DATA['group_ids'].index('search'))
+        example='## Intro\n```c\n## example\n```\n## More\n~~~\n## example\n~~~\n'
+        self.assertEqual(handbook.number_chapters(example),'## 一、Intro\n```c\n## example\n```\n## 二、More\n~~~\n## example\n~~~\n')
+        self.assertEqual(handbook.number_chapters('## Inserted\n'+example).splitlines()[1],'## 二、Intro')
+        self.assertEqual([handbook.chinese_number(n) for n in [9,10,11,20,21,99]],['九','十','十一','二十','二十一','九十九'])
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);shutil.copytree(ROOT/'catalog',root/'catalog');shutil.copytree(ROOT/'docs/templates',root/'docs/templates')
+            path=root/handbook.load_profile()['template']
+            variants=[template.replace('{{ scaffold.math }}',''),template.replace('{{ scaffold.math }}','{{ scaffold.math }}\n{{ scaffold.math }}'),template.replace('{{ scaffold.bits }}','{{ scaffold.math }}').replace('{{ scaffold.math }}\n\n{{ scaffold.bigints }}','{{ scaffold.bits }}\n\n{{ scaffold.bigints }}')]
+            for text in variants:
+                path.write_text(text,encoding='utf-8')
+                with self.assertRaises(ValueError):handbook.handbook_outputs(DATA,root)
 
     def test_standard_sort_and_search_helpers(self):
         pieces={p['id']:p for p in DATA['pieces']}

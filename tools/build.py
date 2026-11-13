@@ -47,6 +47,10 @@ def load_catalog(root=ROOT):
         ids = [x['id'] for x in items]
         if len(ids) != len(set(ids)) or not all(re.fullmatch(r'[A-Za-z_]\w*', x, re.ASCII) for x in ids):
             raise ValueError(f'invalid or duplicate {collection} id')
+    if len(data['group_ids'])!=len(data['groups']) or len(set(data['group_ids']))!=len(data['groups']):
+        raise ValueError('Each component group needs one unique stable group id')
+    if not all(re.fullmatch(r'[a-z][a-z0-9_]*',key) for key in data['group_ids']):
+        raise ValueError('Invalid component group id')
     caps = data['capacities']
     for key in ['field', 'macro']:
         if len({x[key] for x in caps}) != len(caps):

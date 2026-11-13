@@ -84,8 +84,8 @@ def main():
             for key in ['textColor','backColor']:
                 if key in options:options[key]=colors.HexColor(options[key])
             styles[name]=ParagraphStyle(name,wordWrap='CJK',alignment=TA_LEFT,splitLongWords=True,**options)
-        def code_markup(text):
-            return ''.join('<font name="CJK">'+html.escape(part)+'</font>' if any(ord(c)>127 for c in part) else html.escape(part).replace(' ','&#160;') for part in re.findall(r'[^\x00-\x7f]+|[\x00-\x7f]+',text))
+        from code_highlight import highlight_lines
+        def code_markup(text):return '<br/>'.join(highlight_lines(text,pdf['code_colors']))
         def inline(items):
             out=[]
             for item in items:
@@ -120,7 +120,7 @@ def main():
                     if level==2 and p.section_text in pdf['page_break_before']:flow.append(PageBreak())
                     flow.append(p)
                 elif kind=='CodeBlock':
-                    code=[Spacer(1,5)]+[para(code_markup(line),'code') for line in value[1].splitlines()]+[Spacer(1,7)]
+                    code=[Spacer(1,5)]+[para(line,'code') for line in highlight_lines(value[1],pdf['code_colors'])]+[Spacer(1,7)]
                     if len(value[1].splitlines())<=pdf['keep_code_lines']:flow.append(KeepTogether(code))
                     else:flow.extend(code)
                 elif kind in ['BulletList','OrderedList']:

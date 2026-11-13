@@ -80,7 +80,7 @@ python3 -m pip install -r tools/pdf-requirements.txt
 python3 tools/build_pdf.py
 ```
 
-输出为 `release/c-exam-handbook-v1.5.pdf`，支持中文字体、可点击目录/链接、可搜索文本、代码换行和跨页表头。PDF与Markdown共用同一份模板和数据；字体、页边距、表格列宽及页眉页脚在 `catalog/handbook/pdf.json` 中配置。执行时加 `--preview` 可标记为未发布预览。
+输出为 `release/c-exam-handbook-v1.5.pdf`，支持中文字体、可点击目录/链接、可搜索文本、C代码高亮（含表格签名）、代码换行和跨页表头。PDF与Markdown共用同一份模板和数据；字体、页边距、表格列宽及页眉页脚在 `catalog/handbook/pdf.json` 中配置。执行时加 `--preview` 可标记为未发布预览。
 
 ## 发布
 

@@ -39,17 +39,14 @@ def table(item):
 
 
 def topic_catalog(data,profile):
-    lookup={x['id']:(i+1,x) for i,x in enumerate(data['components'])}
-    groups=profile['scaffold_topics'];seen=[];out={}
-    for topic,ids in groups.items():
-        lines=[]
-        for key in ids:
-            if key not in lookup:raise ValueError('Unknown handbook component: '+key)
-            number,item=lookup[key];seen.append(key)
-            lines.append(f'- {number}. {item["name"]}：{item["summary"]}')
-        out['scaffold.'+topic]='\n'.join(lines)
-    if len(seen)!=len(set(seen)):raise ValueError('A component appears in more than one handbook topic')
-    if set(seen)!=set(lookup):raise ValueError('Unassigned handbook components: '+str(set(lookup)-set(seen)))
+    # Program groups are the single source of names, order and membership.
+    out={}
+    for g,(key,title) in enumerate(zip(data['group_ids'],data['groups'])):
+        lines=['### 相关脚手架：'+title,'']
+        for number,item in enumerate(data['components'],1):
+            if item['group']==g:
+                lines.append(f'- **{number}.** {item["name"]}：{item["summary"]}')
+        out['scaffold.'+key]='\n'.join(lines)
     for key,groups_key in [('io','io_groups'),('fragments','fragment_groups')]:
         lines=[]
         for g,title in enumerate(data[groups_key]):
@@ -58,6 +55,28 @@ def topic_catalog(data,profile):
         if key=='io':lines.append(f'- 其他：{len(data["io"])+1}「{profile["manual_export_label"]}」。')
         out['scaffold.'+key]='\n'.join(lines)
     return out
+
+
+def chinese_number(n):
+    if not 0<n<100:raise ValueError('Chapter numbering supports 1..99 chapters')
+    digits='零一二三四五六七八九'
+    if n<10:return digits[n]
+    return (digits[n//10] if n>=20 else '')+'十'+(digits[n%10] if n%10 else '')
+
+
+def number_chapters(markdown):
+    """Number level-two headings, leaving fenced examples and source templates intact."""
+    result=[];count=0;fence=None
+    for line in markdown.splitlines(keepends=True):
+        marker=re.match(r'^ {0,3}(`{3,}|~{3,})',line)
+        if marker:
+            token=marker[1]
+            if fence is None:fence=token
+            elif token[0]==fence[0] and len(token)>=len(fence):fence=None
+        if fence is None and line.startswith('## '):
+            count+=1;line='## '+chinese_number(count)+'、'+line[3:]
+        result.append(line)
+    return ''.join(result)
 
 
 def handbook_outputs(data,root=ROOT):
@@ -74,7 +93,11 @@ def handbook_outputs(data,root=ROOT):
     for key in variables:
         if key.startswith('scaffold.') and used.count(key)!=1:
             raise ValueError('Each scaffold section needs exactly one placeholder: '+key)
+    group_order=['scaffold.'+key for key in data['group_ids']]
+    if [key for key in used if key in group_order]!=group_order:
+        raise ValueError('Handbook component groups must follow program order')
     output=substitute(template,variables)
+    if profile.get('chapter_numbering')=='chinese':output=number_chapters(output)
     output=re.sub(r'\n{3,}','\n\n',output).strip()+'\n'
     return {substitute(profile['markdown_output'],variables):output}
 
@@ -103,7 +126,7 @@ def all_document_outputs(data,root=ROOT):
         components.append('### '+title+'\n');group_catalog.append('### '+title+'\n')
         for i,x in enumerate(data['components']):
             if x['group']!=g:continue
-            group_catalog.append(f'- {i+1}. {x["name"]}：{x["summary"]}')
+            group_catalog.append(f'- **{i+1}.** {x["name"]}：{x["summary"]}')
             components.extend([f'#### {i+1}. {x["name"]}\n',x['note']+'\n'])
             code='#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n'
             for cap in data['capacities']:

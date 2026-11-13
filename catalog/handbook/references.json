@@ -383,8 +383,8 @@
         "text": "`exp`、`exp2`：e 或 2 的幂；`expm1`、`log1p`：exp(x)-1、log(1+x)；`log2`：以 2 为底；`logb`、`ilogb`：取浮点指数。"
       },
       {
-        "label": "拆分与缩放",
-        "text": "`frexp`、`ldexp`：按 2 的幂拆分与组合；`modf`：拆整数/小数部分；`scalbn`、`scalbln`：按浮点基数的幂缩放。"
+        "label": "拆分与组合",
+        "text": "`frexp`、`ldexp`：按 2 的幂拆分与组合；`modf`：拆整数/小数部分。"
       },
       {
         "label": "幂与距离",
@@ -392,37 +392,11 @@
       },
       {
         "label": "取整",
-        "text": "`trunc`：向零取整；`round`、`lround`、`llround`：恰好一半时远离零；`nearbyint`、`rint`、`lrint`、`llrint`：遵循当前舍入方式。"
+        "text": "`trunc`：向零取整。"
       },
       {
         "label": "余数",
-        "text": "`fmod`：浮点取余；`remainder`：按最近整数商计算余数；`remquo`：同时取得部分商信息。"
-      },
-      {
-        "label": "浮点值与相邻值",
-        "text": "`copysign`：复制符号；`nan`：生成 NaN；`nextafter`、`nexttoward`：向指定方向取得相邻浮点值。"
-      },
-      {
-        "label": "比较与组合",
-        "text": "`fdim`：正差；`fmax`、`fmin`：较大/较小值；`fma`：乘加并进行一次舍入。"
-      },
-      {
-        "label": "误差与 Gamma 函数",
-        "text": "`erf`、`erfc`：误差函数及补函数；`tgamma`、`lgamma`：Gamma 函数及其绝对值的自然对数。"
-      }
-    ],
-    "math_macros": [
-      {
-        "label": "分类与符号",
-        "text": "`fpclassify`、`isfinite`、`isinf`、`isnan`、`isnormal`、`signbit`。"
-      },
-      {
-        "label": "关系判断",
-        "text": "`isgreater`、`isgreaterequal`、`isless`、`islessequal`、`islessgreater`、`isunordered`。"
-      },
-      {
-        "label": "常量与错误标记",
-        "text": "`HUGE_VAL` / `HUGE_VALF` / `HUGE_VALL`、`INFINITY`、`NAN`；分类结果 `FP_INFINITE` / `FP_NAN` / `FP_NORMAL` / `FP_SUBNORMAL` / `FP_ZERO`；`math_errhandling`、`MATH_ERRNO`、`MATH_ERREXCEPT`。"
+        "text": "`fmod`：浮点取余。"
       }
     ]
   }

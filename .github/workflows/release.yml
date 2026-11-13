@@ -89,6 +89,7 @@ jobs:
         run: |
           python3 tools/build.py --check
           python3 tools/build_pdf.py
+          python3 tests/test_pdf.py
           python3 tools/build.py --package
           mkdir assets
           version="$(python3 -c "import json; print(json.load(open('catalog/catalog.json'))['version'])")"

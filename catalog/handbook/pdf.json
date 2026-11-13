@@ -12,7 +12,7 @@
     "body": {
       "fontName": "CJK",
       "fontSize": 9,
-      "leading": 14,
+      "leading": 13.5,
       "textColor": "#233143",
       "spaceAfter": 6
     },
@@ -26,7 +26,7 @@
     "cell": {
       "fontName": "CJK",
       "fontSize": 7.7,
-      "leading": 11.2,
+      "leading": 10.5,
       "textColor": "#233143",
       "spaceAfter": 0
     },
@@ -62,7 +62,7 @@
       "textColor": "#285773",
       "spaceAfter": 6,
       "keepWithNext": true,
-      "spaceBefore": 10
+      "spaceBefore": 8
     },
     "h4": {
       "fontName": "CJKBold",
@@ -71,7 +71,7 @@
       "textColor": "#285773",
       "spaceAfter": 6,
       "keepWithNext": true,
-      "spaceBefore": 10
+      "spaceBefore": 8
     },
     "title": {
       "fontName": "CJKBold",
@@ -148,5 +148,16 @@
   "table_padding": {
     "horizontal": 6,
     "vertical": 3
+  },
+  "code_colors": {
+    "text": "#233143",
+    "type": "#12616d",
+    "keyword": "#704098",
+    "function": "#18589a",
+    "string": "#9a381f",
+    "number": "#755211",
+    "comment": "#536b50",
+    "constant": "#704098",
+    "operator": "#475569"
   }
 }

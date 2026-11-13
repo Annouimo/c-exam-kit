@@ -583,7 +583,7 @@ static void handbook(FILE *f) {
     fputs("## 组件索引\n\n",f);
     for(int g=0;g<GROUPS;g++) {
         fprintf(f,"### %s\n\n",group_names[g]);
-        for(int i=0;i<COUNT;i++)if(components[i].group==g)fprintf(f,"- %d. %s：%s\n",i+1,components[i].name,components[i].note);
+        for(int i=0;i<COUNT;i++)if(components[i].group==g)fprintf(f,"- **%d.** %s：%s\n",i+1,components[i].name,components[i].note);
         fputc('\n',f);
     }
     fputs("## 函数组件详细说明与代码\n\n各组件代码可独立复制；手工合并请去掉共同定义。默认容量为示例，不输出题目专用提示。\n\n",f);
