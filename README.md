@@ -4,10 +4,9 @@
 
 设计者：**Annouimo** · 手册 **v1.5** · 脚手架 **v0.5.0**
 
-- [考试手册](docs/C语言考试手册.md)：数据类型、标准库、输入输出注意事项和精简组件目录。
+- [考试手册模板](docs/templates/exam_handbook.md)：按做题主题组织，说明文字可直接修改。
 - [下载发布版](https://github.com/Annouimo/c-exam-kit/releases)：PDF与Markdown手册、带版本号的单文件源码和工程包。
-- [全量脚手架手册](docs/全量脚手架手册.md)：详细用法与可复制的代码。
-- [脚手架附录](docs/脚手架附录.md)：方便手动替换进考试手册的后半部分。
+- [手册维护说明](docs/开发与发布.md)：模板、表格数据、组件目录和PDF配置。
 
 **阅读资料优先下载PDF；使用生成器优先下载 `c_scaffold_v0.5.0.c`，编译运行后按菜单选择。新版Release不再分发编译好的二进制。**
 
@@ -65,10 +64,12 @@ python3 tools/build.py --package
 | `src/` | 菜单、装配、文件和剪贴板等核心流程 |
 | `tools/build.py` | 校验配置、生成单文件与脚手架相关文档、打包 |
 | `tests/` | 生成组合编译、算法边界、输出格式、配置和交互检查 |
-| `docs/` | 考试手册、独立附录、详细手册和维护说明 |
+| `docs/templates/` | 人工维护的说明段落、示例及自动内容占位符 |
+| `catalog/handbook/` | 标准库表格、主题归属、版本元数据和PDF样式 |
+| `docs/` | 维护说明与文档模板 |
 | `dist/` | 可独立编译的单文件源码与编译脚本 |
 
-**只修改工程输入，再重新生成。** 不手工改 `dist/c_scaffold_v0.5.0.c` 或两份自动生成的脚手架文档。考试手册主体独立维护，构建脚本不会覆盖它；更新附录时手动替换。详见[维护说明](docs/开发与发布.md)。
+**只修改模板、数据和工程输入，再重新生成。** 仓库不保留展开后的全量手册；Markdown、PDF和详细手册输出到 `release/`，作为Release附件分发。说明段落在模板中编辑，重复表格和目录由配置生成；构建不修改模板。只预览文档可执行 `python3 tools/build.py --docs-only`。详见[维护说明](docs/开发与发布.md)。
 
 ## PDF手册
 
@@ -79,10 +80,10 @@ python3 -m pip install -r tools/pdf-requirements.txt
 python3 tools/build_pdf.py
 ```
 
-输出为 `release/c-exam-handbook-v1.5.pdf`，支持中文字体、可点击目录/链接、可搜索文本、代码换行和跨页表头。PDF来自人工维护的考试手册，不会反向修改Markdown原稿。
+输出为 `release/c-exam-handbook-v1.5.pdf`，支持中文字体、可点击目录/链接、可搜索文本、代码换行和跨页表头。PDF与Markdown共用同一份模板和数据；字体、页边距、表格列宽及页眉页脚在 `catalog/handbook/pdf.json` 中配置。执行时加 `--preview` 可标记为未发布预览。
 
 ## 发布
 
-推送main后，GitHub Actions验证Linux、macOS、Windows以及GCC 9编译兼容性，并生成PDF。检查全部成功后创建Release，仅附带版本号的单文件 `.c`、源码工程包、PDF和Markdown文档，不上传可执行程序。已有该版本Release时跳过发布，后续发布需提升版本号。
+功能分支只生成检查结果和文档预览，不发布Release。推送main后，GitHub Actions验证Linux、macOS、Windows以及GCC 9编译兼容性，并生成PDF。检查全部成功后创建Release，仅附带版本号的单文件 `.c`、源码工程包、PDF和Markdown文档，不上传可执行程序。已有该版本Release时跳过发布，后续发布需提升版本号。
 
 CI中的编译成品仅用于测试。旧版本Release作为历史记录保留；v0.5.0起不再分发二进制。真实Dev-C++环境仍建议实际试运行；现代MinGW上的Unicode控制台测试与旧IDE窗口的GBK兼容测试分别进行。

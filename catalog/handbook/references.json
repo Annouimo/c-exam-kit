@@ -1,0 +1,429 @@
+{
+  "standard": "C99 (WG14 N1256)",
+  "sources": [
+    "https://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf"
+  ],
+  "tables": {
+    "integers": {
+      "columns": [
+        "类型",
+        "存储（常见）",
+        "值范围",
+        "值范围（科学计数法，保守取整）"
+      ],
+      "rows": [
+        [
+          "`char`",
+          "1 字节",
+          "-128 到 127 或 0 到 255",
+          ""
+        ],
+        [
+          "`int`",
+          "4 字节",
+          "-2,147,483,648 到 2,147,483,647",
+          "$\\pm 2 \\times 10^{9}$"
+        ],
+        [
+          "`unsigned int`",
+          "4 字节",
+          "0 到 4,294,967,295",
+          "$0$ 到 $4 \\times 10^{9}$"
+        ],
+        [
+          "`long long`",
+          "8 字节",
+          "-9,223,372,036,854,775,808 到 9,223,372,036,854,775,807",
+          "$\\pm 9 \\times 10^{18}$"
+        ],
+        [
+          "`unsigned long long`",
+          "8 字节",
+          "0 到 18,446,744,073,709,551,615",
+          "$0$ 到 $1.8 \\times 10^{19}$"
+        ]
+      ]
+    },
+    "floating": {
+      "columns": [
+        "类型",
+        "存储大小",
+        "值范围（科学计数法，保守取整）",
+        "精度"
+      ],
+      "rows": [
+        [
+          "`double`",
+          "8 字节",
+          "$2 \\times 10^{-308}$ 到 $1 \\times 10^{308}$",
+          "15 位有效位"
+        ],
+        [
+          "`long double`",
+          "依实现而定",
+          "范围与精度至少不低于 double",
+          "依实现而定"
+        ]
+      ]
+    },
+    "math_common": {
+      "columns": [
+        "函数签名（math.h）",
+        "用途",
+        "返回值与易错点"
+      ],
+      "rows": [
+        [
+          "`double fabs(double x);`",
+          "浮点绝对值",
+          "返回 x 的绝对值；整数绝对值用 abs / labs / llabs。"
+        ],
+        [
+          "`double log(double x);`",
+          "自然对数",
+          "返回以 e 为底的对数；通常要求 x > 0，不能把 log 当成以 10 为底。"
+        ],
+        [
+          "`double log10(double x);`",
+          "常用对数",
+          "返回以 10 为底的对数；通常要求 x > 0。"
+        ],
+        [
+          "`double pow(double x, double y);`",
+          "乘方",
+          "返回 x 的 y 次幂；返回浮点数。负底数配非整数指数无实数结果；精确整数幂见脚手架。"
+        ],
+        [
+          "`double sqrt(double x);`",
+          "平方根",
+          "返回非负平方根；通常要求 x >= 0。"
+        ],
+        [
+          "`double ceil(double x);`",
+          "向上取整",
+          "返回不小于 x 的最小整数值，返回类型仍为 double；ceil(-1.2) 为 -1。"
+        ],
+        [
+          "`double floor(double x);`",
+          "向下取整",
+          "返回不大于 x 的最大整数值，返回类型仍为 double；floor(-1.2) 为 -2。"
+        ]
+      ]
+    },
+    "io_objects": {
+      "columns": [
+        "变量/宏",
+        "描述"
+      ],
+      "rows": [
+        [
+          "`FILE`",
+          "文件流类型，适合存储文件流信息的对象类型。"
+        ],
+        [
+          "`NULL`",
+          "空指针常量的值。"
+        ],
+        [
+          "`EOF`",
+          "表示已经到达文件结束的负整数。"
+        ],
+        [
+          "`stderr`、`stdin`、`stdout`",
+          "指向 `FILE` 类型的指针，分别对应标准错误、标准输入、标准输出流。"
+        ]
+      ]
+    },
+    "formatted_io": {
+      "columns": [
+        "函数签名",
+        "简短描述",
+        "详细描述"
+      ],
+      "rows": [
+        [
+          "`int scanf(const char *format, ...);`",
+          "从标准输入",
+          "返回成功赋值的项数；首次赋值前发生输入失败时返回 EOF。"
+        ],
+        [
+          "`int printf(const char *format, ...);`",
+          "输出到标准输出",
+          "发送格式化输出到标准输出 `stdout`。"
+        ],
+        [
+          "`int sscanf(const char *str, const char *format, ...);`",
+          "从字符串输入",
+          "按格式从字符串读取，返回成功赋值的项数；检查是否达到所需字段数。"
+        ],
+        [
+          "`int sprintf(char *str, const char *format, ...);`",
+          "输出到字符串",
+          "写入字符串并补终止符；不检查容量，必须确保目标空间足够。"
+        ],
+        [
+          "`int snprintf(char *str, size_t size, const char *format, ...);`",
+          "限长输出到字符串",
+          "size > 0 时最多写 size-1 个字符并补终止符；返回本来需要的字符数（不含终止符），返回值 >= size 表示被截断。"
+        ]
+      ]
+    },
+    "file_io": {
+      "columns": [
+        "函数签名",
+        "简短描述",
+        "详细描述"
+      ],
+      "rows": [
+        [
+          "`FILE *fopen(const char *filename, const char *mode);`",
+          "打开文件",
+          "使用给定的模式 `mode` 打开 `filename` 所指向的文件。"
+        ],
+        [
+          "`int fclose(FILE *stream);`",
+          "关闭流",
+          "关闭流 `stream`，刷新所有的缓冲区。"
+        ],
+        [
+          "`int fprintf(FILE *stream, const char *format, ...);`",
+          "输出到指定流",
+          "发送格式化输出到流 `stream` 中。"
+        ],
+        [
+          "`int fscanf(FILE *stream, const char *format, ...);`",
+          "从指定流输入",
+          "从流 `stream` 读取格式化输入。"
+        ],
+        [
+          "`char *fgets(char *str, int n, FILE *stream);`",
+          "从流读取一行",
+          "从流 `stream` 读取最多 `n-1` 个字符到 `str`，遇到换行符或 `EOF` 停止；成功返回 `str`，失败返回 `NULL`。"
+        ]
+      ]
+    },
+    "file_modes": {
+      "columns": [
+        "模式",
+        "描述"
+      ],
+      "rows": [
+        [
+          "`\"r\"`",
+          "读取已有文件；不存在则打开失败。"
+        ],
+        [
+          "`\"w\"`",
+          "写入；不存在则创建，存在则清空原内容。"
+        ],
+        [
+          "`\"a\"`",
+          "追加写入；不存在则创建，写入位置在文件末尾。"
+        ]
+      ]
+    },
+    "allocation": {
+      "columns": [
+        "函数签名（stdlib.h）",
+        "用途",
+        "返回值与注意事项"
+      ],
+      "rows": [
+        [
+          "`void *malloc(size_t size);`",
+          "分配内存",
+          "申请 size 字节，内容未初始化；失败返回 NULL。"
+        ],
+        [
+          "`void *calloc(size_t n, size_t size);`",
+          "分配并清零",
+          "申请 n 个 size 字节的元素，全部字节清零；失败返回 NULL。"
+        ],
+        [
+          "`void *realloc(void *ptr, size_t size);`",
+          "调整容量",
+          "成功返回新地址；失败返回 NULL 且原块仍有效，宜用临时指针接收。size 为 0 的行为不作统一假设。"
+        ],
+        [
+          "`void free(void *ptr);`",
+          "释放内存",
+          "释放后不能再访问或重复释放；free(NULL) 无操作。"
+        ]
+      ]
+    },
+    "sort_search": {
+      "columns": [
+        "函数签名（stdlib.h）",
+        "用途",
+        "使用前提"
+      ],
+      "rows": [
+        [
+          "`void *bsearch(const void *key, const void *base, size_t nitems, size_t size, int (*compar)(const void *, const void *));`",
+          "二分查找",
+          "要求数组已按同一比较规则排序；找到时返回元素地址，找不到返回 NULL；不保证返回重复值的第一项。"
+        ],
+        [
+          "`void qsort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void *));`",
+          "数组排序",
+          "原地排序 n 个元素；比较器返回负、零、正表示小于、等于、大于；相等元素的顺序不保证保留。"
+        ]
+      ]
+    },
+    "integer_abs": {
+      "columns": [
+        "函数签名（stdlib.h）",
+        "用途",
+        "注意事项"
+      ],
+      "rows": [
+        [
+          "`int abs(int x);`",
+          "int 绝对值",
+          "结果必须能由 int 表示；不能用它处理浮点数。"
+        ],
+        [
+          "`long labs(long x);`",
+          "long 绝对值",
+          "结果必须能由 long 表示。"
+        ],
+        [
+          "`long long llabs(long long x);`",
+          "long long 绝对值（C99）",
+          "结果必须能由 long long 表示；最小负值的绝对值可能溢出。"
+        ]
+      ]
+    },
+    "memory_ops": {
+      "columns": [
+        "函数签名（string.h）",
+        "用途",
+        "注意事项"
+      ],
+      "rows": [
+        [
+          "`void *memset(void *ptr, int c, size_t n);`",
+          "填充字节",
+          "将前 n 个字节填为 (unsigned char)c，返回 ptr；把 int 数组填成 1 不能直接 memset(...,1,...)。"
+        ]
+      ]
+    },
+    "strings": {
+      "columns": [
+        "函数签名（string.h）",
+        "用途",
+        "使用前提与返回值"
+      ],
+      "rows": [
+        [
+          "`char *strcat(char *dest, const char *src);`",
+          "追加",
+          "追加整个 src 并补终止符；dest 空间必须足够，两块区域不能重叠。"
+        ],
+        [
+          "`char *strncat(char *dest, const char *src, size_t n);`",
+          "限长追加",
+          "最多追加 n 个源字符，再补终止符；n 不是 dest 的总容量，仍需留足空间。"
+        ],
+        [
+          "`char *strchr(const char *str, int c);`",
+          "查找字符",
+          "返回目标字符第一次出现的位置，找不到返回 NULL。"
+        ],
+        [
+          "`int strcmp(const char *str1, const char *str2);`",
+          "比较",
+          "按字典顺序比较；返回负数、零、正数，不能假设只返回 -1、0、1。"
+        ],
+        [
+          "`int strncmp(const char *str1, const char *str2, size_t n);`",
+          "限长比较",
+          "最多比较 n 个字符；返回负数、零、正数。"
+        ],
+        [
+          "`char *strcpy(char *dest, const char *src);`",
+          "复制",
+          "复制包含终止符的整个字符串；dest 空间必须足够，源和目标不能重叠。"
+        ],
+        [
+          "`char *strncpy(char *dest, const char *src, size_t n);`",
+          "限长复制",
+          "最多复制 n 个字符；源长度 >= n 时不会自动补终止符，短于 n 时补零。"
+        ],
+        [
+          "`size_t strlen(const char *str);`",
+          "字符串长度",
+          "返回终止符前的字符字节数，不计终止符；返回 size_t，不是 int。"
+        ],
+        [
+          "`char *strstr(const char *haystack, const char *needle);`",
+          "查找子串",
+          "返回子串首次匹配的位置，找不到返回 NULL；不是子序列匹配。"
+        ],
+        [
+          "`char *strtok(char *str, const char *delim);`",
+          "分割字符串",
+          "把分隔字符集合用于原地拆分，修改原串；后续调用传 NULL，无更多项返回 NULL。"
+        ]
+      ]
+    }
+  },
+  "indexes": {
+    "math_other": [
+      {
+        "label": "三角函数",
+        "text": "`sin`、`cos`、`tan`：正弦、余弦、正切（弧度）；`asin`、`acos`、`atan`：反三角函数；`atan2(y,x)`：带象限的反正切。"
+      },
+      {
+        "label": "双曲函数",
+        "text": "`sinh`、`cosh`、`tanh`：双曲函数；`asinh`、`acosh`、`atanh`：反双曲函数。"
+      },
+      {
+        "label": "指数与对数",
+        "text": "`exp`、`exp2`：e 或 2 的幂；`expm1`、`log1p`：exp(x)-1、log(1+x)；`log2`：以 2 为底；`logb`、`ilogb`：取浮点指数。"
+      },
+      {
+        "label": "拆分与缩放",
+        "text": "`frexp`、`ldexp`：按 2 的幂拆分与组合；`modf`：拆整数/小数部分；`scalbn`、`scalbln`：按浮点基数的幂缩放。"
+      },
+      {
+        "label": "幂与距离",
+        "text": "`cbrt`：立方根；`hypot`：计算平方和的平方根。"
+      },
+      {
+        "label": "取整",
+        "text": "`trunc`：向零取整；`round`、`lround`、`llround`：恰好一半时远离零；`nearbyint`、`rint`、`lrint`、`llrint`：遵循当前舍入方式。"
+      },
+      {
+        "label": "余数",
+        "text": "`fmod`：浮点取余；`remainder`：按最近整数商计算余数；`remquo`：同时取得部分商信息。"
+      },
+      {
+        "label": "浮点值与相邻值",
+        "text": "`copysign`：复制符号；`nan`：生成 NaN；`nextafter`、`nexttoward`：向指定方向取得相邻浮点值。"
+      },
+      {
+        "label": "比较与组合",
+        "text": "`fdim`：正差；`fmax`、`fmin`：较大/较小值；`fma`：乘加并进行一次舍入。"
+      },
+      {
+        "label": "误差与 Gamma 函数",
+        "text": "`erf`、`erfc`：误差函数及补函数；`tgamma`、`lgamma`：Gamma 函数及其绝对值的自然对数。"
+      }
+    ],
+    "math_macros": [
+      {
+        "label": "分类与符号",
+        "text": "`fpclassify`、`isfinite`、`isinf`、`isnan`、`isnormal`、`signbit`。"
+      },
+      {
+        "label": "关系判断",
+        "text": "`isgreater`、`isgreaterequal`、`isless`、`islessequal`、`islessgreater`、`isunordered`。"
+      },
+      {
+        "label": "常量与错误标记",
+        "text": "`HUGE_VAL` / `HUGE_VALF` / `HUGE_VALL`、`INFINITY`、`NAN`；分类结果 `FP_INFINITE` / `FP_NAN` / `FP_NORMAL` / `FP_SUBNORMAL` / `FP_ZERO`；`math_errhandling`、`MATH_ERRNO`、`MATH_ERREXCEPT`。"
+      }
+    ]
+  }
+}

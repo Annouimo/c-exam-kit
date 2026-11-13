@@ -4,6 +4,7 @@
 Requires pandoc, Noto Sans CJK fonts, reportlab and fonttools. No browser/network.
 """
 from pathlib import Path
+import argparse
 import html
 import json
 import re
@@ -13,13 +14,13 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def embed_cjk(source,target,characters,bold=False):
+def embed_cjk(source,target,characters,bold=False,font_number=2):
     from fontTools.ttLib import TTFont
     from fontTools import subset
     from fontTools.fontBuilder import FontBuilder
     from fontTools.pens.ttGlyphPen import TTGlyphPen
     from fontTools.pens.cu2quPen import Cu2QuPen
-    font=TTFont(source,fontNumber=2)
+    font=TTFont(source,fontNumber=font_number)
     options=subset.Options();options.recalc_bounds=True
     sub=subset.Subsetter(options=options);sub.populate(unicodes={ord(x) for x in characters}|set(range(32,127)))
     sub.subset(font)
@@ -49,29 +50,40 @@ def main():
     from reportlab.lib.pagesizes import A4
     from reportlab.platypus import BaseDocTemplate,PageTemplate,Frame,Paragraph,Spacer,LongTable,TableStyle,PageBreak,KeepTogether
     from reportlab.platypus.tableofcontents import TableOfContents
-    data=json.loads((ROOT/'catalog/catalog.json').read_text(encoding='utf-8'))
-    md=(ROOT/'docs/C语言考试手册.md').read_text(encoding='utf-8')
+    from build import load_catalog
+    from handbook import load_profile,values,substitute,handbook_outputs
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--preview',action='store_true',help='mark this PDF as an unpublished preview')
+    args=parser.parse_args()
+    data=load_catalog();meta=values(data)
+    pdf=json.loads((ROOT/'catalog/handbook/pdf.json').read_text(encoding='utf-8'))
+    generated=handbook_outputs(data)
+    md=next(iter(generated.values()))
     ast=json.loads(subprocess.check_output(['pandoc','--from=markdown','--to=json'],input=md.encode()))
-    target=ROOT/'release'/f'c-exam-handbook-v{data["handbook_version"]}.pdf';target.parent.mkdir(exist_ok=True)
-    chars=md+'•±×−C语言考试手册目录页脚手册版本配套脚手架Annouimo0123456789'
-    fonts=Path('/usr/share/fonts/opentype/noto')
+    metadata=[];body=[]
+    for block in ast['blocks']:
+        if block['t']=='Header' and block['c'][0]==1:continue
+        if block['t']=='Para' and len(metadata)<pdf['metadata_paragraphs'] and not body:metadata.append(block)
+        else:body.append(block)
+    target=ROOT/substitute(pdf['output'],meta);target.parent.mkdir(exist_ok=True)
+    labels={k:substitute(pdf[k],meta) for k in ['header_left','header_right','footer_left','contents_title']}
+    chars=md+'•±×−0123456789'+''.join(labels.values())+pdf['preview_label']
+    fonts=Path(pdf['font_directory']);margins=pdf['margins']
     with tempfile.TemporaryDirectory(prefix='c-exam-fonts-') as temp:
         temp=Path(temp)
         for name,file,bold in [('CJK','NotoSansCJK-Regular.ttc',False),('CJKBold','NotoSansCJK-Bold.ttc',True)]:
-            out=temp/(name+'.ttf');embed_cjk(fonts/file,out,chars,bold)
+            out=temp/(name+'.ttf');embed_cjk(fonts/file,out,chars,bold,pdf['font_collection_index'])
             pdfmetrics.registerFont(TTFont(name,out))
-        pdfmetrics.registerFont(TTFont('Code','/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'))
+        pdfmetrics.registerFont(TTFont('Code',pdf['mono_font']))
         pdfmetrics.registerFontFamily('CJK',normal='CJK',bold='CJKBold',italic='CJK',boldItalic='CJKBold')
-        blue=colors.HexColor('#285773');ink=colors.HexColor('#233143');muted=colors.HexColor('#617080')
-        width=A4[0]-88
+        palette={k:colors.HexColor(v) for k,v in pdf['colors'].items()}
+        muted=palette['muted'];width=A4[0]-margins['left']-margins['right']
         styles={}
-        for name,size,leading in [('body',9,14),('small',8,12),('cell',7.7,11.2),('code',7.5,11),('h2',13,18),('h3',10,15),('h4',9.5,14),('title',24,32),('toc',9,14)]:
-            styles[name]=ParagraphStyle(name,fontName='CJKBold' if name in ['title','h2','h3','h4'] else 'CJK',fontSize=size,leading=leading,textColor=blue if name.startswith('h') else ink,wordWrap='CJK',spaceAfter=6,alignment=TA_LEFT,splitLongWords=True)
-        for name in ['h2','h3','h4']:
-            styles[name].keepWithNext=True;styles[name].spaceBefore=12
-        styles['code'].fontName='Code';styles['code'].backColor=colors.HexColor('#f3f6f8')
-        styles['code'].borderPadding=(2,6,2,6);styles['code'].leftIndent=6;styles['code'].rightIndent=6;styles['code'].spaceAfter=0
-        styles['cell'].spaceAfter=0
+        for name,options in pdf['styles'].items():
+            options=options.copy()
+            for key in ['textColor','backColor']:
+                if key in options:options[key]=colors.HexColor(options[key])
+            styles[name]=ParagraphStyle(name,wordWrap='CJK',alignment=TA_LEFT,splitLongWords=True,**options)
         def code_markup(text):
             return ''.join('<font name="CJK">'+html.escape(part)+'</font>' if any(ord(c)>127 for c in part) else html.escape(part).replace(' ','&#160;') for part in re.findall(r'[^\x00-\x7f]+|[\x00-\x7f]+',text))
         def inline(items):
@@ -81,10 +93,10 @@ def main():
                 if kind=='Str':out.append(html.escape(value))
                 elif kind in ['Space','SoftBreak']:out.append(' ')
                 elif kind=='LineBreak':out.append('<br/>')
-                elif kind=='Code':out.append('<font name="Code" size="7.5">'+code_markup(value[1])+'</font>')
+                elif kind=='Code':out.append(f'<font name="Code" size="{pdf["inline_code_size"]}">'+code_markup(value[1])+'</font>')
                 elif kind in ['Strong','Emph']:
                     tag='b' if kind=='Strong' else 'i';out.append('<'+tag+'>'+inline(value)+'</'+tag+'>')
-                elif kind=='Link':out.append('<link color="#205f86" href="'+html.escape(value[2][0],quote=True)+'">'+inline(value[1])+'</link>')
+                elif kind=='Link':out.append('<link color="'+pdf['colors']['link']+'" href="'+html.escape(value[2][0],quote=True)+'">'+inline(value[1])+'</link>')
                 elif kind=='Math':
                     math=value[1].replace(r'\pm','±').replace(r'\times','×')
                     if re.search(r'\\[A-Za-z]',math):raise ValueError('Unsupported math: '+math)
@@ -105,33 +117,35 @@ def main():
                 elif kind=='Header':
                     level,attrs,content=value;p=para(inline(content),'h'+str(min(4,max(2,level))))
                     p.section_level=level;p.section_text=re.sub('<[^>]+>','',inline(content))
-                    if level==2 and p.section_text=='脚手架目录与使用':flow.append(PageBreak())
+                    if level==2 and p.section_text in pdf['page_break_before']:flow.append(PageBreak())
                     flow.append(p)
                 elif kind=='CodeBlock':
                     code=[Spacer(1,5)]+[para(code_markup(line),'code') for line in value[1].splitlines()]+[Spacer(1,7)]
-                    if len(value[1].splitlines())<=30:flow.append(KeepTogether(code))
+                    if len(value[1].splitlines())<=pdf['keep_code_lines']:flow.append(KeepTogether(code))
                     else:flow.extend(code)
                 elif kind in ['BulletList','OrderedList']:
                     items=value if kind=='BulletList' else value[1]
                     for i,item in enumerate(items):
                         prefix='• ' if kind=='BulletList' else str(value[0][0]+i)+'. '
                         text=blocks_text(item)
-                        if text:flow.append(para(prefix+text))
+                        if text:flow.append(para(prefix+text,'list'))
                         nested=[b for b in item if b['t'] not in ['Plain','Para']]
                         if nested:flow.extend(render(nested))
                 elif kind=='BlockQuote':
                     for child in render(value):
-                        if isinstance(child,Paragraph):child.style=ParagraphStyle('quote',parent=styles['small'],leftIndent=9,borderPadding=5,backColor=colors.HexColor('#edf3f7'))
+                        if isinstance(child,Paragraph):child.style=ParagraphStyle('quote',parent=styles['small'],leftIndent=9,borderPadding=5,backColor=palette['quote'])
                         flow.append(child)
                 elif kind=='Table':
                     heads=value[3][1];bodies=value[4];rows=list(heads)
                     for body in bodies:rows.extend(body[2]);rows.extend(body[3])
                     cells=[[para(blocks_text(cell[4]),'cell') for cell in row[1]] for row in rows]
-                    count=len(value[2]);ratios={2:[.23,.77],3:[.43,.17,.40],4:[.16,.15,.34,.35]}.get(count,[1/count]*count)
-                    if count==4 and '函数' in blocks_text(rows[0][1][0][4]):ratios=[.13,.39,.13,.35]
+                    count=len(value[2]);ratios=pdf['table_widths'].get(str(count),[1/count]*count)
+                    for rule in pdf['table_width_rules']:
+                        if count==rule['columns'] and rule['first_header_contains'] in blocks_text(rows[0][1][0][4]):ratios=rule['widths']
                     table=LongTable(cells,colWidths=[width*x for x in ratios],repeatRows=len(heads),hAlign='LEFT')
-                    table.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('GRID',(0,0),(-1,-1),.35,colors.HexColor('#cdd7df')),('BACKGROUND',(0,0),(-1,len(heads)-1),colors.HexColor('#e8f0f5')),('ROWBACKGROUNDS',(0,len(heads)),(-1,-1),[colors.white,colors.HexColor('#f7f9fa')]),('LEFTPADDING',(0,0),(-1,-1),6),('RIGHTPADDING',(0,0),(-1,-1),6),('TOPPADDING',(0,0),(-1,-1),4),('BOTTOMPADDING',(0,0),(-1,-1),4)]))
-                    flow.extend([Spacer(1,4),table,Spacer(1,8)])
+                    table.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('GRID',(0,0),(-1,-1),.35,palette['table_line']),('BACKGROUND',(0,0),(-1,len(heads)-1),palette['table_header']),('ROWBACKGROUNDS',(0,len(heads)),(-1,-1),[colors.white,palette['table_alt']]),('LEFTPADDING',(0,0),(-1,-1),pdf['table_padding']['horizontal']),('RIGHTPADDING',(0,0),(-1,-1),pdf['table_padding']['horizontal']),('TOPPADDING',(0,0),(-1,-1),pdf['table_padding']['vertical']),('BOTTOMPADDING',(0,0),(-1,-1),pdf['table_padding']['vertical'])]))
+                    before=Spacer(1,4);before.keepWithNext=True
+                    flow.extend([before,table,Spacer(1,8)])
                 elif kind=='HorizontalRule':flow.append(Spacer(1,6))
                 else:raise ValueError('Unsupported Markdown block: '+kind)
             return flow
@@ -142,16 +156,20 @@ def main():
                     self.canv.bookmarkPage(key)
                     self.canv.addOutlineEntry(flowable.section_text,key,level=max(0,level-2),closed=False)
                     if level==2:self.notify('TOCEntry',(0,flowable.section_text,self.page,key))
-        doc=Document(str(target),pagesize=A4,leftMargin=44,rightMargin=44,topMargin=46,bottomMargin=40,title='C语言考试手册 v'+data['handbook_version'],author='Annouimo')
+        doc=Document(str(target),pagesize=A4,leftMargin=margins['left'],rightMargin=margins['right'],topMargin=margins['top'],bottomMargin=margins['bottom'],title=meta['handbook_title']+' '+meta['handbook_version'],author=meta['author'])
         def page(canvas,doc):
-            canvas.setStrokeColor(colors.HexColor('#ced9e2'));canvas.setLineWidth(.4);canvas.line(44,A4[1]-30,A4[0]-44,A4[1]-30)
+            canvas.setStrokeColor(palette['rule']);canvas.setLineWidth(.4)
+            canvas.line(margins['left'],A4[1]-30,A4[0]-margins['right'],A4[1]-30)
             canvas.setFont('CJK',8);canvas.setFillColor(muted)
-            canvas.drawString(44,A4[1]-23,'C EXAM KIT / C语言考试手册')
-            canvas.drawRightString(A4[0]-44,A4[1]-23,'v'+data['handbook_version'])
-            canvas.drawString(44,23,'Annouimo');canvas.drawRightString(A4[0]-44,23,str(doc.page))
-        doc.addPageTemplates(PageTemplate(id='handbook',frames=[Frame(44,40,width,A4[1]-86,leftPadding=0,rightPadding=0,topPadding=0,bottomPadding=0)],onPage=page))
+            canvas.drawString(margins['left'],A4[1]-23,labels['header_left'])
+            canvas.drawRightString(A4[0]-margins['right'],A4[1]-23,labels['header_right'])
+            canvas.drawString(margins['left'],23,labels['footer_left'])
+            canvas.drawRightString(A4[0]-margins['right'],23,str(doc.page))
+        doc.addPageTemplates(PageTemplate(id='handbook',frames=[Frame(margins['left'],margins['bottom'],width,A4[1]-margins['top']-margins['bottom'],leftPadding=0,rightPadding=0,topPadding=0,bottomPadding=0)],onPage=page))
         toc=TableOfContents();toc.levelStyles=[styles['toc']]
-        story=[para('C语言考试手册','title'),para(f'手册 v{data["handbook_version"]} · 配套脚手架 v{data["version"]} · Annouimo','small'),Spacer(1,6),para('目录','h3'),toc,Spacer(1,12)]+render(ast['blocks'])
+        story=[para(meta['handbook_title'],'title')]+render(metadata)
+        if args.preview and pdf['preview_label']:story.append(para(pdf['preview_label'],'small'))
+        story+=[Spacer(1,6),para(labels['contents_title'],'h3'),toc,Spacer(1,12)]+render(body)
         doc.multiBuild(story)
     print(target)
 

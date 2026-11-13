@@ -2,7 +2,7 @@ name: Check, build and release
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feat/handbook-topic-templates']
   workflow_dispatch:
 
 permissions:
@@ -97,9 +97,7 @@ jobs:
           cp "dist/$source" assets/
           cp release/*.zip assets/
           cp release/*.pdf assets/
-          cp docs/C语言考试手册.md "assets/c-exam-handbook-v$handbook.md"
-          cp docs/脚手架附录.md "assets/scaffold-appendix-v$version.md"
-          cp docs/全量脚手架手册.md "assets/scaffold-manual-v$version.md"
+          cp release/*.md assets/
           pdftotext "release/c-exam-handbook-v$handbook.pdf" build-pdf-text.txt
           grep -q '脚手架' build-pdf-text.txt
           grep -q '四舍五入' build-pdf-text.txt
@@ -111,6 +109,7 @@ jobs:
           path: assets/*
 
   release:
+    if: github.ref == 'refs/heads/main'
     needs: [build, gcc9, documents]
     runs-on: ubuntu-latest
     permissions:

@@ -1,0 +1,79 @@
+{
+  "template": "docs/templates/exam_handbook.md",
+  "markdown_output": "release/c-exam-handbook-{{ handbook_version }}.md",
+  "full_manual_template": "docs/templates/scaffold_manual.md",
+  "full_manual_output": "release/scaffold-manual-{{ scaffold_version }}.md",
+  "metadata": {
+    "handbook_title": "C语言考试手册",
+    "handbook_slug": "c-language-exam-guide",
+    "published_date": "2026-11-10",
+    "updated_date": "2026-11-13",
+    "author": "Annouimo",
+    "scaffold_name": "C语言脚手架",
+    "repository_name": "Annouimo/c-exam-kit",
+    "repository_url": "https://github.com/Annouimo/c-exam-kit",
+    "releases_url": "https://github.com/Annouimo/c-exam-kit/releases"
+  },
+  "manual_export_label": "导出全量脚手架手册",
+  "scaffold_topics": {
+    "math": [
+      "base_digits",
+      "gcd_lcm",
+      "prime_trial",
+      "prime_sieve",
+      "factorial_basic",
+      "power_equal",
+      "rounding",
+      "polynomial",
+      "quadratic",
+      "bisect_root",
+      "complex"
+    ],
+    "arrays": [
+      "frequency",
+      "longest_run",
+      "max_subarray",
+      "forward_difference",
+      "prefix_sum",
+      "rmq",
+      "matrix_multiply",
+      "sort_numbers",
+      "sort_search",
+      "sort_records",
+      "original_position",
+      "bounds",
+      "rank_unique",
+      "binary_answer"
+    ],
+    "strings": [
+      "string_basics",
+      "sort_strings",
+      "longest_char_run"
+    ],
+    "dates": [
+      "dates",
+      "date_shift",
+      "times"
+    ],
+    "bits": [
+      "binary_display",
+      "bit_operations"
+    ],
+    "bigints": [
+      "big_add",
+      "big_subtract",
+      "big_multiply",
+      "big_divide",
+      "big_divide_small",
+      "big_factorial"
+    ],
+    "recursion": [
+      "memo_recursion",
+      "stack",
+      "grid_dfs",
+      "grid_paths"
+    ]
+  },
+  "appendix_template": "docs/templates/scaffold_appendix.md",
+  "appendix_output": "release/scaffold-appendix-{{ scaffold_version }}.md"
+}

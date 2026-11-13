@@ -153,58 +153,11 @@ def config_c(data):
     return '\n'.join(lines)
 
 
-def expand_default(code):
-    for key,value in [('SEPARATOR_LITERAL','" "'),('VALUE_SCAN','"%d"'),('VALUE_PRINT','"%d"'),('VALUE','int')]:
-        code=re.sub(r'\b'+key+r'\b',lambda _:value,code)
-    for key in ['BODY','LOOP','INPUT','OUTPUT']:
-        code=code.replace('@'+key+'@','    /* TODO: 按题目补齐 */\n')
-    return code
-
-
-def docs(data):
-    appendix=['## 脚手架目录与使用\n', f'配套脚手架版本：v{data["version"]}。\n', '先选输入输出骨架，再选函数组件与可选main片段、配置类型和容量。默认复制纯源码到剪贴板，控制台显示本次所选功能的说明；输入 `c` 查看源码、`s` 另存文件，回车退出。复制失败可改为保存文件。按 `TODO` 补齐题目逻辑，函数需要自己调用；仅函数模式适合接入已有程序。\n']
-    for g,title in enumerate(data['groups']):
-        appendix.append('### '+title+'\n')
-        appendix.extend(f'- {i+1}. {x["name"]}：{x["summary"]}' for i,x in enumerate(data['components']) if x['group']==g)
-        appendix.append('')
-    for key,groups,title in [('io','io_groups','程序的输入输出方式'),('fragments','fragment_groups','main里的可选代码片段')]:
-        appendix.append('### '+title+'\n')
-        for g,group in enumerate(data[groups]):
-            rows=[f'{i+1}「{x["name"]}」' for i,x in enumerate(data[key]) if x['group']==g]
-            appendix.append('- '+group+'：'+'；'.join(rows)+'。')
-        if key=='io':appendix.append(f'- 其他：{len(data["io"])+1}「导出全量脚手架手册」。')
-        appendix.append('')
-    pieces={x['id']:x for x in data['pieces']}
-    full=[f'# C语言全量脚手架手册 v{data["version"]}\n',f'设计者：{data["designer"]}\n', '离线固定模板装配工具。选择骨架、组件、可选main片段并配置，生成后自行补齐题意、函数调用和输入输出。以下默认为int；需要时在程序选择long long。生成代码使用math.h时，GCC/Clang通常需要链接 `-lm`。\n']
-    for key,groups,title in [('io','io_groups','输入输出骨架'),('components','groups','函数组件'),('fragments','fragment_groups','main里的可选片段')]:
-        full.append('## '+title+'\n')
-        for g,group in enumerate(data[groups]):
-            full.append('### '+group+'\n')
-            for i,x in enumerate(data[key]):
-                if x['group']!=g:continue
-                full.extend([f'#### {i+1}. {x["name"]}\n',x.get('note',x['help'])+'\n'])
-                if key=='components':
-                    code='#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n'
-                    for cap in data['capacities']:
-                        if cap['macro'] in x['caps']:
-                            code+=f'#define {cap["macro"]} {cap["default"]}\n'
-                            if cap['log_macro']:code+=f'#define {cap["log_macro"]} {cap["default"].bit_length()}\n'
-                    for pid in x['resolved_pieces']:
-                        p=pieces[pid]
-                        if p['details']:full.append(p['details']+'\n')
-                        code+='\n'+re.sub(r'^#define[^\n]*\n','',p['code'],flags=re.M)
-                    full.append('```c\n'+code+'```\n')
-                elif x['code']:
-                    full.extend([('' if key=='io' else x['help']+'\n'),'```c\n'+expand_default(x['code'])+'```\n'])
-    full.extend(['## 自测与提交检查\n','- 检查TODO、函数调用、0/1下标、数组容量、多组状态重置。','- 试空输入、单元素、重复值、全负数、末行无换行。','- 核对输出小数位、分隔符和换行；分隔符只在两项之间输出。','- 基础阶乘只支持0..20；更大结果使用大整数。','- 四舍五入恰好一半时远离0，严格十进制题不要直接依赖二进制浮点。',''])
-    return '\n'.join(appendix), '\n'.join(full)
-
-
 def outputs(data):
     header=(ROOT/'src/platform_headers.h').read_text(encoding='utf-8')
     text_io=(ROOT/'src/text_io.c').read_text(encoding='utf-8')
     runtime=(ROOT/'src/runtime.c').read_text(encoding='utf-8').replace('/* @CONFIG@ */',config_c(data))
-    appendix,full=docs(data)
+    from handbook import all_document_outputs
     name=source_filename(data)
     notice=f'''/******************************************************************************
  *                         STOP - READ THIS FIRST
@@ -231,29 +184,34 @@ def outputs(data):
  */
 '''
     source=ascii_c(notice+header+'\n'+catalog_c(data)+'\n'+text_io+'\n'+runtime)
-    return {'dist/'+name:source,'docs/脚手架附录.md':appendix,'docs/全量脚手架手册.md':full}
+    return {'dist/'+name:source,**all_document_outputs(data)}
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check',action='store_true',help='fail if generated files differ; write nothing')
+    parser.add_argument('--docs-only',action='store_true',help='generate reading editions without rebuilding C source')
     parser.add_argument('--package',action='store_true',help='also create a reproducible source distribution ZIP')
     parser.add_argument('--source-name',action='store_true',help='print the versioned standalone source filename')
     args=parser.parse_args()
     data=load_catalog()
     if args.source_name:
         print(source_filename(data));return
+    if args.docs_only and (args.package or args.source_name):parser.error('--docs-only cannot be combined with --package or --source-name')
     stale=[]
     # Keep dist unambiguous for people compiling the downloaded single file.
-    for path in (ROOT/'dist').glob('*.c'):
+    for path in ([] if args.docs_only else (ROOT/'dist').glob('*.c')):
         if path.name=='c_template_builder.c' or re.fullmatch(r'c_scaffold_v[0-9.]+\.c',path.name):
             if path.name!=source_filename(data):
                 if args.check:stale.append(str(path.relative_to(ROOT))+' (obsolete)')
                 else:path.unlink()
-    for name,text in outputs(data).items():
+    from handbook import all_document_outputs
+    rendered=all_document_outputs(data) if args.docs_only else outputs(data)
+    for name,text in rendered.items():
         path=ROOT/name
         if args.check:
-            if not path.exists() or path.read_bytes()!=text.encode('utf-8'):stale.append(name)
+            # Reading editions are ignored build artifacts; validate generation even in a fresh checkout.
+            if (path.exists() and path.read_bytes()!=text.encode('utf-8')) or (not path.exists() and not name.startswith('release/')):stale.append(name)
         else:
             path.parent.mkdir(parents=True,exist_ok=True)
             path.write_bytes(text.encode('utf-8'))

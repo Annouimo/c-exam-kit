@@ -11,8 +11,10 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+import sys
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'tools'))
 spec=importlib.util.spec_from_file_location('builder',ROOT/'tools/build.py')
 builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
 DATA=builder.load_catalog()
@@ -38,6 +40,7 @@ def compile_c(source,target,objects=False):
 class ProjectTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        run([sys.executable,ROOT/'tools/build.py','--docs-only'])
         cls.temp=tempfile.TemporaryDirectory(prefix='c-exam-test-');cls.d=Path(cls.temp.name)
         cls.exe=cls.d/'builder.exe'
         compile_c(SOURCE,cls.exe)
@@ -51,16 +54,88 @@ class ProjectTests(unittest.TestCase):
         exe=self.d/(name+'.exe');compile_c(p,exe);return exe
 
     def test_reproducible_and_handbook_independent(self):
-        before=(ROOT/'docs/C语言考试手册.md').read_bytes()
+        before=(ROOT/'docs/templates/exam_handbook.md').read_bytes()
         run(['python3',ROOT/'tools/build.py','--check'],cwd=self.d)
         first=builder.outputs(builder.load_catalog());second=builder.outputs(builder.load_catalog())
         self.assertEqual(first,second)
-        self.assertEqual(before,(ROOT/'docs/C语言考试手册.md').read_bytes())
-        appendix=(ROOT/'docs/脚手架附录.md').read_text(encoding='utf-8')
+        self.assertEqual(before,(ROOT/'docs/templates/exam_handbook.md').read_bytes())
+        appendix=(ROOT/f'release/scaffold-appendix-v{DATA["version"]}.md').read_text(encoding='utf-8')
         self.assertNotIn('|',appendix)
         self.assertEqual(len(re.findall(r'^- \d+\. ',appendix,re.M)),len(DATA['components']))
-        self.assertIn('https://github.com/Annouimo/c-exam-kit/releases',before.decode())
+        self.assertIn('https://github.com/Annouimo/c-exam-kit/releases',(ROOT/f'release/c-exam-handbook-v{DATA["handbook_version"]}.md').read_text(encoding='utf-8'))
         self.assertIn(DATA['version'],run([self.exe,'--version']))
+
+    def test_handbook_topics_and_editable_prose(self):
+        import copy
+        import handbook
+        profile=handbook.load_profile()
+        ids=[key for items in profile['scaffold_topics'].values() for key in items]
+        self.assertCountEqual(ids,[x['id'] for x in DATA['components']])
+        for kind in ['duplicate','missing','unknown']:
+            changed=copy.deepcopy(profile)
+            topic=next(iter(changed['scaffold_topics']))
+            if kind=='duplicate':changed['scaffold_topics'][topic].append(ids[0])
+            elif kind=='missing':changed['scaffold_topics'][topic].pop()
+            else:changed['scaffold_topics'][topic].append('unknown_component')
+            with self.assertRaises(ValueError):handbook.topic_catalog(DATA,changed)
+        with self.assertRaises(ValueError):handbook.substitute('{{ unknown }}',{})
+        with self.assertRaises(ValueError):handbook.table({'columns':['a'],'rows':[['a','b']]})
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            shutil.copytree(ROOT/'catalog',root/'catalog')
+            shutil.copytree(ROOT/'docs/templates',root/'docs/templates')
+            path=root/profile['template']
+            original=path.read_text(encoding='utf-8')
+            edited=original.replace('## 数据类型','作者手工添加的说明，不应被构建覆盖。\n\n## 数据类型')
+            path.write_text(edited,encoding='utf-8')
+            rendered=handbook.handbook_outputs(DATA,root)
+            content=next(iter(rendered.values()))
+            self.assertIn('作者手工添加的说明，不应被构建覆盖。',content)
+            self.assertEqual(path.read_text(encoding='utf-8'),edited)
+            self.assertNotIn('{{',content)
+            self.assertNotIn('<!--',content)
+            self.assertEqual(content.count('作者：Annouimo'),1)
+            self.assertEqual(content.count('COMPILE AND RUN'),0)
+        self.assertFalse((ROOT/'docs/C语言考试手册.md').exists())
+
+    def test_standard_math_reference_coverage(self):
+        reference=json.loads((ROOT/'catalog/handbook/references.json').read_text(encoding='utf-8'))
+        common=reference['tables']['math_common']['rows']
+        self.assertEqual(len(common),7)
+        self.assertEqual({re.search(r'\b(fabs|log|log10|pow|sqrt|ceil|floor)\b',' '.join(row))[0] for row in common},
+            {'fabs','log','log10','pow','sqrt','ceil','floor'})
+        expected=set('acos asin atan atan2 cos sin tan acosh asinh atanh cosh sinh tanh exp exp2 expm1 frexp ilogb ldexp log1p log2 logb modf scalbn scalbln cbrt hypot erf erfc lgamma tgamma nearbyint rint lrint llrint round lround llround trunc fmod remainder remquo copysign nan nextafter nexttoward fdim fmax fmin fma'.split())
+        index=' '.join(x['text'] for x in reference['indexes']['math_other'])
+        found=set(re.findall(r'`([a-z][a-z0-9]*)(?:\([^`]*\))?`',index))
+        self.assertEqual(found,expected)
+        macros=' '.join(x['text'] for x in reference['indexes']['math_macros'])
+        self.assertIn('isfinite',macros)
+        self.assertNotIn('isfinite',found)
+
+    def test_standard_sort_and_search_helpers(self):
+        pieces={p['id']:p for p in DATA['pieces']}
+        for wide in [False,True]:
+            code='\n'.join((pieces[k]['wide_code'] if wide else pieces[k]['code']) for k in ['cmp_int','sort_int_array','bsearch_sorted_int'])
+            typ='long long' if wide else 'int'
+            low='LLONG_MIN' if wide else 'INT_MIN'
+            high='LLONG_MAX' if wide else 'INT_MAX'
+            source=self.d/f'sort_helpers_{wide}.c'
+            source.write_text('#include <stdlib.h>\n#include <assert.h>\n#include <limits.h>\n'+code+f"""
+int main(void) {{
+    {typ} a[]={{3,{high},-1,3,{low}}};
+    sort_int_array(a,5);
+    assert(a[0]=={low} && a[1]==-1 && a[2]==3 && a[3]==3 && a[4]=={high});
+    assert(bsearch_sorted_int(a,5,{low})==0);
+    assert(bsearch_sorted_int(a,5,{high})==4);
+    int i=bsearch_sorted_int(a,5,3);
+    assert(i>=0 && i<5 && a[i]==3);
+    assert(bsearch_sorted_int(a,5,2)==-1);
+    assert(bsearch_sorted_int(a,0,3)==-1);
+    sort_int_array(a,0);
+    return 0;
+}}
+""",encoding='utf-8')
+            exe=source.with_suffix('.exe');compile_c(source,exe);run([exe])
 
     def test_ascii_distribution_and_legacy_compiler_charsets(self):
         raw=SOURCE.read_bytes();raw.decode('ascii')

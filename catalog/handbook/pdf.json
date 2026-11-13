@@ -1,0 +1,152 @@
+{
+  "output": "release/c-exam-handbook-{{ handbook_version }}.pdf",
+  "contents_title": "目录",
+  "header_left": "C EXAM KIT / {{ handbook_title }}",
+  "header_right": "{{ handbook_version }}",
+  "footer_left": "作者：{{ author }}",
+  "preview_label": "手册结构预览（未发布）",
+  "font_directory": "/usr/share/fonts/opentype/noto",
+  "font_collection_index": 2,
+  "mono_font": "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+  "styles": {
+    "body": {
+      "fontName": "CJK",
+      "fontSize": 9,
+      "leading": 14,
+      "textColor": "#233143",
+      "spaceAfter": 6
+    },
+    "small": {
+      "fontName": "CJK",
+      "fontSize": 8,
+      "leading": 12,
+      "textColor": "#233143",
+      "spaceAfter": 6
+    },
+    "cell": {
+      "fontName": "CJK",
+      "fontSize": 7.7,
+      "leading": 11.2,
+      "textColor": "#233143",
+      "spaceAfter": 0
+    },
+    "code": {
+      "fontName": "Code",
+      "fontSize": 7.5,
+      "leading": 11,
+      "textColor": "#233143",
+      "spaceAfter": 0,
+      "backColor": "#f3f6f8",
+      "borderPadding": [
+        2,
+        6,
+        2,
+        6
+      ],
+      "leftIndent": 6,
+      "rightIndent": 6
+    },
+    "h2": {
+      "fontName": "CJKBold",
+      "fontSize": 13,
+      "leading": 18,
+      "textColor": "#285773",
+      "spaceAfter": 6,
+      "keepWithNext": true,
+      "spaceBefore": 12
+    },
+    "h3": {
+      "fontName": "CJKBold",
+      "fontSize": 10,
+      "leading": 15,
+      "textColor": "#285773",
+      "spaceAfter": 6,
+      "keepWithNext": true,
+      "spaceBefore": 10
+    },
+    "h4": {
+      "fontName": "CJKBold",
+      "fontSize": 9.5,
+      "leading": 14,
+      "textColor": "#285773",
+      "spaceAfter": 6,
+      "keepWithNext": true,
+      "spaceBefore": 10
+    },
+    "title": {
+      "fontName": "CJKBold",
+      "fontSize": 24,
+      "leading": 32,
+      "textColor": "#233143",
+      "spaceAfter": 6
+    },
+    "toc": {
+      "fontName": "CJK",
+      "fontSize": 9,
+      "leading": 14,
+      "textColor": "#233143",
+      "spaceAfter": 6
+    },
+    "list": {
+      "fontName": "CJK",
+      "fontSize": 9,
+      "leading": 13,
+      "textColor": "#233143",
+      "spaceAfter": 2
+    }
+  },
+  "colors": {
+    "blue": "#285773",
+    "ink": "#233143",
+    "muted": "#617080",
+    "link": "#205f86",
+    "quote": "#edf3f7",
+    "table_line": "#cdd7df",
+    "table_header": "#e8f0f5",
+    "table_alt": "#f7f9fa",
+    "rule": "#ced9e2"
+  },
+  "margins": {
+    "left": 44,
+    "right": 44,
+    "top": 46,
+    "bottom": 40
+  },
+  "table_widths": {
+    "2": [
+      0.23,
+      0.77
+    ],
+    "3": [
+      0.43,
+      0.17,
+      0.4
+    ],
+    "4": [
+      0.16,
+      0.15,
+      0.34,
+      0.35
+    ]
+  },
+  "table_width_rules": [
+    {
+      "columns": 4,
+      "first_header_contains": "函数",
+      "widths": [
+        0.13,
+        0.39,
+        0.13,
+        0.35
+      ]
+    }
+  ],
+  "page_break_before": [],
+  "inline_code_size": 7.5,
+  "keep_code_lines": 30,
+  "metadata_paragraphs": 3,
+  "table_padding": {
+    "horizontal": 6,
+    "vertical": 3
+  }
+}

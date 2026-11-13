@@ -635,6 +635,28 @@
       "source": "templates/pieces/rounding.c",
       "details": "函数：long long round_to_integer(double x)；double round_decimal(double x, int digits)\nround_to_integer(2.5)返回3，round_to_integer(-2.5)返回-3（恰好一半时远离0）。\nround_decimal(1.234,2)约为1.23；digits建议0..9。若只需控制显示位数，使用printf(\"%.2f\",x)。\n二进制浮点不能精确表示所有十进制小数；严格十进制金额题宜用整数或字符串。含math.h，GCC/Clang在需要时链接-lm。",
       "hint": "取整数round_to_integer(x)；保留小数round_decimal(x,digits)，需要math.h/-lm。"
+    },
+    {
+      "id": "sort_int_array",
+      "source": "templates/pieces/sort_int_array.c",
+      "wide_source": "templates/pieces/sort_int_array_wide.c",
+      "details": "sort_int_array(a,n)按数值升序原地排序；内部调用qsort。",
+      "wide_details": "sort_int_array(a,n)按数值升序原地排序；内部调用qsort。",
+      "hint": "sort_int_array(a,n)按数值升序原地排序；内部调用qsort。",
+      "requires": [
+        "cmp_int"
+      ]
+    },
+    {
+      "id": "bsearch_sorted_int",
+      "source": "templates/pieces/bsearch_sorted_int.c",
+      "wide_source": "templates/pieces/bsearch_sorted_int_wide.c",
+      "details": "bsearch_sorted_int(a,n,key)在已升序数组中查找，返回排序后下标，找不到返回-1；重复值不保证首次位置。",
+      "wide_details": "bsearch_sorted_int(a,n,key)在已升序数组中查找，返回排序后下标，找不到返回-1；重复值不保证首次位置。",
+      "hint": "bsearch_sorted_int(a,n,key)在已升序数组中查找，返回排序后下标，找不到返回-1；重复值不保证首次位置。",
+      "requires": [
+        "cmp_int"
+      ]
     }
   ],
   "components": [
@@ -852,15 +874,17 @@
       "value_type": false
     },
     {
-      "name": "给整数数组按数值排序（qsort比较函数）",
+      "name": "给整数数组升序排序、在已排序数组中查找",
       "short_name": "数组按数值排序",
-      "note": "本组件提供qsort需要的比较函数。调用qsort(a,n,sizeof a[0],cmp_int)才会排序；默认按数值从小到大。",
-      "help": "cmp_int：传给qsort/bsearch：升序，返回负/0/正；qsort(a,n,sizeof a[0],cmp_int)。\n普通数组元素类型按本次配置；循环下标仍为int。",
+      "note": "提供升序比较函数、qsort实际调用封装及bsearch查找；查找要求已经排序，返回排序后的下标。",
+      "help": "sort_int_array(a,n); int pos=bsearch_sorted_int(a,n,key);\n需要自定义排序时仍可使用qsort(a,n,sizeof a[0],cmp_int)。返回-1表示未找到。",
       "group": 2,
       "id": "sort_numbers",
-      "summary": "整数数组升序排序比较器。",
+      "summary": "整数数组升序排序；在已排序数组中查值。",
       "pieces": [
-        "cmp_int"
+        "cmp_int",
+        "sort_int_array",
+        "bsearch_sorted_int"
       ],
       "caps": [
         "ARRAY_MAX"
