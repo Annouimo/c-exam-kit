@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stdarg.h>
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
