@@ -493,6 +493,16 @@ static char *generate(const Config *c,size_t *size) {
     *size=output.length;
     return output.text;
 }
+/* The manual shares the same in-memory emitter, then writes to its chosen file. */
+static void emit_to_file(FILE *f,const Config *c,int part,const char *snippet) {
+    CodeBuffer output={0};
+    if(part==0)emit_main(&output,c);
+    else if(part==1)emit(&output,c);
+    else expand(&output,snippet,c,0);
+    if(!output.failed && output.text)
+        fwrite(output.text,1,output.length,f);
+    free(output.text);
+}
 static int clipboard_copy(const char *s,size_t n) {
 #ifdef _WIN32
     /* CF_UNICODETEXT requires UTF-16 and Windows line endings. */
@@ -628,7 +638,7 @@ static void handbook(FILE *f) {
         if(io_options[i].functions_only){fputs("只输出函数、结构体、宏和依赖，接入已有程序前检查重名。\n\n",f);continue;}
         fputs("```c\n",f);
         for(int j=0;j<SETTINGS;j++)if(has_cap(&c,settings[j].macro))fprintf(f,"#define %s %d\n",settings[j].macro,settings[j].def);
-        emit_main(f,&c);fputs("```\n\n",f);
+        emit_to_file(f,&c,0,NULL);fputs("```\n\n",f);
     }
     fputs("## 组件索引\n\n",f);
     for(int g=0;g<GROUPS;g++) {
@@ -642,7 +652,7 @@ static void handbook(FILE *f) {
         for(int i=0;i<COUNT;i++)if(components[i].group==g) {
             Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;
             fprintf(f,"#### %d. %s\n\n",i+1,components[i].name);explain(f,&c);
-            fputs("\n```c\n",f);emit(f,&c);fputs("```\n\n",f);
+            fputs("\n```c\n",f);emit_to_file(f,&c,1,NULL);fputs("```\n\n",f);
         }
     }
     fputs("## 可选main内片段\n\n片段只提供结构，不自动接线；输出片段放在处理之后；变量名/下标/作用域由题目决定。示例VALUE为int、读入%d，可在程序配置为long long。\n\n",f);
@@ -650,7 +660,7 @@ static void handbook(FILE *f) {
     for(int i=0;i<FRAGMENTS;i++) {
         if(i==0 || fragments[i].group!=fragments[i-1].group)fprintf(f,"### %s\n\n",fragment_group_names[fragments[i].group]);
         fprintf(f,"#### %d. %s\n\n%s\n\n```c\n",i+1,fragments[i].name,fragments[i].help);
-        expand(f,fragments[i].code,&c,0);fputs("```\n\n",f);
+        emit_to_file(f,&c,2,fragments[i].code);fputs("```\n\n",f);
     }
     fputs("## 自测与提交检查\n\n- 多组数据：上一组的计数、访问表或缓存是否残留？\n- 数组：0/1下标、空输入、单元素、重复元素、全负数据。\n- 字符串：空行、末行无换行、前导空格、刚好到容量；fgets长度包含终止符。\n- 数值：类型和scanf格式匹配、乘法先提升类型、位号不超64。\n- 输出：小数位、分隔符、末尾换行、无解文字；不输出生成器提示。\n- 二分：数组有序、整数条件单调且有解、浮点端点连续异号。\n",f);
 }
