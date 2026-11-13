@@ -32,6 +32,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stdarg.h>
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
@@ -1262,44 +1263,95 @@ static void string_literal(const char *s,char out[1024]) {
     }
     *p++='"';*p=0;
 }
-static void expand(FILE *f,const char *s,const Config *c,int indent) {
+/* Assemble generated source in memory; no temporary file or writable temp directory. */
+typedef struct {
+    char *text;
+    size_t length, capacity;
+    int failed;
+} CodeBuffer;
+static int buf_reserve(CodeBuffer *b,size_t additional) {
+    if(b->failed)return 0;
+    if(additional>(size_t)-1-b->length-1) {b->failed=1;return 0;}
+    size_t need=b->length+additional+1;
+    if(need<=b->capacity)return 1;
+    size_t cap=b->capacity?b->capacity:4096;
+    while(cap<need) {
+        if(cap>((size_t)-1)/2) {cap=need;break;}
+        cap*=2;
+    }
+    char *p=(char *)realloc(b->text,cap);
+    if(!p) {b->failed=1;return 0;}
+    b->text=p;b->capacity=cap;
+    return 1;
+}
+static void buf_write(CodeBuffer *b,const char *s,size_t n) {
+    if(!buf_reserve(b,n))return;
+    if(n)memcpy(b->text+b->length,s,n);
+    b->length+=n;
+    b->text[b->length]=0;
+}
+static void buf_puts(const char *s,CodeBuffer *b) {
+    buf_write(b,s,strlen(s));
+}
+static void buf_putc(int c,CodeBuffer *b) {
+    char ch=(char)c;
+    buf_write(b,&ch,1);
+}
+static void buf_printf(CodeBuffer *b,const char *fmt,...) {
+    if(b->failed)return;
+    va_list args,copy;
+    va_start(args,fmt);
+    va_copy(copy,args);
+    int size=vsnprintf(NULL,0,fmt,copy);
+    va_end(copy);
+    if(size<0 || !buf_reserve(b,(size_t)size)) {
+        b->failed=1;
+        va_end(args);
+        return;
+    }
+    vsnprintf(b->text+b->length,b->capacity-b->length,fmt,args);
+    b->length+=(size_t)size;
+    va_end(args);
+}
+
+static void expand(CodeBuffer *f,const char *s,const Config *c,int indent) {
     int start=1;
     char literal[1024];string_literal(c->separator,literal);
     const char *keys[]={"SEPARATOR_LITERAL","VALUE_SCAN","VALUE_PRINT","VALUE"};
     const char *values[]={literal,c->wide?"\"%lld\"":"\"%d\"",c->wide?"\"%lld\"":"\"%d\"",c->wide?"long long":"int"};
     while(*s) {
-        if(start && *s!='\n') {for(int i=0;i<indent;i++)fputc(' ',f);start=0;}
+        if(start && *s!='\n') {for(int i=0;i<indent;i++)buf_putc(' ',f);start=0;}
         int found=0;
         for(int i=0;i<4;i++) {
             size_t n=strlen(keys[i]);
             if(!strncmp(s,keys[i],n) && !(s[n]>='A'&&s[n]<='Z') && s[n]!='_') {
-                fputs(values[i],f);s+=n;found=1;break;
+                buf_puts(values[i],f);s+=n;found=1;break;
             }
         }
-        if(!found) {char ch=*s++;fputc(ch,f);if(ch=='\n')start=1;}
+        if(!found) {char ch=*s++;buf_putc(ch,f);if(ch=='\n')start=1;}
     }
 }
 
-static void emit_inputs(FILE *f,const Config *c,int indent) {
+static void emit_inputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0)
         expand(f,fragments[i].code,c,indent);
 }
-static void emit_outputs(FILE *f,const Config *c,int indent) {
+static void emit_outputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0)
         expand(f,fragments[i].code,c,indent);
 }
-static void emit_body(FILE *f,const Config *c,int indent) {
+static void emit_body(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0) {
-        expand(f,"/* \345\217\257\351\200\211\347\211\207\346\256\265\357\274\232",c,indent);fputs(fragments[i].name,f);fputs(" */\n",f);
+        expand(f,"/* \345\217\257\351\200\211\347\211\207\346\256\265\357\274\232",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
         expand(f,fragments[i].code,c,indent);
     }
     expand(f,"\n/* TODO: \346\214\211\351\242\230\347\233\256\350\256\241\347\256\227\357\274\214\346\214\211\351\234\200\350\260\203\347\224\250\344\270\212\351\235\242\347\232\204\345\207\275\346\225\260 */\n\n",c,indent);
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0) {
-        expand(f,"/* \345\217\257\351\200\211\347\211\207\346\256\265\357\274\232",c,indent);fputs(fragments[i].name,f);fputs(" */\n",f);
+        expand(f,"/* \345\217\257\351\200\211\347\211\207\346\256\265\357\274\232",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
         expand(f,fragments[i].code,c,indent);
     }
 }
-static void emit_main(FILE *f,const Config *c) {
+static void emit_main(CodeBuffer *f,const Config *c) {
     const char *p=io_codes[c->io];
     while(*p) {
         if(!strncmp(p,"@BODY@",6)) {emit_body(f,c,4);p+=6;}
@@ -1314,52 +1366,61 @@ static void emit_main(FILE *f,const Config *c) {
         }
     }
 }
-static void emit_piece(FILE *f,int id,const Config *c) {
+static void emit_piece(CodeBuffer *f,int id,const Config *c) {
     const char *s=c->wide&&wide_pieces[id]?wide_pieces[id]:pieces[id];
     while(*s) {
         const char *e=strchr(s,'\n');size_t n=e?(size_t)(e-s)+1:strlen(s);
-        if(strncmp(s,"#define ",8)) fwrite(s,1,n,f);
+        if(strncmp(s,"#define ",8)) buf_write(f,s,n);
         s+=n;
     }
 }
-static void emit(FILE *f,const Config *c) {
-    fprintf(f,"/* C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v%s | \350\256\276\350\256\241\350\200\205\357\274\232%s | C99\357\274\233\346\214\211\351\242\230\347\233\256\350\241\245\351\275\220TODO\357\274\214\347\273\204\344\273\266\344\270\215\350\207\252\345\212\250\350\260\203\347\224\250\343\200\202 */\n",APP_VERSION,APP_DESIGNER);
-    if(io_options[c->io].functions_only)fputs("/* \344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\357\274\232\346\216\245\345\205\245\345\267\262\346\234\211\347\250\213\345\272\217\345\211\215\346\243\200\346\237\245\345\220\214\345\220\215\345\207\275\346\225\260\343\200\201\345\256\217\343\200\201\347\273\223\346\236\204\344\275\223\344\270\216\345\205\250\345\261\200\345\217\230\351\207\217\343\200\202 */\n",f);
-    fputs("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n",f);
+static void emit(CodeBuffer *f,const Config *c) {
+    buf_printf(f,"/* C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v%s | \350\256\276\350\256\241\350\200\205\357\274\232%s | C99\357\274\233\346\214\211\351\242\230\347\233\256\350\241\245\351\275\220TODO\357\274\214\347\273\204\344\273\266\344\270\215\350\207\252\345\212\250\350\260\203\347\224\250\343\200\202 */\n",APP_VERSION,APP_DESIGNER);
+    if(io_options[c->io].functions_only)buf_puts("/* \344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\357\274\232\346\216\245\345\205\245\345\267\262\346\234\211\347\250\213\345\272\217\345\211\215\346\243\200\346\237\245\345\220\214\345\220\215\345\207\275\346\225\260\343\200\201\345\256\217\343\200\201\347\273\223\346\236\204\344\275\223\344\270\216\345\205\250\345\261\200\345\217\230\351\207\217\343\200\202 */\n",f);
+    buf_puts("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n",f);
     for(int i=0;i<SETTINGS;i++) {
         const Setting *s=&settings[i];
         if(!has_cap(c,s->macro))continue;
         int value=setting_read(c,s);
-        fprintf(f,"#define %s %d\n",s->macro,value);
+        buf_printf(f,"#define %s %d\n",s->macro,value);
         if(s->log_macro[0]) {
             int levels=0;for(int n=value;n;n/=2)levels++;
-            fprintf(f,"#define %s %d\n",s->log_macro,levels);
+            buf_printf(f,"#define %s %d\n",s->log_macro,levels);
         }
     }
-    fputc('\n',f);
+    buf_putc('\n',f);
     int emitted[PIECES]={0};
     for(int i=0;i<COUNT;i++)if(c->selected[i]) {
-        fprintf(f,"/* ===== %d %s =====\n * %s\n */\n",i+1,components[i].name,components[i].note);
+        buf_printf(f,"/* ===== %d %s =====\n * %s\n */\n",i+1,components[i].name,components[i].note);
         for(int j=0;components[i].ids[j]>=0;j++) {
             int id=components[i].ids[j];
             if(emitted[id])continue;
             /* Each source function carries a short usage note; full details stay in console/manual. */
-            if(piece_hints[id][0])fprintf(f,"/* %s */\n",piece_hints[id]);
-            emit_piece(f,id,c);fputc('\n',f);emitted[id]=1;
+            if(piece_hints[id][0])buf_printf(f,"/* %s */\n",piece_hints[id]);
+            emit_piece(f,id,c);buf_putc('\n',f);emitted[id]=1;
         }
     }
-    if(!io_options[c->io].functions_only) {fputs("/* ===== \350\276\223\345\205\245\350\276\223\345\207\272\351\252\250\346\236\266 ===== */\n",f);emit_main(f,c);}
+    if(!io_options[c->io].functions_only) {buf_puts("/* ===== \350\276\223\345\205\245\350\276\223\345\207\272\351\252\250\346\236\266 ===== */\n",f);emit_main(f,c);}
 }
 static char *generate(const Config *c,size_t *size) {
-    FILE *f=tmpfile();if(!f)return NULL;
-    emit(f,c);
-    if(ferror(f)||fflush(f)!=0) {fclose(f);return NULL;}
-    long length=ftell(f);
-    if(length<0||fseek(f,0,SEEK_SET)!=0) {fclose(f);return NULL;}
-    char *s=(char *)malloc((size_t)length+1);
-    if(!s) {fclose(f);return NULL;}
-    if(fread(s,1,(size_t)length,f)!=(size_t)length) {free(s);fclose(f);return NULL;}
-    s[length]=0;*size=(size_t)length;fclose(f);return s;
+    CodeBuffer output={0};
+    emit(&output,c);
+    if(output.failed || !output.text) {
+        free(output.text);
+        return NULL;
+    }
+    *size=output.length;
+    return output.text;
+}
+/* The manual shares the same in-memory emitter, then writes to its chosen file. */
+static void emit_to_file(FILE *f,const Config *c,int part,const char *snippet) {
+    CodeBuffer output={0};
+    if(part==0)emit_main(&output,c);
+    else if(part==1)emit(&output,c);
+    else expand(&output,snippet,c,0);
+    if(!output.failed && output.text)
+        fwrite(output.text,1,output.length,f);
+    free(output.text);
 }
 static int clipboard_copy(const char *s,size_t n) {
 #ifdef _WIN32
@@ -1496,7 +1557,7 @@ static void handbook(FILE *f) {
         if(io_options[i].functions_only){fputs("\345\217\252\350\276\223\345\207\272\345\207\275\346\225\260\343\200\201\347\273\223\346\236\204\344\275\223\343\200\201\345\256\217\345\222\214\344\276\235\350\265\226\357\274\214\346\216\245\345\205\245\345\267\262\346\234\211\347\250\213\345\272\217\345\211\215\346\243\200\346\237\245\351\207\215\345\220\215\343\200\202\n\n",f);continue;}
         fputs("```c\n",f);
         for(int j=0;j<SETTINGS;j++)if(has_cap(&c,settings[j].macro))fprintf(f,"#define %s %d\n",settings[j].macro,settings[j].def);
-        emit_main(f,&c);fputs("```\n\n",f);
+        emit_to_file(f,&c,0,NULL);fputs("```\n\n",f);
     }
     fputs("## \347\273\204\344\273\266\347\264\242\345\274\225\n\n",f);
     for(int g=0;g<GROUPS;g++) {
@@ -1510,7 +1571,7 @@ static void handbook(FILE *f) {
         for(int i=0;i<COUNT;i++)if(components[i].group==g) {
             Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;
             fprintf(f,"#### %d. %s\n\n",i+1,components[i].name);explain(f,&c);
-            fputs("\n```c\n",f);emit(f,&c);fputs("```\n\n",f);
+            fputs("\n```c\n",f);emit_to_file(f,&c,1,NULL);fputs("```\n\n",f);
         }
     }
     fputs("## \345\217\257\351\200\211main\345\206\205\347\211\207\346\256\265\n\n\347\211\207\346\256\265\345\217\252\346\217\220\344\276\233\347\273\223\346\236\204\357\274\214\344\270\215\350\207\252\345\212\250\346\216\245\347\272\277\357\274\233\350\276\223\345\207\272\347\211\207\346\256\265\346\224\276\345\234\250\345\244\204\347\220\206\344\271\213\345\220\216\357\274\233\345\217\230\351\207\217\345\220\215/\344\270\213\346\240\207/\344\275\234\347\224\250\345\237\237\347\224\261\351\242\230\347\233\256\345\206\263\345\256\232\343\200\202\347\244\272\344\276\213VALUE\344\270\272int\343\200\201\350\257\273\345\205\245%d\357\274\214\345\217\257\345\234\250\347\250\213\345\272\217\351\205\215\347\275\256\344\270\272long long\343\200\202\n\n",f);
@@ -1518,7 +1579,7 @@ static void handbook(FILE *f) {
     for(int i=0;i<FRAGMENTS;i++) {
         if(i==0 || fragments[i].group!=fragments[i-1].group)fprintf(f,"### %s\n\n",fragment_group_names[fragments[i].group]);
         fprintf(f,"#### %d. %s\n\n%s\n\n```c\n",i+1,fragments[i].name,fragments[i].help);
-        expand(f,fragments[i].code,&c,0);fputs("```\n\n",f);
+        emit_to_file(f,&c,2,fragments[i].code);fputs("```\n\n",f);
     }
     fputs("## \350\207\252\346\265\213\344\270\216\346\217\220\344\272\244\346\243\200\346\237\245\n\n- \345\244\232\347\273\204\346\225\260\346\215\256\357\274\232\344\270\212\344\270\200\347\273\204\347\232\204\350\256\241\346\225\260\343\200\201\350\256\277\351\227\256\350\241\250\346\210\226\347\274\223\345\255\230\346\230\257\345\220\246\346\256\213\347\225\231\357\274\237\n- \346\225\260\347\273\204\357\274\2320/1\344\270\213\346\240\207\343\200\201\347\251\272\350\276\223\345\205\245\343\200\201\345\215\225\345\205\203\347\264\240\343\200\201\351\207\215\345\244\215\345\205\203\347\264\240\343\200\201\345\205\250\350\264\237\346\225\260\346\215\256\343\200\202\n- \345\255\227\347\254\246\344\270\262\357\274\232\347\251\272\350\241\214\343\200\201\346\234\253\350\241\214\346\227\240\346\215\242\350\241\214\343\200\201\345\211\215\345\257\274\347\251\272\346\240\274\343\200\201\345\210\232\345\245\275\345\210\260\345\256\271\351\207\217\357\274\233fgets\351\225\277\345\272\246\345\214\205\345\220\253\347\273\210\346\255\242\347\254\246\343\200\202\n- \346\225\260\345\200\274\357\274\232\347\261\273\345\236\213\345\222\214scanf\346\240\274\345\274\217\345\214\271\351\205\215\343\200\201\344\271\230\346\263\225\345\205\210\346\217\220\345\215\207\347\261\273\345\236\213\343\200\201\344\275\215\345\217\267\344\270\215\350\266\20564\343\200\202\n- \350\276\223\345\207\272\357\274\232\345\260\217\346\225\260\344\275\215\343\200\201\345\210\206\351\232\224\347\254\246\343\200\201\346\234\253\345\260\276\346\215\242\350\241\214\343\200\201\346\227\240\350\247\243\346\226\207\345\255\227\357\274\233\344\270\215\350\276\223\345\207\272\347\224\237\346\210\220\345\231\250\346\217\220\347\244\272\343\200\202\n- \344\272\214\345\210\206\357\274\232\346\225\260\347\273\204\346\234\211\345\272\217\343\200\201\346\225\264\346\225\260\346\235\241\344\273\266\345\215\225\350\260\203\344\270\224\346\234\211\350\247\243\343\200\201\346\265\256\347\202\271\347\253\257\347\202\271\350\277\236\347\273\255\345\274\202\345\217\267\343\200\202\n",f);
 }

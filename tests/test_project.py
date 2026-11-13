@@ -144,37 +144,68 @@ class ProjectTests(unittest.TestCase):
     def test_all_components_and_skeletons_compile(self):
         folder=self.d/'generated';folder.mkdir()
         # Each component is independent; all components together must deduplicate dependencies.
-        exe=self.harness('''int main(void) {
+        exe=self.harness('''static int write_generated(const char *name,Config *c) {
+    size_t length=0;
+    char *code=generate(c,&length);
+    if(!code)return 0;
+    FILE *f=fopen(name,"wb");
+    if(!f) {free(code);return 0;}
+    int ok=fwrite(code,1,length,f)==length;
+    if(fclose(f)!=0)ok=0;
+    free(code);
+    return ok;
+}
+int main(void) {
     for(int wide=0;wide<2;wide++) {
         for(int id=0;id<COUNT;id++) {
             Config c=defaults();c.io=IO_FUNCTIONS;c.wide=wide;c.selected[id]=1;
             char name[80];sprintf(name,"component_%d_%d.c",id,wide);
-            FILE *f=fopen(name,"w");if(!f)return 1;emit(f,&c);fclose(f);
+            if(!write_generated(name,&c))return 1;
         }
         for(int io=0;io<IO_COUNT;io++) {
             if(io_options[io].incomplete)continue;
             Config c=defaults();c.io=io;c.wide=wide;
             for(int i=0;i<COUNT;i++)c.selected[i]=1;
             char name[80];sprintf(name,"skeleton_%d_%d.c",io,wide);
-            FILE *f=fopen(name,"w");if(!f)return 1;emit(f,&c);fclose(f);
+            if(!write_generated(name,&c))return 1;
         }
         for(int matrix=0;matrix<2;matrix++) {
             Config c=defaults();c.wide=wide;
             c.snippet[matrix?SN_READ_MATRIX:SN_READ_ARRAY]=1;
             c.snippet[matrix?SN_OUTPUT_MATRIX:SN_OUTPUT_ARRAY]=1;
             char name[80];sprintf(name,"fragment_%d_%d.c",matrix,wide);
-            FILE *f=fopen(name,"w");if(!f)return 1;emit(f,&c);fclose(f);
+            if(!write_generated(name,&c))return 1;
         }
     }
     return 0;
 }
 ''','emit_combinations')
-        run([exe],cwd=folder)
+        # Simulate unavailable temp directories: assembly is memory-only.
+        invalid=self.d/'temp-directory-does-not-exist'
+        env=dict(os.environ,TMPDIR=str(invalid),TMP=str(invalid),TEMP=str(invalid))
+        run([exe],cwd=folder,env=env)
         paths=list(folder.glob('*.c'))
         def check(p):compile_c(p,p.with_suffix('.o'),objects=True)
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:list(pool.map(check,paths))
         self.assertEqual(len(paths),2*len(DATA['components'])+2*(len(DATA['io'])-2)+4)
         print(f'  Strict C99: {len(paths)} generated combinations compiled')
+
+    def test_generate_without_tempfile_permission(self):
+        exe=self.harness('''int main(void) {
+    Config c=defaults();c.io=IO_FUNCTIONS;c.selected[0]=1;
+    size_t length=0;char *source=generate(&c,&length);
+    if(!source || !length)return 1;
+    if(!strstr(source,"#include") || !strstr(source,"int_to_digits")) {
+        free(source);return 2;
+    }
+    if(strstr(source,"int main(")){free(source);return 3;}
+    free(source);return 0;
+}
+''','no_tmpfile_generation')
+        invalid=self.d/'temp-directory-does-not-exist'
+        env=dict(os.environ,TMPDIR=str(invalid),TMP=str(invalid),TEMP=str(invalid))
+        run([exe],env=env)
+        self.assertNotIn('tmpfile(', (ROOT/'src/runtime.c').read_text(encoding='utf-8'))
 
     def test_algorithm_boundaries(self):
         pieces={p['id']:p for p in DATA['pieces']}
@@ -210,7 +241,8 @@ assert(round_decimal(-2.5,0)==-3);
             exe=self.harness('''int main(void) {
     Config c=defaults();c.snippet[SN_READ_ARRAY]=1;c.snippet[SN_OUTPUT_ARRAY]=1;
     size_t n=fread(c.separator,1,sizeof c.separator-1,stdin);c.separator[n]=0;
-    emit(stdout,&c);return 0;
+    size_t length=0;char *source=generate(&c,&length);if(!source)return 1;
+    int ok=fwrite(source,1,length,stdout)==length;free(source);return ok?0:1;
 }
 ''',f'separator_emit_{index}')
             source=run([exe],input=separator)
