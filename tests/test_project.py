@@ -328,6 +328,86 @@ assert(round_decimal(-2.5,0)==-3);
 '''+ '\n'.join(tests)+'\nreturn 0;\n}\n',encoding='utf-8')
         exe=self.d/'boundaries.exe';compile_c(path,exe);run([exe])
 
+    def test_statistics_large_arrays_and_wide_values(self):
+        pieces={p['id']:p for p in DATA['pieces']}
+        for wide in [False,True]:
+            code=pieces['array_statistics']['wide_code' if wide else 'code']
+            typ='long long' if wide else 'int'
+            extra='long long b[]={1000000000000LL,1000000000001LL,1000000000002LL,1000000000003LL,1000000000004LL}; assert(array_mean(b,5)==1000000000002.0); assert(array_variance(b,5,array_mean(b,5))==2.0);' if wide else ''
+            path=self.d/f'statistics_{wide}.c'
+            path.write_text('#include <assert.h>\n#include <math.h>\n'+code+f"""
+int main(void) {{
+    {typ} sample[]={{1,2,3,4,5}}, symmetric[]={{-2,-1,1,2}}, same[]={{7,7}};
+    assert(array_mean(sample,5)==3.0);
+    assert(array_variance(sample,5,3.0)==2.0);
+    assert(array_mean(symmetric,4)==0.0);
+    assert(array_variance(symmetric,4,0.0)==2.5);
+    assert(array_variance(same,2,array_mean(same,2))==0.0);
+    static {typ} large[200000];
+    for(int i=0;i<200000;i++)large[i]=(i%2)?500000:-500000;
+    assert(array_mean(large,200000)==0.0);
+    assert(fabs(array_variance(large,200000,0.0)-250000000000.0)<1.0);
+    for(int i=0;i<200000;i++)large[i]=500000;
+    large[0]--;
+    double mean=array_mean(large,200000);
+    assert(fabs(array_variance(large,200000,mean)-199999.0/40000000000.0)<1e-12);
+    {extra}
+    return 0;
+}}
+""",encoding='utf-8')
+            exe=path.with_suffix('.exe');compile_c(path,exe);run([exe])
+
+    def test_fixed_output_negative_zero_and_precision(self):
+        piece=next(p for p in DATA['pieces'] if p['id']=='print_fixed')['code']
+        path=self.d/'fixed_output.c'
+        path.write_text('#include <stdio.h>\n#include <stdlib.h>\n#include <assert.h>\n#include <float.h>\n'+piece+"""
+int main(void) {
+    double values[]={0.0,-0.0,-0.00001,-0.00006,-0.000049,-0.000051,1.23456,-1.23456};
+    for(int i=0;i<8;i++){assert(print_fixed(values[i],4));putchar('\\n');}
+    assert(print_fixed(-0.1,0));putchar('\\n');
+    assert(print_fixed(-1.1,0));putchar('\\n');
+    assert(print_fixed(-0.0,15));putchar('\\n');
+    assert(!print_fixed(1.0,-1));assert(!print_fixed(1.0,16));
+    assert(print_fixed(DBL_MAX,15));putchar('\\n');
+    return 0;
+}
+""",encoding='utf-8')
+        exe=path.with_suffix('.exe');compile_c(path,exe);lines=run([exe]).splitlines()
+        self.assertEqual(lines[:11],['0.0000','0.0000','0.0000','-0.0001','0.0000','-0.0001','1.2346','-1.2346','0','-1','0.000000000000000'])
+        self.assertGreater(len(lines[11]),300)
+        self.assertTrue(lines[11].endswith('.000000000000000'))
+
+    def test_string_edits_and_run_boundaries(self):
+        piece=next(p for p in DATA['pieces'] if p['id']=='string_edit')['code']
+        rng=random.Random(20261114);checks=[];value=''
+        for _ in range(250):
+            if rng.choice([True,False]) and len(value)<30:
+                pos=rng.randrange(len(value)+1);ch=rng.choice('ABC');value=value[:pos]+ch+value[pos:]
+                checks.append(f'assert(str_insert_char(s,sizeof s,{pos},\'{ch}\'));')
+            else:
+                pos=rng.randrange(len(value)+1);count=rng.randrange(len(value)-pos+1)
+                value=value[:pos]+value[pos+count:];checks.append(f'assert(str_erase(s,{pos},{count}));')
+            checks.append('assert(strcmp(s,'+json.dumps(value)+')==0);')
+            if value:
+                pos=rng.randrange(len(value));l=pos;r=pos+1
+                while l and value[l-1]==value[pos]:l-=1
+                while r<len(value) and value[r]==value[pos]:r+=1
+                checks.append(f'assert(str_run_bounds(s,{len(value)},{pos},&l,&r)); assert(l=={l} && r=={r});')
+        path=self.d/'string_edits.c'
+        path.write_text('#include <assert.h>\n#include <string.h>\n'+piece+"""
+int main(void) {
+    char s[32]="";int l=-1,r=-1;
+    char full[4]="ABC";
+    assert(!str_insert_char(full,sizeof full,0,'X') && strcmp(full,"ABC")==0);
+    assert(!str_insert_char(s,sizeof s,1,'X') && s[0]==0);
+    assert(!str_insert_char(s,sizeof s,0,'\\0') && s[0]==0);
+    assert(!str_erase(full,4,0) && strcmp(full,"ABC")==0);
+    assert(!str_erase(full,1,4) && strcmp(full,"ABC")==0);
+    assert(!str_run_bounds(s,0,0,&l,&r) && l==-1 && r==-1);
+    assert(str_erase(full,0,3) && full[0]==0);
+"""+'\n'.join(checks)+'\nreturn 0;\n}\n',encoding='utf-8')
+        exe=path.with_suffix('.exe');compile_c(path,exe);run([exe])
+
     def test_separator_escaping_and_empty_arrays(self):
         separators=[' ', '+', ', ', '', '??/', '"%\\', ' → ', '\t']
         for index,separator in enumerate(separators):

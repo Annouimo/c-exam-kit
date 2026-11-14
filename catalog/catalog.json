@@ -1,5 +1,5 @@
 {
-  "version": "0.6.0",
+  "version": "0.6.1",
   "designer": "Annouimo",
   "groups": [
     "整数与数位",
@@ -658,6 +658,26 @@
       "requires": [
         "cmp_int"
       ]
+    },
+    {
+      "id": "array_statistics",
+      "source": "templates/pieces/array_statistics.c",
+      "wide_source": "templates/pieces/array_statistics_wide.c",
+      "details": "函数：double array_mean(const int a[],int n)；double array_variance(const int a[],int n,double mean)。\n先求mean，再求variance；标准差为sqrt(variance)，标准化为((double)a[i]-mean)/sd。\n总体方差除以n，不是n-1；结果均为double，内部以double累加，避免整数求和/平方溢出。n必须大于0；sd为0时不能标准化。\n数组由调用者提供；按题目上限配置容量，大数组宜用static或全局存储。",
+      "wide_details": "函数：double array_mean(const long long a[],int n)；double array_variance(const long long a[],int n,double mean)。\n先求mean，再求variance；标准差为sqrt(variance)，标准化为((double)a[i]-mean)/sd。\n总体方差除以n，不是n-1；结果均为double，内部以double累加，避免整数求和/平方溢出。n必须大于0；sd为0时不能标准化。\n数组由调用者提供；按题目上限配置容量，大数组宜用static或全局存储。\nlong long转换为double可能丢失低位精度，适用于一般浮点计算题。",
+      "hint": "mean=array_mean(a,n); variance=array_variance(a,n,mean); sd=sqrt(variance)。n>0，sd>0才可标准化。"
+    },
+    {
+      "id": "print_fixed",
+      "source": "templates/pieces/print_fixed.c",
+      "details": "函数：int print_fixed(double x,int digits)。\nprint_fixed(x,4)输出四位小数，不附加换行；调用后可用putchar('\\n')。digits支持0..15。\n先按printf规则格式化；仅当格式化结果表示零时去除负号，不改变计算用的x。\n返回1表示输出成功，0表示位数无效、分配或输出失败。可与数组输出循环组合调用；不要先把计算结果截断或改为0。",
+      "hint": "print_fixed(x,4); putchar('\\n'); 不输出负零；digits为0..15，返回1成功、0失败。"
+    },
+    {
+      "id": "string_edit",
+      "source": "templates/pieces/string_edit.c",
+      "details": "函数：int str_insert_char(char s[],size_t capacity,size_t pos,char ch)；int str_erase(char s[],size_t pos,size_t count)；int str_run_bounds(const char s[],int n,int pos,int *left,int *right)。\n下标从0开始。插入位置允许等于strlen(s)，capacity是整个数组容量（含终止符）；ch不能是\\0。插入成功返回1，空间不足/位置无效返回0且原串不变。\nstr_erase(s,pos,count)删除[pos,pos+count)，越界返回0且原串不变，成功返回1；count为0允许不删除。\nstr_run_bounds(s,n,pos,&l,&r)求包含pos的同字符连续段[l,r)，长度为r-l；n为真实字符串长度，pos无效返回0且输出参数不变。均按字节处理，s须已正确终止。",
+      "hint": "str_insert_char(s,sizeof s,pos,ch); str_erase(s,pos,count); str_run_bounds(s,n,pos,&l,&r)，区间[l,r)。"
     }
   ],
   "components": [
@@ -802,6 +822,20 @@
       "help": "函数：long long round_to_integer(double x)；double round_decimal(double x, int digits)\nround_to_integer(2.5)返回3，round_to_integer(-2.5)返回-3（恰好一半时远离0）。\nround_decimal(1.234,2)约为1.23；digits建议0..9。若只需控制显示位数，使用printf(\"%.2f\",x)。\n二进制浮点不能精确表示所有十进制小数；严格十进制金额题宜用整数或字符串。含math.h，GCC/Clang在需要时链接-lm。",
       "note": "输入及缩放中间值必须有限；取整结果在long long范围内；保留位数用于一般浮点题。",
       "summary": "四舍五入取整数、保留指定小数位；恰好一半时远离0。"
+    },
+    {
+      "id": "print_fixed",
+      "name": "按指定位数输出小数，避免负零",
+      "short_name": "定点输出/去负零",
+      "group": 2,
+      "pieces": [
+        "print_fixed"
+      ],
+      "caps": [],
+      "value_type": false,
+      "help": "函数：int print_fixed(double x,int digits)。\nprint_fixed(x,4)输出四位小数，不附加换行；调用后可用putchar('\\n')。digits支持0..15。\n先按printf规则格式化；仅当格式化结果表示零时去除负号，不改变计算用的x。\n返回1表示输出成功，0表示位数无效、分配或输出失败。可与数组输出循环组合调用；不要先把计算结果截断或改为0。",
+      "note": "digits为0..15；只处理输出结果的负零，不改变原数值；不自动换行。",
+      "summary": "按指定小数位输出，去掉-0.0000等负零的负号。"
     },
     {
       "name": "代入x求多项式的值（秦九韶法）",
@@ -993,6 +1027,20 @@
         "BIG_CAP"
       ],
       "value_type": false
+    },
+    {
+      "id": "array_statistics",
+      "name": "求数组均值、总体方差与标准差",
+      "short_name": "均值/总体方差",
+      "group": 4,
+      "pieces": [
+        "array_statistics"
+      ],
+      "caps": [],
+      "value_type": true,
+      "help": "函数：double array_mean(const int a[],int n)；double array_variance(const int a[],int n,double mean)。\n先求mean，再求variance；标准差为sqrt(variance)，标准化为((double)a[i]-mean)/sd。\n总体方差除以n，不是n-1；结果均为double，内部以double累加，避免整数求和/平方溢出。n必须大于0；sd为0时不能标准化。\n数组由调用者提供；按题目上限配置容量，大数组宜用static或全局存储。",
+      "note": "n>0；数组元素为本次配置的int或long long，统计结果为double。总体方差除以n；标准差为0时不能标准化。",
+      "summary": "均值、总体方差；标准差用sqrt，统计结果为double。"
     },
     {
       "name": "统计每个整数出现的次数",
@@ -1219,15 +1267,16 @@
       "value_type": false
     },
     {
-      "name": "去行末换行、判断回文与处理子串",
-      "short_name": "去换行/回文/子串",
-      "note": "按字节处理；key非空。count_substring的overlap为1允许重叠，0不重叠。",
-      "help": "trim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)。去换行不会删掉没有换行的最后一个字符；erase_first一次删除，反复调用会重新匹配新串。",
+      "name": "字符串插入、区间删除、连续段与常用处理",
+      "short_name": "字符串增删/连续段",
+      "note": "按字节处理；key非空。count_substring的overlap为1允许重叠，0不重叠。 插入容量含终止符，位置从0开始；连续段区间为左闭右开。",
+      "help": "trim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)。去换行不会删掉没有换行的最后一个字符；erase_first一次删除，反复调用会重新匹配新串。\n函数：int str_insert_char(char s[],size_t capacity,size_t pos,char ch)；int str_erase(char s[],size_t pos,size_t count)；int str_run_bounds(const char s[],int n,int pos,int *left,int *right)。\n下标从0开始。插入位置允许等于strlen(s)，capacity是整个数组容量（含终止符）；ch不能是\\0。插入成功返回1，空间不足/位置无效返回0且原串不变。\nstr_erase(s,pos,count)删除[pos,pos+count)，越界返回0且原串不变，成功返回1；count为0允许不删除。\nstr_run_bounds(s,n,pos,&l,&r)求包含pos的同字符连续段[l,r)，长度为r-l；n为真实字符串长度，pos无效返回0且输出参数不变。均按字节处理，s须已正确终止。",
       "group": 6,
       "id": "string_basics",
-      "summary": "去行末换行、回文、删除子串和重叠/非重叠计数。",
+      "summary": "插入字符、删除区间、连续段边界，以及去换行、回文和子串处理。",
       "pieces": [
-        "trim_newline"
+        "trim_newline",
+        "string_edit"
       ],
       "caps": [],
       "value_type": false
@@ -1818,7 +1867,7 @@
       "log_macro": ""
     }
   ],
-  "handbook_version": "1.6",
+  "handbook_version": "1.6.1",
   "group_ids": [
     "integers",
     "bits",
