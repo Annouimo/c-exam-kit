@@ -39,6 +39,20 @@ def cstr(value):
 
 def load_catalog(root=ROOT):
     data = json.loads((root / 'catalog/catalog.json').read_text(encoding='utf-8'))
+    notes_path=root/'catalog/code_comments.json'
+    notes=json.loads(notes_path.read_text(encoding='utf-8')) if notes_path.exists() else {}
+    def variants(text):
+        tokens=re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*',re.S)
+        if any(m[0].startswith(('/*','//')) for m in tokens.finditer(text)):
+            raise ValueError('Template comments must use explicit @COMMENT:id@ slots')
+        def render(level):
+            def replace(m):
+                if m[1] not in notes:raise ValueError('Unknown comment slot: '+m[1])
+                note=notes[m[1]]
+                if note['level'] not in [1,2]:raise ValueError('Invalid comment level')
+                return note['text'] if level>=note['level'] else ' '
+            return compact_template(re.sub(r'@COMMENT:([A-Za-z0-9_]+)@',replace,text))
+        return [render(level) for level in range(3)]
     pieces = {p['id']: p for p in data['pieces']}
     if len(pieces) != len(data['pieces']):
         raise ValueError('duplicate piece id')
@@ -70,8 +84,9 @@ def load_catalog(root=ROOT):
         return p.read_text(encoding='utf-8')
 
     for p in pieces.values():
-        p['code'] = read_template(p['source'])
-        p['wide_code'] = read_template(p['wide_source']) if p.get('wide_source') else None
+        p['variants']=variants(read_template(p['source']))
+        p['wide_variants']=variants(read_template(p['wide_source'])) if p.get('wide_source') else [None]*3
+        p['code']=p['variants'][2];p['wide_code']=p['wide_variants'][2]
 
     def resolve(keys, active=()):
         ordered = []
@@ -99,7 +114,7 @@ def load_catalog(root=ROOT):
             if not 0 <= x['group'] < len(data[groups]) or not set(x['caps']) <= known_caps:
                 raise ValueError(f'invalid group/capability: {x["id"]}')
             if collection != 'components':
-                x['code'] = read_template(x['source'])
+                x['variants']=variants(read_template(x['source']));x['code']=x['variants'][2]
     for key in ['io', 'fragments']:
         symbols = [x['symbol'] for x in data[key]]
         if len(set(symbols)) != len(symbols) or not all(re.fullmatch(r'[A-Z][A-Z0-9_]*', s) for s in symbols):
@@ -108,18 +123,50 @@ def load_catalog(root=ROOT):
         raise ValueError('exactly one default I/O template is required')
     if any(x['phase'] not in [0, 1, 2] for x in data['fragments']):
         raise ValueError('invalid fragment phase')
+    for collection in ['pieces','io','fragments']:
+        for item in data[collection]:
+            if not set(item['headers'])<=set(data['header_order']):raise ValueError('Unknown header dependency')
+    if len({x['id'] for x in data['flows']})!=len(data['flows']):raise ValueError('Duplicate flow id')
+    for flow in data['flows']:
+        keys=flow.get('choices',[flow.get('io')])
+        if len(keys)>8 or any(key not in {x['id'] for x in data['io']} for key in keys):raise ValueError('Invalid flow reader')
+    data['credit']=(root/data['code_header']).read_text(encoding='utf-8')
+    for key in ['product_name','version','designer','repository_url']:
+        data['credit']=data['credit'].replace('{{ '+key+' }}',data[key])
     return data
+
+
+def compact_template(text):
+    # Only authored layout lines are normalized; continuation lines are preserved.
+    result=[];pending=False;protected=False
+    for line in text.splitlines():
+        if not line.strip() and not protected:
+            pending=bool(result);continue
+        if pending and result and not result[-1].rstrip().endswith('{') and not line.lstrip().startswith('}'):
+            result.append('')
+        result.append(line if protected else line.rstrip())
+        protected=line.endswith('\\');pending=False
+    return '\n'.join(result)+'\n' if result else ''
 
 
 def catalog_c(data):
     lines = [f'#define APP_VERSION {cstr(data["version"])}', f'#define APP_DESIGNER {cstr(data["designer"])}']
+    def mask(headers):return sum(1<<data['header_order'].index(h) for h in headers)
+    lines += ['static const char code_credit[]='+cstr(data['credit'])+';']
     def array(name, values, integer=False):
         typ = 'int' if integer else 'char *'
         lines.append(f'static const {typ}{" " if integer else ""}{name}[]={{')
         lines.extend((str(v) if integer else 'NULL' if v is None else cstr(v)) + ',' for v in values)
         lines.append('};')
-    for name, field in [('pieces','code'),('wide_pieces','wide_code'),('piece_details','details'),('wide_piece_details','wide_details'),('piece_hints','hint')]:
-        array(name, [p.get(field) for p in data['pieces']])
+    for name,field in [('piece_details','details'),('wide_piece_details','wide_details'),('piece_hints','hint')]:
+        array(name,[p.get(field) for p in data['pieces']])
+    for level,prefix in enumerate(['plain_','brief_','']):
+        array(prefix+'pieces',[p['variants'][level] for p in data['pieces']])
+        array(prefix+'wide_pieces',[p['wide_variants'][level] for p in data['pieces']])
+        array(prefix+'io_codes',[x['variants'][level] for x in data['io']])
+        array(prefix+'fragment_codes',[x['variants'][level] for x in data['fragments']])
+    array('header_names',data['header_order'])
+    array('piece_headers',[mask(x['headers']) for x in data['pieces']],integer=True)
     lines += ['typedef struct {const char *name,*short_name,*note,*cap,*help;int group,value_type;int ids['+str(len(data['pieces'])+1)+'];} Component;', 'static const Component components[]={']
     index={p['id']: i for i,p in enumerate(data['pieces'])}
     for x in data['components']:
@@ -127,28 +174,36 @@ def catalog_c(data):
         lines.append('{'+','.join(map(cstr,strings))+f',{x["group"]},{int(x["value_type"])},'+'{'+','.join(map(str,[index[k] for k in x['resolved_pieces']]+[-1]))+'}},')
     lines.append('};')
     array('group_names',data['groups'])
-    lines += ['typedef struct {const char *name,*code,*help,*cap,*separator_default;int group,phase,value_type;} Fragment;', 'static const Fragment fragments[]={']
+    lines += ['typedef struct {const char *name,*code,*help,*cap,*separator_default;int group,phase,value_type,headers;} Fragment;', 'static const Fragment fragments[]={']
     for x in data['fragments']:
         strings=[x['name'],x['code'],x['help'],','.join(x['caps']),x['default_separator']]
-        lines.append('{'+','.join(map(cstr,strings))+f',{x["group"]},{x["phase"]},{int(x["value_type"])}'+'},')
+        lines.append('{'+','.join(map(cstr,strings))+f',{x["group"]},{x["phase"]},{int(x["value_type"])},{mask(x["headers"])}'+'},')
     lines.append('};')
-    for name,field in [('io_names','name'),('io_help','help'),('io_codes','code')]:
+    for name,field in [('io_names','name'),('io_help','help')]:
         array(name,[x[field] for x in data['io']])
     array('io_group',[x['group'] for x in data['io']],integer=True)
     array('io_group_names',data['io_groups'])
     array('fragment_group_names',data['fragment_groups'])
-    lines += ['typedef struct {const char *cap;int value_type,functions_only,incomplete,file_write;} IoOptions;', 'static const IoOptions io_options[]={']
+    lines += ['typedef struct {const char *cap;int value_type,functions_only,incomplete,file_write,headers;} IoOptions;', 'static const IoOptions io_options[]={']
     for x in data['io']:
-        lines.append('{'+cstr(','.join(x['caps']))+','+','.join(str(int(x[k])) for k in ['value_type','functions_only','incomplete','file_write'])+'},')
+        lines.append('{'+cstr(','.join(x['caps']))+','+','.join(str(int(x[k])) for k in ['value_type','functions_only','incomplete','file_write'])+','+str(mask(x['headers']))+'},')
     lines.append('};')
     for key in ['io','fragments']:
         lines.append('enum { '+', '.join(x['symbol'] for x in data[key])+' };')
     lines.append('#define DEFAULT_IO '+next(x['symbol'] for x in data['io'] if x['default']))
+    lines+=['typedef struct {const char *name;int io,readers,count,choices[8];} Flow;', 'static const Flow flows[]={']
+    io_index={x['id']:i for i,x in enumerate(data['io'])}
+    for flow in data['flows']:
+        choices=[io_index[key] for key in flow.get('choices',[])]
+        lines.append('{'+cstr(flow['name'])+','+str(io_index.get(flow.get('io'),-1))+','+str(int(flow.get('readers',False)))+','+str(len(choices))+',{'+','.join(map(str,choices or [0]))+'}},')
+    lines+=['};','#define FLOWS ((int)(sizeof flows/sizeof flows[0]))']
+    ui=json.loads((ROOT/'catalog/ui.json').read_text(encoding='utf-8'))
+    lines.extend('#define UI_'+key+' '+cstr(value) for key,value in ui.items())
     return '\n'.join(lines)+'\n'
 
 
 def config_c(data):
-    lines=['typedef struct {', '    int io, selected[COUNT], snippet[FRAGMENTS], wide, separator_set;', '    char separator[128];']
+    lines=['typedef struct {', '    int io, selected[COUNT], snippet[FRAGMENTS], wide, separator_set, comments, flow, reader;', '    char separator[128];']
     lines.append('    int '+', '.join(x['field'] for x in data['capacities'])+';')
     lines+=['} Config;', 'typedef struct {const char *macro,*label,*log_macro;size_t offset;int def,low,high,extra;} Setting;', 'static const Setting settings[]={']
     for x in data['capacities']:

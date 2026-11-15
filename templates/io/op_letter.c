@@ -1,5 +1,5 @@
 int main(void) {
-    /* TODO: 读入初始数据并初始化状态 */
+    @COMMENT:op_letter_0@
 @INPUT@    int q;
     scanf("%d", &q);
     while (q--) {
@@ -7,13 +7,13 @@ int main(void) {
         scanf(" %c", &op);
         switch (op) {
             case 'Q':
-                /* TODO: 读本操作参数并处理；需要时输出 */
+                @COMMENT:op_letter_1@
                 break;
             case 'C':
-                /* TODO: 读本操作参数并处理 */
+                @COMMENT:op_letter_2@
                 break;
         }
     }
-    /* TODO: 若要求最终状态，在此输出 */
+    @COMMENT:op_letter_3@
 @OUTPUT@    return 0;
 }

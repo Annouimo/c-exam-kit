@@ -3,7 +3,7 @@ void big_divmod(BigInt a, BigInt b, BigInt *q, BigInt *rem) {
     *rem = big_zero();
     q->len = a.len;
     for (int i = a.len - 1; i >= 0; i--) {
-        /* 余数乘 10，再带下当前数位 */
+        @COMMENT:big_divmod_0@
         for (int j = rem->len; j > 0; j--) rem->d[j] = rem->d[j-1];
         rem->d[0] = a.d[i];
         rem->len++;

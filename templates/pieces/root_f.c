@@ -1,2 +1,2 @@
-/* TODO 按题目修改root_f，当前示例x*x-2 */
+@COMMENT:root_f_0@
 double root_f(double x) { return x * x - 2; }

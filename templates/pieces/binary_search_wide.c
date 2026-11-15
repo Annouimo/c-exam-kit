@@ -1,4 +1,4 @@
-/* 必须升序 */
+@COMMENT:binary_search_wide_0@
 int binary_search(long long a[], int n, long long key) {
     int left = 0, right = n - 1;
     while (left <= right) {

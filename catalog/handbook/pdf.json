@@ -169,11 +169,7 @@
       ]
     }
   ],
-  "page_break_before": [
-    "其他常用操作"
-  ],
   "inline_code_size": 7.5,
-  "keep_code_lines": 30,
   "metadata_paragraphs": 3,
   "table_padding": {
     "horizontal": 6,
@@ -189,5 +185,12 @@
     "comment": "#536b50",
     "constant": "#704098",
     "operator": "#475569"
+  },
+  "pagination": {
+    "short_code_lines": 12,
+    "table_start_rows": 3,
+    "minimum_body_lines": 2,
+    "sparse_last_page_ratio": 0.15,
+    "keep_last_short_chapter_ratio": 0.65
   }
 }

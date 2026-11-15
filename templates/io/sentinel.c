@@ -1,8 +1,8 @@
 int main(void) {
     VALUE x;
     while (scanf(VALUE_SCAN, &x) == 1) {
-        if (x == -1) break;  /* TODO: 按题目修改表示结束的数值；不参与处理 */
+        if (x == -1) break;  @COMMENT:sentinel_0@
 @LOOP@    }
-    /* TODO: 如需汇总输出，写在这里 */
+    @COMMENT:sentinel_1@
     return 0;
 }

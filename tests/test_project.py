@@ -173,12 +173,12 @@ int main(void) {{
     @unittest.skipUnless(os.name=='nt','Windows redirected legacy-IDE encoding')
     def test_windows_gbk_stdio_and_utf8_saved_source(self):
         out=self.d/'中文脚手架.c'
-        data=f'2\n0\n\n2\n{out}\n'.encode('gbk')
+        data=f'2\n0\n\n1\n{out}\n'.encode('gbk')
         p=subprocess.run([str(self.exe),'--plain','--stdio-encoding=gbk'],input=data,capture_output=True,timeout=15)
         self.assertEqual(p.returncode,0,p.stderr)
         text=p.stdout.decode('gbk')
         self.assertIn('代码已保存',text)
-        self.assertTrue(out.read_text(encoding='utf-8').startswith('#include'))
+        self.assertTrue(out.read_text(encoding='utf-8').startswith('/*'))
         # A UTF-8 character split across fputc calls still becomes one GBK character.
         exe=self.harness('''int main(void) {
     io_stdio_encoding("gbk");
@@ -248,24 +248,24 @@ int main(void) {{
     return ok;
 }
 int main(void) {
-    for(int wide=0;wide<2;wide++) {
+    for(int mode=0;mode<3;mode++)for(int wide=0;wide<2;wide++) {
         for(int id=0;id<COUNT;id++) {
-            Config c=defaults();c.io=IO_FUNCTIONS;c.wide=wide;c.selected[id]=1;
-            char name[80];sprintf(name,"component_%d_%d.c",id,wide);
+            Config c=defaults();c.io=IO_FUNCTIONS;c.wide=wide;c.comments=mode;c.selected[id]=1;
+            char name[80];sprintf(name,"component_%d_%d_%d.c",id,wide,mode);
             if(!write_generated(name,&c))return 1;
         }
         for(int io=0;io<IO_COUNT;io++) {
             if(io_options[io].incomplete)continue;
-            Config c=defaults();c.io=io;c.wide=wide;
+            Config c=defaults();c.io=io;c.wide=wide;c.comments=mode;
             for(int i=0;i<COUNT;i++)c.selected[i]=1;
-            char name[80];sprintf(name,"skeleton_%d_%d.c",io,wide);
+            char name[80];sprintf(name,"skeleton_%d_%d_%d.c",io,wide,mode);
             if(!write_generated(name,&c))return 1;
         }
         for(int matrix=0;matrix<2;matrix++) {
-            Config c=defaults();c.wide=wide;
+            Config c=defaults();c.wide=wide;c.comments=mode;
             c.snippet[matrix?SN_READ_MATRIX:SN_READ_ARRAY]=1;
             c.snippet[matrix?SN_OUTPUT_MATRIX:SN_OUTPUT_ARRAY]=1;
-            char name[80];sprintf(name,"fragment_%d_%d.c",matrix,wide);
+            char name[80];sprintf(name,"fragment_%d_%d_%d.c",matrix,wide,mode);
             if(!write_generated(name,&c))return 1;
         }
     }
@@ -278,10 +278,16 @@ int main(void) {
         run([exe],cwd=folder,env=env)
         paths=list(folder.glob('*.c'))
         def check(p):
-            self.assertTrue(p.read_text(encoding='utf-8').startswith('#include'),p.name)
+            text=p.read_text(encoding='utf-8')
+            self.assertNotIn('\n\n\n',text,p.name)
+            self.assertTrue(text.endswith('\n') and not text.endswith('\n\n'),p.name)
+            if p.stem.endswith('_0'):
+                self.assertNotIn('/*',text,p.name)
+                self.assertNotIn('TODO',text,p.name)
+            else:self.assertTrue(text.startswith('/*'),p.name)
             compile_c(p,p.with_suffix('.o'),objects=True)
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:list(pool.map(check,paths))
-        self.assertEqual(len(paths),2*len(DATA['components'])+2*(len(DATA['io'])-2)+4)
+        self.assertEqual(len(paths),3*(2*len(DATA['components'])+2*(len(DATA['io'])-2)+4))
         print(f'  Strict C99: {len(paths)} generated combinations compiled')
 
     def test_generate_without_tempfile_permission(self):
@@ -289,7 +295,7 @@ int main(void) {
     Config c=defaults();c.io=IO_FUNCTIONS;c.selected[0]=1;
     size_t length=0;char *source=generate(&c,&length);
     if(!source || !length)return 1;
-    if(!strstr(source,"#include") || !strstr(source,"int_to_digits")) {
+    if(!strstr(source,"int_to_digits")) {
         free(source);return 2;
     }
     if(strstr(source,"int main(")){free(source);return 3;}
@@ -427,37 +433,62 @@ int main(void) {
             self.assertEqual(run([target],input='0\n'),'\n')
 
     def test_interactive_configuration(self):
-        # Numeric switch, no component/no snippets, save to a file.
-        op_num=next(i+1 for i,x in enumerate(DATA['io']) if x['id']=='op_number')
         out=self.d/'operations.c'
-        text=run([self.exe,'--plain'],input=f'{op_num}\n0\n\n2\n{out}\n',timeout=10)
+        text=run([self.exe,'--plain'],input=f'7\n\n1\n{out}\n',timeout=10)
         self.assertIn('case 1:',out.read_text(encoding='utf-8'))
         self.assertNotIn('default:',out.read_text(encoding='utf-8'))
-        self.assertIn('【本次使用说明',text);self.assertNotIn('源码开始',text)
-        # Configure a pure output-expression scaffold; first-use default is '+'.
-        frag=next(i+1 for i,x in enumerate(DATA['fragments']) if x['id']=='output_items')
+        self.assertNotIn('源码开始',text)
+        self.assertEqual(text.count('设计者：'),1)
+        self.assertNotIn('按需配置',text)
         out=self.d/'expression.c'
-        text=run([self.exe,'--plain'],input=f'2\n0\n{frag}\n\n2\n{out}\n',timeout=10)
+        text=run([self.exe,'--plain'],input=f'2\n0\n\no\n4\n\n1\n{out}\n',timeout=10)
         self.assertIn('分隔输出',text)
         target=self.d/'expression.exe';compile_c(out,target)
         self.assertEqual(run([target]),'1+1+1+1\n')
-        # Function-only selection maps actual current numbering to the new target-char function.
         comp=next(i+1 for i,x in enumerate(DATA['components']) if x['id']=='longest_char_run')
         out=self.d/'char.c'
-        text=run([self.exe,'--plain'],input=f'1\n{comp}\n2\n{out}\n',timeout=10)
+        text=run([self.exe,'--plain'],input=f'1\n{comp}\n1\n{out}\n',timeout=10)
         self.assertIn('longest_char_run',out.read_text(encoding='utf-8'))
         self.assertNotIn('int main(',out.read_text(encoding='utf-8'))
         self.assertIn('target由调用者传入',text)
-        # Export menu number follows template count, never an old hardcoded 16.
         out=self.d/'manual.md'
-        run([self.exe,'--plain'],input=f'{len(DATA["io"])+1}\n{out}\n',timeout=10)
+        run([self.exe,'--plain'],input=f'{len(DATA["flows"])+1}\n{out}\n',timeout=10)
         self.assertIn(DATA['version'],out.read_text(encoding='utf-8'))
+        out=self.d/'plain.c'
+        run([self.exe,'--plain'],input=f'2\n0\n\nm\n0\n1\n{out}\n',timeout=10)
+        plain=out.read_text(encoding='utf-8')
+        self.assertTrue(plain.startswith('#include <stdio.h>'))
+        self.assertNotIn('/*',plain)
+        self.assertNotIn('math.h',plain)
+        self.assertNotIn('stdlib.h',plain)
+        out=self.d/'eof_array.c'
+        run([self.exe,'--plain'],input=f'4\n5\n\n\n\n1\n{out}\n',timeout=10)
+        source=out.read_text(encoding='utf-8')
+        self.assertIn('while (scanf("%d", &n) == 1)',source)
+        self.assertIn('static int a[ARRAY_MAX]',source)
+        compile_c(out,self.d/'eof_array.exe')
+
+    def test_explicit_headers_and_comment_slots(self):
+        required={x['id']:x for x in DATA['pieces']}
+        for key in ['gcd_ll','gcd']:
+            if key in required:self.assertEqual(required[key]['headers'],[])
+        self.assertIn('stdlib.h',required['sort_int_array']['headers'])
+        self.assertEqual(required['cmp_int']['headers'],[])
+        for collection in ['pieces','io','fragments']:
+            for item in DATA[collection]:
+                for mode,code in enumerate(item['variants']):
+                    self.assertNotIn('@COMMENT:',code)
+                    if mode==0:self.assertNotIn('/*',code)
+        # Comment slots are data, including strings that look like comment syntax.
+        self.assertEqual(builder.compact_template('int x;\n\n\nint y;\n'),'int x;\n\nint y;\n')
+        self.assertEqual(builder.compact_template('const char *s="http://x/*y*/";\n'),'const char *s="http://x/*y*/";\n')
 
     def test_catalog_dependencies_and_validation(self):
         root=self.d/'catalog-project';shutil.copytree(ROOT/'templates',root/'templates');(root/'catalog').mkdir()
         path=root/'catalog/catalog.json'
         original=json.loads((ROOT/'catalog/catalog.json').read_text(encoding='utf-8'))
-        added={'id':'example_dependency','source':'templates/pieces/example_dependency.c','details':'example','hint':'example','requires':['factorial_basic']}
+        shutil.copy(ROOT/'catalog/code_comments.json',root/'catalog/code_comments.json')
+        added={'headers':[],'id':'example_dependency','source':'templates/pieces/example_dependency.c','details':'example','hint':'example','requires':['factorial_basic']}
         (root/added['source']).write_text('long long example_dependency(void) { return factorial_basic(5); }\n',encoding='utf-8')
         original['pieces'].append(added)
         original['components'].append(dict(original['components'][-1],id='example_component',pieces=['example_dependency']))
@@ -491,8 +522,8 @@ int main(void) {
         text=run([exe,'--plain'],input='2\n0\n\n\n',env=env,timeout=10)
         self.assertIn('【复制成功】',text);self.assertNotIn('源码开始',text)
         copied=Path(env['MOCK_CLIPBOARD']).read_text(encoding='utf-8')
-        self.assertTrue(copied.startswith('#include'))
-        self.assertNotIn('设计者',copied)
+        self.assertTrue(copied.startswith('/*'))
+        self.assertIn('设计者',copied)
         self.assertIn('int main(',copied);self.assertNotIn('本次使用说明',copied)
         env['MOCK_FAIL']='1'
         text=run([exe,'--plain'],input='2\n0\n\n\n0\n',env=env,timeout=10)
@@ -517,7 +548,7 @@ int main(void) {
                 display=sum(2 if unicodedata.east_asian_width(ch) in 'WF' else 1 for ch in line.replace('\r',''))
                 self.assertLessEqual(display,width,line)
             self.assertEqual(sorted(ids),list(range(1,len(DATA['components'])+1)))
-            os.write(master,b'-1\n');remaining=b''
+            os.write(master,b'q\n');remaining=b''
             while '按回车退出'.encode() not in remaining:
                 ready,_,_=select.select([master],[],[],8);self.assertTrue(ready);remaining+=os.read(master,65536)
             self.assertIsNone(proc.poll(),'Interactive run must pause before closing')

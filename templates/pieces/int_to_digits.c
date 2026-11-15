@@ -1,4 +1,4 @@
-/* 非负整数拆成高位在前的数位数组；n=0 得到一位 0 */
+@COMMENT:int_to_digits_0@
 int int_to_digits(long long n, int base, int a[]) {
     int len = 0;
     do {

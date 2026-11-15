@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import unittest
+import tempfile
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -49,6 +50,26 @@ class PdfTests(unittest.TestCase):
         for word in ['pow','scanf','qsort','malloc','strncpy']:self.assertIn(word,text)
         for removed in ['fpclassify','remainder','remquo','nextafter','tgamma','scalbn','具体签名并不总是']:self.assertNotIn(removed,text)
         self.assertNotIn('{{',text)
+    def test_pagination_with_expanded_tables_lists_and_code(self):
+        with tempfile.TemporaryDirectory(prefix='pdf-layout-') as tmp:
+            root=Path(tmp)
+            for extra in [0,7]:
+                source=root/f'stress-{extra}.md';target=root/f'stress-{extra}.pdf';report=root/f'stress-{extra}.json'
+                rows=['| 函数签名（压力检查） | 说明 |','| --- | --- |']
+                rows += [f'| `int function_{i}(const char *text, int capacity);` | 长函数名和说明用于检查跨页表头和单行完整性。 |' for i in range(80+extra)]
+                lines=['# Layout fixture','## 长表格','### 函数列表']+rows+['','## 扩充组件清单','### 相关函数']
+                lines += [f'- **{i}.** 扩充的组件名称：说明包含较长的函数名称和使用前提，用于检查新增组件后自然分页。' for i in range(45+extra)]
+                lines += ['','## 代码片段','### 长代码','```c']+[f'int variable_{i} = {i};' for i in range(45)]+['```','','### 短代码','```c','int answer = 42;','printf("%d", answer);','```']
+                source.write_text('\n'.join(lines)+'\n',encoding='utf-8')
+                result=subprocess.run([sys.executable,str(ROOT/'tools/build_pdf.py'),'--input-md',str(source),'--output',str(target),'--layout-report',str(report)],capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+                diagnostics=json.loads(report.read_text(encoding='utf-8'))
+                self.assertFalse([x for x in diagnostics['warnings'] if x['kind'] in ['orphan_heading','out_of_bounds']])
+                text=subprocess.check_output(['pdftotext',str(target),'-']).decode()
+                self.assertGreaterEqual(text.count('函数签名（压力检查）'),2)
+                self.assertIn(f'function_{79+extra}',text)
+                self.assertIn('variable_44',text)
+
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -47,13 +47,20 @@ def topic_catalog(data,profile):
             if item['group']==g:
                 lines.append(f'- **{number}.** {item["name"]}：{item["summary"]}')
         out['scaffold.'+key]='\n'.join(lines)
-    for key,groups_key in [('io','io_groups'),('fragments','fragment_groups')]:
-        lines=[]
-        for g,title in enumerate(data[groups_key]):
-            names=[f'{i+1}「{x["name"]}」' for i,x in enumerate(data[key]) if x['group']==g]
-            lines.append('- '+title+'：'+'；'.join(names)+'。')
-        if key=='io':lines.append(f'- 其他：{len(data["io"])+1}「{profile["manual_export_label"]}」。')
-        out['scaffold.'+key]='\n'.join(lines)
+    lookup={item['id']:item for item in data['io']}
+    lines=[]
+    for i,flow in enumerate(data['flows'],1):
+        text=f'- 流程{i}「{flow["name"]}」'
+        if flow.get('readers'):text+='：可选读n个整数或整数矩阵，默认自己写读入。'
+        elif flow.get('choices'):text+='：'+ '；'.join(lookup[key]['name'] for key in flow['choices'])+'。'
+        lines.append(text)
+    lines.append(f'- 其他：{len(data["flows"])+1}「{profile["manual_export_label"]}」。')
+    out['scaffold.io']='\n'.join(lines)
+    lines=[]
+    for group,title in enumerate(data['fragment_groups']):
+        names=[x['name'] for x in data['fragments'] if x['group']==group]
+        lines.append('- '+title+'：'+'；'.join(names)+'。')
+    out['scaffold.fragments']='\n'.join(lines)
     return out
 
 
@@ -128,7 +135,8 @@ def all_document_outputs(data,root=ROOT):
             if x['group']!=g:continue
             group_catalog.append(f'- **{i+1}.** {x["name"]}：{x["summary"]}')
             components.extend([f'#### {i+1}. {x["name"]}\n',x['note']+'\n'])
-            code='#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n'
+            required={header for key in x['resolved_pieces'] for header in pieces[key]['headers']}
+            code=''.join('#include <'+header+'>\n' for header in data['header_order'] if header in required)+'\n'
             for cap in data['capacities']:
                 if cap['macro'] in x['caps']:
                     code+=f'#define {cap["macro"]} {cap["default"]}\n'

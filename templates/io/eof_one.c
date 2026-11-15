@@ -1,8 +1,8 @@
 int main(void) {
     VALUE n;
-    /* TODO: 循环前初始化累计状态 */
+    @COMMENT:eof_one_0@
     while (scanf(VALUE_SCAN, &n) == 1) {
 @LOOP@    }
-    /* TODO: 若需汇总输出，写在这里 */
+    @COMMENT:eof_one_1@
     return 0;
 }

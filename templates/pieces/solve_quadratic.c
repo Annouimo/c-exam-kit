@@ -7,7 +7,7 @@ QuadraticResult solve_quadratic(double a, double b, double c, double eps) {
         r.x1 = r.x2 = -b / (2*a);
     } else if (delta > 0) {
         r.kind = 2;
-        /* 稳定的等价公式，减少 -b 与 sqrt(delta) 相减时的消去误差 */
+        @COMMENT:solve_quadratic_0@
         double q = -0.5 * (b + (b >= 0 ? sqrt(delta) : -sqrt(delta)));
         r.x1 = q / a;
         r.x2 = c / q;

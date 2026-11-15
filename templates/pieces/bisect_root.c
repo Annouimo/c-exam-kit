@@ -4,7 +4,7 @@ double bisect_root(double left, double right, double eps) {
     if (fr == 0) return right;
     while (right - left > eps) {
         double mid = left + (right - left) / 2;
-        if (mid == left || mid == right) break;  /* 避免浮点精度停滞 */
+        if (mid == left || mid == right) break;  @COMMENT:bisect_root_0@
         double fm = root_f(mid);
         if (fm == 0) return mid;
         if ((fl < 0 && fm < 0) || (fl > 0 && fm > 0)) {

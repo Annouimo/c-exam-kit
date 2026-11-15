@@ -1,5 +1,5 @@
 int main(void) {
-    int ch;  /* getchar返回int，不能用char保存EOF */
+    int ch;  @COMMENT:chars_0@
     while ((ch = getchar()) != EOF) {
 @LOOP@    }
     return 0;

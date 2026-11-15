@@ -3,16 +3,16 @@
  *                 COMPILE AND RUN THIS PROGRAM FIRST
  *          DO NOT SEARCH THIS FILE AS A CODE SNIPPET COLLECTION.
  ******************************************************************************
- * C SCAFFOLD GENERATOR v0.6.1
+ * C SCAFFOLD GENERATOR v0.6.2
  * This file is an INTERACTIVE PROGRAM. Compile it, then RUN the executable.
  * DO NOT just open this file and search for ready-to-copy functions.
  * Compile -> Run -> Select components -> Copy/save the generated C code.
  * Want to SEARCH / COPY functions directly? Open the FULL SCAFFOLD MANUAL.
  *
  * Windows GCC / Dev-C++ (compile as C):
- *   gcc -std=c99 c_scaffold_v0.6.1.c -o c_scaffold.exe -luser32
+ *   gcc -std=c99 c_scaffold_v0.6.2.c -o c_scaffold.exe -luser32
  * macOS / Linux:
- *   cc -std=c99 c_scaffold_v0.6.1.c -o c_scaffold
+ *   cc -std=c99 c_scaffold_v0.6.2.c -o c_scaffold
  * Run: c_scaffold.exe on Windows, or ./c_scaffold on macOS/Linux.
  * Old IDE output pane: try --plain --stdio-encoding=gbk on Windows,
  * or run the compiled program in a separate console window.
@@ -44,218 +44,9 @@
 #endif
 #include <stddef.h>
 
-#define APP_VERSION "0.6.1"
+#define APP_VERSION "0.6.2"
 #define APP_DESIGNER "Annouimo"
-static const char *pieces[]={
-"int digit_value(char c) {\n    if (c >= '0' && c <= '9') return c - '0';\n    if (c >= 'a' && c <= 'f') return c - 'a' + 10;\n    return c - 'A' + 10;\n}\n",
-"long long base_to_dec(char s[], int base) {\n    int i = 0, sign = 1;\n    long long value = 0;\n    if (s[i] == '-') { sign = -1; i++; }\n    for (; s[i]; i++) value = value * base + digit_value(s[i]);\n    return sign * value;\n}\n",
-"void dec_to_base(long long n, int base, char out[]) {\n    char digits[] = \"0123456789ABCDEF\";\n    char temp[65];\n    int len = 0;\n    do {\n        temp[len++] = digits[n % base];\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len; i++) out[i] = temp[len - 1 - i];\n    out[len] = '\\0';\n}\n",
-"/* \351\235\236\350\264\237\346\225\264\346\225\260\346\213\206\346\210\220\351\253\230\344\275\215\345\234\250\345\211\215\347\232\204\346\225\260\344\275\215\346\225\260\347\273\204\357\274\233n=0 \345\276\227\345\210\260\344\270\200\344\275\215 0 */\nint int_to_digits(long long n, int base, int a[]) {\n    int len = 0;\n    do {\n        a[len++] = (int)(n % base);\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len / 2; i++) {\n        int t = a[i]; a[i] = a[len - 1 - i]; a[len - 1 - i] = t;\n    }\n    return len;\n}\n",
-"long long digits_to_int(int a[], int len, int base) {\n    long long value = 0;\n    for (int i = 0; i < len; i++) value = value * base + a[i];\n    return value;\n}\n",
-"long long ipow(long long base, int exp) {\n    long long result = 1;\n    for (int i = 0; i < exp; i++) result *= base;\n    return result;\n}\n",
-"/* \351\234\200\350\246\201 math.h */\nint feq(double a, double b, double eps) {\n    return fabs(a - b) <= eps;\n}\n",
-"int get_bit(unsigned long long x, int pos) { return (x >> pos) & 1ULL; }\n",
-"unsigned long long set_bit(unsigned long long x, int pos) { return x | (1ULL << pos); }\n",
-"unsigned long long clear_bit(unsigned long long x, int pos) { return x & ~(1ULL << pos); }\n",
-"unsigned long long toggle_bit(unsigned long long x, int pos) { return x ^ (1ULL << pos); }\n",
-"unsigned long long pow2u(int n) { return 1ULL << n; }\n",
-"int is_power_of_two(unsigned long long x) {\n    return x != 0 && (x & (x - 1)) == 0;\n}\n",
-"int count_ones(unsigned long long x) {\n    int count = 0;\n    while (x) {\n        x &= x - 1;                /* \346\257\217\346\254\241\346\266\210\346\216\211\346\234\200\344\275\216\344\275\215\347\232\204\344\270\200\344\270\252 1 */\n        count++;\n    }\n    return count;\n}\n",
-"long long gcd(long long a, long long b) {\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    while (b) {\n        long long t = a % b;\n        a = b; b = t;\n    }\n    return a;\n}\n",
-"long long lcm(long long a, long long b) {\n    if (a == 0 || b == 0) return 0;\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    return a / gcd(a, b) * b;\n}\n",
-"int is_prime_basic(int n) {\n    if (n < 2) return 0;\n    if (n == 2) return 1;\n    if (n % 2 == 0) return 0;\n    for (int i = 3; i <= n / i; i += 2)\n        if (n % i == 0) return 0;\n    return 1;\n}\n",
-"int is_prime[SIEVE_MAX + 1];\n",
-"int primes[SIEVE_MAX + 1], pc;\n",
-"void build_primes_sieve(int n) {\n    memset(is_prime, 0, sizeof is_prime);\n    pc = 0;\n    for (int i = 2; i <= n; i++) is_prime[i] = 1;\n    for (int i = 2; i <= n / i; i++) {\n        if (is_prime[i])\n            for (int j = i * i; j <= n; j += i) is_prime[j] = 0;\n    }\n    for (int i = 2; i <= n; i++)\n        if (is_prime[i]) primes[pc++] = i;\n}\n",
-"int cmp_int(const void *a, const void *b) {\n    int x = *(const int *)a, y = *(const int *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
-"typedef struct {\n    int id, score;\n} Record;\n",
-"/* \345\205\210 score \351\231\215\345\272\217\357\274\214\345\206\215 id \345\215\207\345\272\217\357\274\233\346\224\271\345\255\227\346\256\265\357\274\217\346\257\224\350\276\203\346\226\271\345\220\221\345\215\263\345\217\257\346\215\242\351\242\230 */\nint cmp_record(const void *a, const void *b) {\n    Record x = *(const Record *)a, y = *(const Record *)b;\n    if (x.score > y.score) return -1;\n    if (x.score < y.score) return 1;\n    if (x.id < y.id) return -1;\n    if (x.id > y.id) return 1;\n    return 0;\n}\n",
-"void swap_int(int *a, int *b) {\n    int t = *a; *a = *b; *b = t;\n}\n",
-"void bubble_sort(int a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
-"int linear_search(int a[], int n, int key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
-"/* \345\277\205\351\241\273\345\215\207\345\272\217 */\nint binary_search(int a[], int n, int key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
-"typedef struct { int value, index; } Entry;\n",
-"int cmp_entry(const void *a, const void *b) {\n    Entry x=*(const Entry *)a,y=*(const Entry *)b;\n    if(x.value!=y.value) return x.value<y.value?-1:1;\n    return (x.index>y.index)-(x.index<y.index);\n}\n",
-"int first_original(Entry a[],int n,int key) {\n    int l=0,r=n;\n    while(l<r){int m=l+(r-l)/2; if(a[m].value<key)l=m+1;else r=m;}\n    return l<n && a[l].value==key ? a[l].index : -1;\n}\n",
-"void build_prefix(int a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
-"/* \351\227\255\345\214\272\351\227\264 [left,right]\357\274\214\350\246\201\346\261\202 1<=left<=right<=n */\nlong long range_sum(long long prefix[], int left, int right) {\n    return prefix[right] - prefix[left - 1];\n}\n",
-"long long poly_eval(long long a[], int degree, long long x) {\n    long long result = 0;\n    for (int i = degree; i >= 0; i--) result = result * x + a[i];\n    return result;\n}\n",
-"long long max_subarray_sum(int a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
-"long long max_forward_diff(int a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
-"typedef struct { int y, m, d; } Date;\n",
-"int is_leap(int y) {\n    return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;\n}\n",
-"int days_in_month(int y, int m) {\n    int days[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};\n    if (m < 1 || m > 12) return 0;\n    if (m == 2 && is_leap(y)) return 29;\n    return days[m];\n}\n",
-"int is_valid_date(Date x) {\n    return x.y >= 1 && x.y <= 9999 && x.m >= 1 && x.m <= 12\n        && x.d >= 1 && x.d <= days_in_month(x.y, x.m);\n}\n",
-"int day_of_year(Date x) {\n    int result = x.d;\n    for (int m = 1; m < x.m; m++) result += days_in_month(x.y, m);\n    return result;\n}\n",
-"Date next_day(Date x) {\n    x.d++;\n    if (x.d > days_in_month(x.y, x.m)) {\n        x.d = 1;\n        x.m++;\n        if (x.m > 12) { x.m = 1; x.y++; }\n    }\n    return x;\n}\n",
-"int date_to_days(Date x) {\n    int y = x.y - 1;\n    return y * 365 + y / 4 - y / 100 + y / 400 + day_of_year(x) - 1;\n}\n",
-"int date_diff(Date a, Date b) {\n    return abs(date_to_days(a) - date_to_days(b));\n}\n",
-"typedef struct { int h, m, s; } Time;\n",
-"int time_to_sec(Time t) { return t.h * 3600 + t.m * 60 + t.s; }\n",
-"int time_diff(Time a, Time b) {\n    return abs(time_to_sec(a) - time_to_sec(b));\n}\n",
-"Time next_second(Time t) {\n    t.s++;\n    if (t.s == 60) { t.s = 0; t.m++; }\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
-"Time next_minute(Time t) {\n    t.m++;\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
-"long long memo[93];\n",
-"int has[93];\n",
-"void init_memo(void) { memset(has, 0, sizeof has); }\n",
-"long long fib_memo(int n) {\n    if (n <= 1) return n;\n    if (has[n]) return memo[n];\n    memo[n] = fib_memo(n - 1) + fib_memo(n - 2);\n    has[n] = 1;\n    return memo[n];\n}\n",
-"/* TODO \346\214\211\351\242\230\347\233\256\344\277\256\346\224\271root_f\357\274\214\345\275\223\345\211\215\347\244\272\344\276\213x*x-2 */\ndouble root_f(double x) { return x * x - 2; }\n",
-"double bisect_root(double left, double right, double eps) {\n    double fl = root_f(left), fr = root_f(right);\n    if (fl == 0) return left;\n    if (fr == 0) return right;\n    while (right - left > eps) {\n        double mid = left + (right - left) / 2;\n        if (mid == left || mid == right) break;  /* \351\201\277\345\205\215\346\265\256\347\202\271\347\262\276\345\272\246\345\201\234\346\273\236 */\n        double fm = root_f(mid);\n        if (fm == 0) return mid;\n        if ((fl < 0 && fm < 0) || (fl > 0 && fm > 0)) {\n            left = mid;\n            fl = fm;\n        } else right = mid;\n    }\n    return left + (right - left) / 2;\n}\n",
-"typedef struct { double re, im; } Complex;\n",
-"Complex complex_add(Complex a, Complex b) {\n    Complex c = {a.re + b.re, a.im + b.im};\n    return c;\n}\n",
-"Complex complex_sub(Complex a, Complex b) {\n    Complex c = {a.re - b.re, a.im - b.im};\n    return c;\n}\n",
-"Complex complex_mul(Complex a, Complex b) {\n    Complex c = {a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re};\n    return c;\n}\n",
-"Complex complex_div(Complex a, Complex b) {\n    double den = b.re*b.re + b.im*b.im;\n    Complex c = {(a.re*b.re + a.im*b.im)/den,\n                 (a.im*b.re - a.re*b.im)/den};\n    return c;\n}\n",
-"typedef struct {\n    int kind;\n    double x1, x2, re, im;\n} QuadraticResult;\n",
-"QuadraticResult solve_quadratic(double a, double b, double c, double eps) {\n    QuadraticResult r = {0, 0, 0, 0, 0};\n    if (fabs(a) <= eps) { r.kind = -1; return r; }\n    double delta = b*b - 4*a*c;\n    if (fabs(delta) <= eps) {\n        r.kind = 1;\n        r.x1 = r.x2 = -b / (2*a);\n    } else if (delta > 0) {\n        r.kind = 2;\n        /* \347\250\263\345\256\232\347\232\204\347\255\211\344\273\267\345\205\254\345\274\217\357\274\214\345\207\217\345\260\221 -b \344\270\216 sqrt(delta) \347\233\270\345\207\217\346\227\266\347\232\204\346\266\210\345\216\273\350\257\257\345\267\256 */\n        double q = -0.5 * (b + (b >= 0 ? sqrt(delta) : -sqrt(delta)));\n        r.x1 = q / a;\n        r.x2 = c / q;\n        if (r.x1 > r.x2) {\n            double t = r.x1; r.x1 = r.x2; r.x2 = t;\n        }\n    } else {\n        r.kind = 0;\n        r.re = -b / (2*a);\n        r.im = sqrt(-delta) / (2*fabs(a));\n    }\n    return r;\n}\n",
-"typedef struct {\n    int len;\n    int d[BIG_CAP];\n} BigInt;\n",
-"BigInt big_zero(void) {\n    BigInt a = {0};\n    a.len = 1;\n    return a;\n}\n",
-"BigInt big_from_string(char s[]) {\n    BigInt a = big_zero();\n    a.len = (int)strlen(s);\n    for (int i = 0; i < a.len; i++) a.d[i] = s[a.len - 1 - i] - '0';\n    while (a.len > 1 && a.d[a.len - 1] == 0) a.len--;\n    return a;\n}\n",
-"void big_print(BigInt a) {\n    for (int i = a.len - 1; i >= 0; i--) printf(\"%d\", a.d[i]);\n}\n",
-"int big_cmp(BigInt a, BigInt b) {\n    if (a.len < b.len) return -1;\n    if (a.len > b.len) return 1;\n    for (int i = a.len - 1; i >= 0; i--) {\n        if (a.d[i] < b.d[i]) return -1;\n        if (a.d[i] > b.d[i]) return 1;\n    }\n    return 0;\n}\n",
-"BigInt big_add(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len > b.len ? a.len : b.len;\n    int carry = 0;\n    for (int i = 0; i < c.len; i++) {\n        int sum = a.d[i] + b.d[i] + carry;\n        c.d[i] = sum % 10;\n        carry = sum / 10;\n    }\n    if (carry) c.d[c.len++] = carry;\n    return c;\n}\n",
-"BigInt big_sub_abs(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    int borrow = 0;\n    for (int i = 0; i < a.len; i++) {\n        int value = a.d[i] - b.d[i] - borrow;\n        borrow = value < 0;\n        if (borrow) value += 10;\n        c.d[i] = value;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
-"int big_sub(BigInt a, BigInt b, BigInt *out) {\n    int sign = big_cmp(a, b);\n    if (sign >= 0) *out = big_sub_abs(a, b);\n    else *out = big_sub_abs(b, a);\n    return sign;\n}\n",
-"BigInt big_mul(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    if ((a.len == 1 && a.d[0] == 0) || (b.len == 1 && b.d[0] == 0)) return c;\n    c.len = a.len + b.len;\n    for (int i = 0; i < a.len; i++) {\n        int carry = 0;\n        for (int j = 0; j < b.len; j++) {\n            int value = c.d[i+j] + a.d[i]*b.d[j] + carry;\n            c.d[i+j] = value % 10;\n            carry = value / 10;\n        }\n        c.d[i+b.len] = carry;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
-"void big_divmod(BigInt a, BigInt b, BigInt *q, BigInt *rem) {\n    *q = big_zero();\n    *rem = big_zero();\n    q->len = a.len;\n    for (int i = a.len - 1; i >= 0; i--) {\n        /* \344\275\231\346\225\260\344\271\230 10\357\274\214\345\206\215\345\270\246\344\270\213\345\275\223\345\211\215\346\225\260\344\275\215 */\n        for (int j = rem->len; j > 0; j--) rem->d[j] = rem->d[j-1];\n        rem->d[0] = a.d[i];\n        rem->len++;\n        while (rem->len > 1 && rem->d[rem->len-1] == 0) rem->len--;\n        while (big_cmp(*rem, b) >= 0) {\n            *rem = big_sub_abs(*rem, b);\n            q->d[i]++;\n        }\n    }\n    while (q->len > 1 && q->d[q->len-1] == 0) q->len--;\n}\n",
-"BigInt big_div_small(BigInt a, int b, int *remainder) {\n    BigInt q = big_zero();\n    q.len = a.len;\n    long long rem = 0;\n    for (int i = a.len - 1; i >= 0; i--) {\n        rem = rem * 10 + a.d[i];\n        q.d[i] = (int)(rem / b);\n        rem %= b;\n    }\n    while (q.len > 1 && q.d[q.len - 1] == 0) q.len--;\n    *remainder = (int)rem;\n    return q;\n}\n",
-"BigInt big_mul_small(BigInt a, int b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    long long carry = 0;\n    for (int i = 0; i < a.len; i++) {\n        long long value = (long long)a.d[i] * b + carry;\n        c.d[i] = (int)(value % 10);\n        carry = value / 10;\n    }\n    while (carry) {\n        c.d[c.len++] = (int)(carry % 10);\n        carry /= 10;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
-"BigInt big_factorial(int n) {\n    BigInt result = big_zero();\n    result.d[0] = 1;\n    for (int i = 2; i <= n; i++) result = big_mul_small(result, i);\n    return result;\n}\n",
-"int grid[GRID_MAX][GRID_MAX], visited[GRID_MAX][GRID_MAX];\n",
-"int rows, cols;\n",
-"int dr[4] = {1, -1, 0, 0};\n",
-"int dc[4] = {0, 0, 1, -1};\n",
-"/* \350\277\224\345\233\236\346\226\260\350\256\277\351\227\256\347\232\204\346\240\274\345\255\220\346\225\260\357\274\233\350\266\212\347\225\214\343\200\201\345\242\231\343\200\201\345\267\262\350\256\277\351\227\256\345\235\207\350\277\224\345\233\236 0 */\nint dfs_grid(int r, int c) {\n    if (r < 0 || r >= rows || c < 0 || c >= cols) return 0;\n    if (grid[r][c] != 1 || visited[r][c]) return 0;\n    visited[r][c] = 1;\n    int count = 1;\n    for (int k = 0; k < 4; k++) count += dfs_grid(r + dr[k], c + dc[k]);\n    return count;\n}\n",
-"int st[RMQ_LOG][RMQ_MAX];\n",
-"int log2_floor[RMQ_MAX + 1];\n",
-"void build_rmq(int a[], int n) {\n    log2_floor[1] = 0;\n    for (int i = 2; i <= n; i++) log2_floor[i] = log2_floor[i/2] + 1;\n    for (int i = 0; i < n; i++) st[0][i] = a[i];\n    for (int k = 1; (1 << k) <= n; k++) {\n        for (int i = 0; i + (1 << k) <= n; i++) {\n            int x = st[k-1][i], y = st[k-1][i + (1 << (k-1))];\n            st[k][i] = x > y ? x : y;\n        }\n    }\n}\n",
-"int range_max(int left, int right) {\n    int k = log2_floor[right - left + 1];\n    int x = st[k][left], y = st[k][right - (1 << k) + 1];\n    return x > y ? x : y;\n}\n",
-"void trim_newline(char s[]) {\n    size_t n = strlen(s);\n    if (n && s[n-1] == '\\n') s[--n] = '\\0';\n    if (n && s[n-1] == '\\r') s[n-1] = '\\0';\n}\nint is_palindrome(char s[]) {\n    size_t n = strlen(s);\n    for (size_t i = 0; i < n/2; i++) if (s[i] != s[n-1-i]) return 0;\n    return 1;\n}\nint erase_first(char s[], char key[]) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    char *p = strstr(s, key);\n    if (!p) return 0;\n    memmove(p, p+n, strlen(p+n)+1);\n    return 1;\n}\nint count_substring(char s[], char key[], int overlap) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    int count = 0;\n    char *p = s;\n    while ((p = strstr(p, key)) != NULL) { count++; p += overlap ? 1 : n; }\n    return count;\n}\n",
-"#define FREQ_MAX 200000\nint frequency[FREQ_MAX+1];\nvoid build_frequency(int a[], int n) {\n    memset(frequency, 0, sizeof frequency);\n    for (int i = 0; i < n; i++) frequency[a[i]]++;\n}\n",
-"int longest_run(int a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
-"int lower_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
-"int answer_ok(long long x) {\n    /* TODO: \346\224\271\346\210\220\344\273\216\345\201\207\345\210\260\347\234\237\347\232\204\345\215\225\350\260\203\346\235\241\344\273\266\357\274\233\346\255\244\345\244\204\344\273\205\344\270\272\347\244\272\344\276\213 */\n    return x >= 10;\n}\nlong long first_true(long long left, long long right) {\n    /* \350\246\201\346\261\202\351\227\255\345\214\272\351\227\264\345\206\205\350\207\263\345\260\221\344\270\200\344\270\252\347\234\237\345\200\274\357\274\214left<=right\357\274\233right-left\344\270\215\346\272\242\345\207\272 */\n    while (left < right) {\n        long long mid = left + (right-left)/2;\n        if (answer_ok(mid)) right = mid;\n        else left = mid+1;\n    }\n    return left;\n}\n",
-"#define STACK_CAP 10005\ntypedef struct { char data[STACK_CAP]; int size; } CharStack;\nvoid stack_init(CharStack *s) { s->size=0; }\nint stack_empty(CharStack *s) { return s->size==0; }\nvoid stack_push(CharStack *s, char value) { s->data[s->size++]=value; }\nchar stack_top(CharStack *s) { return s->data[s->size-1]; }\nvoid stack_pop(CharStack *s) { s->size--; }\nint brackets_match(char text[]) {\n    static CharStack s;\n    stack_init(&s);\n    for(int i=0; text[i]; i++) {\n        char ch=text[i];\n        if(ch=='(' || ch=='[' || ch=='{') stack_push(&s,ch);\n        else if(ch==')' || ch==']' || ch=='}') {\n            if(stack_empty(&s)) return 0;\n            char t=stack_top(&s);\n            if(!((t=='('&&ch==')')||(t=='['&&ch==']')||(t=='{'&&ch=='}'))) return 0;\n            stack_pop(&s);\n        }\n    }\n    return stack_empty(&s);\n}\n",
-"#define GRID_PATH_CAP 105\nint blocked[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long path_dp[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long count_grid_paths(int rows, int cols) {\n    memset(path_dp,0,sizeof path_dp);\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {\n        if(blocked[r][c]) continue;\n        if(r==0 && c==0) path_dp[r][c]=1;\n        else {\n            if(r) path_dp[r][c]+=path_dp[r-1][c];\n            if(c) path_dp[r][c]+=path_dp[r][c-1];\n        }\n    }\n    return path_dp[rows-1][cols-1];\n}\n",
-"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(int a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
-"#define WORD_CAP 105\ntypedef struct { char text[WORD_CAP]; int original; } Word;\nint cmp_word(const void *p, const void *q) {\n    const Word *a=(const Word *)p,*b=(const Word *)q;\n    size_t x=strlen(a->text),y=strlen(b->text);\n    if(x!=y) return x<y?-1:1;\n    int cmp=strcmp(a->text,b->text);\n    if(cmp) return cmp;\n    return (a->original>b->original)-(a->original<b->original);\n}\n",
-"#define MATRIX_MAX 105\nvoid matrix_multiply(long long a[][MATRIX_MAX], long long b[][MATRIX_MAX],\n                     long long result[][MATRIX_MAX], int n, int m, int p) {\n    for(int i=0;i<n;i++) for(int j=0;j<p;j++) {\n        result[i][j]=0;\n        for(int k=0;k<m;k++) result[i][j]+=a[i][k]*b[k][j];\n    }\n}\n",
-"Date days_to_date(int serial) {\n    int l=1,r=9999;\n    while(l<r) {\n        int m=l+(r-l+1)/2;\n        Date first={m,1,1};\n        if(date_to_days(first)<=serial) l=m; else r=m-1;\n    }\n    Date x={l,1,1};\n    int remaining=serial-date_to_days(x);\n    while(remaining>=days_in_month(x.y,x.m)) { remaining-=days_in_month(x.y,x.m); x.m++; }\n    x.d=remaining+1;\n    return x;\n}\nDate add_days(Date x,int delta) { return days_to_date(date_to_days(x)+delta); }\n",
-"void fixed_binary(unsigned long long x, int width, char out[]) {\n    for(int i=0;i<width;i++) out[i]=(char)('0'+((x>>(width-1-i))&1ULL));\n    out[width]='\\0';\n}\nunsigned long long rotate_left64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x<<k)|(x>>(64-k)) : x;\n}\nunsigned long long rotate_right64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x>>k)|(x<<(64-k)) : x;\n}\n",
-"int longest_char_run(const char s[], char target) {\n    int length = 0, best = 0;\n    for (int i = 0; s[i]; i++) {\n        length = s[i] == target ? length + 1 : 0;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
-"long long factorial_basic(int n) {\n    long long result = 1;\n    for (int i = 2; i <= n; i++) result *= i;\n    return result;\n}\n",
-"long long round_to_integer(double x) {\n    return llround(x);\n}\ndouble round_decimal(double x, int digits) {\n    double scale = pow(10.0, digits);\n    return round(x * scale) / scale;\n}\n",
-"void sort_int_array(int a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
-"int bsearch_sorted_int(const int a[], int n, int key) {\n    const int *found = (const int *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
-"double array_mean(const int a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const int a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
-"int print_fixed(double x, int digits) {\n    if (digits < 0 || digits > 15) return 0;\n    int n = snprintf(NULL, 0, \"%.*f\", digits, x);\n    if (n < 0) return 0;\n    char *text = malloc((size_t)n + 1);\n    if (!text) return 0;\n    if (snprintf(text, (size_t)n + 1, \"%.*f\", digits, x) != n) {\n        free(text);\n        return 0;\n    }\n    int skip = text[0] == '-' && strtod(text, NULL) == 0.0;\n    int ok = fputs(text + skip, stdout) != EOF;\n    free(text);\n    return ok;\n}\n",
-"int str_insert_char(char s[], size_t capacity, size_t pos, char ch) {\n    size_t n = strlen(s);\n    if (n >= capacity || pos > n || ch == '\\0' || n + 1 >= capacity) return 0;\n    memmove(s + pos + 1, s + pos, n - pos + 1);\n    s[pos] = ch;\n    return 1;\n}\nint str_erase(char s[], size_t pos, size_t count) {\n    size_t n = strlen(s);\n    if (pos > n || count > n - pos) return 0;\n    memmove(s + pos, s + pos + count, n - pos - count + 1);\n    return 1;\n}\nint str_run_bounds(const char s[], int n, int pos, int *left, int *right) {\n    if (pos < 0 || pos >= n) return 0;\n    int l = pos, r = pos + 1;\n    while (l > 0 && s[l - 1] == s[pos]) l--;\n    while (r < n && s[r] == s[pos]) r++;\n    *left = l;\n    *right = r;\n    return 1;\n}\n",
-};
-static const char *wide_pieces[]={
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-"int cmp_int(const void *a, const void *b) {\n    long long x = *(const long long *)a, y = *(const long long *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
-NULL,
-NULL,
-"void swap_int(long long *a, long long *b) {\n    long long t = *a; *a = *b; *b = t;\n}\n",
-"void bubble_sort(long long a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
-"int linear_search(long long a[], int n, long long key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
-"/* \345\277\205\351\241\273\345\215\207\345\272\217 */\nint binary_search(long long a[], int n, long long key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
-NULL,
-NULL,
-NULL,
-"void build_prefix(long long a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
-NULL,
-NULL,
-"long long max_subarray_sum(long long a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
-"long long max_forward_diff(long long a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-"int longest_run(long long a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
-"int lower_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
-NULL,
-NULL,
-NULL,
-"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(long long a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-NULL,
-"void sort_int_array(long long a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
-"int bsearch_sorted_int(const long long a[], int n, long long key) {\n    const long long *found = (const long long *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
-"double array_mean(const long long a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const long long a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
-NULL,
-NULL,
-};
+static const char code_credit[]="/*\n * C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v0.6.2\n * \350\256\276\350\256\241\350\200\205\357\274\232Annouimo\n * \345\274\200\346\272\220\344\273\223\345\272\223\357\274\232https://github.com/Annouimo/c-exam-kit\n */\n";
 static const char *piece_details[]={
 "\345\207\275\346\225\260\357\274\232int digit_value(char c)\ndigit_value\357\274\232\345\220\210\346\263\225\346\225\260\345\255\227\345\255\227\347\254\2460\342\200\2239/a\342\200\223f/A\342\200\223F\357\274\233\345\246\202 digit_value('F') \350\277\224\345\233\23615\343\200\202",
 "\345\207\275\346\225\260\357\274\232long long base_to_dec(char s[], int base)\nbase_to_dec\357\274\232base\344\270\2722/8/10/16\357\274\233\345\205\201\350\256\270\345\211\215\345\257\274\350\264\237\345\217\267\357\274\214\346\227\2400x\345\211\215\347\274\200\357\274\233\350\277\224\345\233\236long long\343\200\202",
@@ -571,6 +362,838 @@ static const char *piece_hints[]={
 "print_fixed(x,4); putchar('\\n'); \344\270\215\350\276\223\345\207\272\350\264\237\351\233\266\357\274\233digits\344\270\2720..15\357\274\214\350\277\224\345\233\2361\346\210\220\345\212\237\343\200\2010\345\244\261\350\264\245\343\200\202",
 "str_insert_char(s,sizeof s,pos,ch); str_erase(s,pos,count); str_run_bounds(s,n,pos,&l,&r)\357\274\214\345\214\272\351\227\264[l,r)\343\200\202",
 };
+static const char *plain_pieces[]={
+"int digit_value(char c) {\n    if (c >= '0' && c <= '9') return c - '0';\n    if (c >= 'a' && c <= 'f') return c - 'a' + 10;\n    return c - 'A' + 10;\n}\n",
+"long long base_to_dec(char s[], int base) {\n    int i = 0, sign = 1;\n    long long value = 0;\n    if (s[i] == '-') { sign = -1; i++; }\n    for (; s[i]; i++) value = value * base + digit_value(s[i]);\n    return sign * value;\n}\n",
+"void dec_to_base(long long n, int base, char out[]) {\n    char digits[] = \"0123456789ABCDEF\";\n    char temp[65];\n    int len = 0;\n    do {\n        temp[len++] = digits[n % base];\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len; i++) out[i] = temp[len - 1 - i];\n    out[len] = '\\0';\n}\n",
+"int int_to_digits(long long n, int base, int a[]) {\n    int len = 0;\n    do {\n        a[len++] = (int)(n % base);\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len / 2; i++) {\n        int t = a[i]; a[i] = a[len - 1 - i]; a[len - 1 - i] = t;\n    }\n    return len;\n}\n",
+"long long digits_to_int(int a[], int len, int base) {\n    long long value = 0;\n    for (int i = 0; i < len; i++) value = value * base + a[i];\n    return value;\n}\n",
+"long long ipow(long long base, int exp) {\n    long long result = 1;\n    for (int i = 0; i < exp; i++) result *= base;\n    return result;\n}\n",
+"int feq(double a, double b, double eps) {\n    return fabs(a - b) <= eps;\n}\n",
+"int get_bit(unsigned long long x, int pos) { return (x >> pos) & 1ULL; }\n",
+"unsigned long long set_bit(unsigned long long x, int pos) { return x | (1ULL << pos); }\n",
+"unsigned long long clear_bit(unsigned long long x, int pos) { return x & ~(1ULL << pos); }\n",
+"unsigned long long toggle_bit(unsigned long long x, int pos) { return x ^ (1ULL << pos); }\n",
+"unsigned long long pow2u(int n) { return 1ULL << n; }\n",
+"int is_power_of_two(unsigned long long x) {\n    return x != 0 && (x & (x - 1)) == 0;\n}\n",
+"int count_ones(unsigned long long x) {\n    int count = 0;\n    while (x) {\n        x &= x - 1;\n        count++;\n    }\n    return count;\n}\n",
+"long long gcd(long long a, long long b) {\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    while (b) {\n        long long t = a % b;\n        a = b; b = t;\n    }\n    return a;\n}\n",
+"long long lcm(long long a, long long b) {\n    if (a == 0 || b == 0) return 0;\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    return a / gcd(a, b) * b;\n}\n",
+"int is_prime_basic(int n) {\n    if (n < 2) return 0;\n    if (n == 2) return 1;\n    if (n % 2 == 0) return 0;\n    for (int i = 3; i <= n / i; i += 2)\n        if (n % i == 0) return 0;\n    return 1;\n}\n",
+"int is_prime[SIEVE_MAX + 1];\n",
+"int primes[SIEVE_MAX + 1], pc;\n",
+"void build_primes_sieve(int n) {\n    memset(is_prime, 0, sizeof is_prime);\n    pc = 0;\n    for (int i = 2; i <= n; i++) is_prime[i] = 1;\n    for (int i = 2; i <= n / i; i++) {\n        if (is_prime[i])\n            for (int j = i * i; j <= n; j += i) is_prime[j] = 0;\n    }\n    for (int i = 2; i <= n; i++)\n        if (is_prime[i]) primes[pc++] = i;\n}\n",
+"int cmp_int(const void *a, const void *b) {\n    int x = *(const int *)a, y = *(const int *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
+"typedef struct {\n    int id, score;\n} Record;\n",
+"int cmp_record(const void *a, const void *b) {\n    Record x = *(const Record *)a, y = *(const Record *)b;\n    if (x.score > y.score) return -1;\n    if (x.score < y.score) return 1;\n    if (x.id < y.id) return -1;\n    if (x.id > y.id) return 1;\n    return 0;\n}\n",
+"void swap_int(int *a, int *b) {\n    int t = *a; *a = *b; *b = t;\n}\n",
+"void bubble_sort(int a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
+"int linear_search(int a[], int n, int key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
+"int binary_search(int a[], int n, int key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
+"typedef struct { int value, index; } Entry;\n",
+"int cmp_entry(const void *a, const void *b) {\n    Entry x=*(const Entry *)a,y=*(const Entry *)b;\n    if(x.value!=y.value) return x.value<y.value?-1:1;\n    return (x.index>y.index)-(x.index<y.index);\n}\n",
+"int first_original(Entry a[],int n,int key) {\n    int l=0,r=n;\n    while(l<r){int m=l+(r-l)/2; if(a[m].value<key)l=m+1;else r=m;}\n    return l<n && a[l].value==key ? a[l].index : -1;\n}\n",
+"void build_prefix(int a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
+"long long range_sum(long long prefix[], int left, int right) {\n    return prefix[right] - prefix[left - 1];\n}\n",
+"long long poly_eval(long long a[], int degree, long long x) {\n    long long result = 0;\n    for (int i = degree; i >= 0; i--) result = result * x + a[i];\n    return result;\n}\n",
+"long long max_subarray_sum(int a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
+"long long max_forward_diff(int a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
+"typedef struct { int y, m, d; } Date;\n",
+"int is_leap(int y) {\n    return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;\n}\n",
+"int days_in_month(int y, int m) {\n    int days[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};\n    if (m < 1 || m > 12) return 0;\n    if (m == 2 && is_leap(y)) return 29;\n    return days[m];\n}\n",
+"int is_valid_date(Date x) {\n    return x.y >= 1 && x.y <= 9999 && x.m >= 1 && x.m <= 12\n        && x.d >= 1 && x.d <= days_in_month(x.y, x.m);\n}\n",
+"int day_of_year(Date x) {\n    int result = x.d;\n    for (int m = 1; m < x.m; m++) result += days_in_month(x.y, m);\n    return result;\n}\n",
+"Date next_day(Date x) {\n    x.d++;\n    if (x.d > days_in_month(x.y, x.m)) {\n        x.d = 1;\n        x.m++;\n        if (x.m > 12) { x.m = 1; x.y++; }\n    }\n    return x;\n}\n",
+"int date_to_days(Date x) {\n    int y = x.y - 1;\n    return y * 365 + y / 4 - y / 100 + y / 400 + day_of_year(x) - 1;\n}\n",
+"int date_diff(Date a, Date b) {\n    return abs(date_to_days(a) - date_to_days(b));\n}\n",
+"typedef struct { int h, m, s; } Time;\n",
+"int time_to_sec(Time t) { return t.h * 3600 + t.m * 60 + t.s; }\n",
+"int time_diff(Time a, Time b) {\n    return abs(time_to_sec(a) - time_to_sec(b));\n}\n",
+"Time next_second(Time t) {\n    t.s++;\n    if (t.s == 60) { t.s = 0; t.m++; }\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
+"Time next_minute(Time t) {\n    t.m++;\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
+"long long memo[93];\n",
+"int has[93];\n",
+"void init_memo(void) { memset(has, 0, sizeof has); }\n",
+"long long fib_memo(int n) {\n    if (n <= 1) return n;\n    if (has[n]) return memo[n];\n    memo[n] = fib_memo(n - 1) + fib_memo(n - 2);\n    has[n] = 1;\n    return memo[n];\n}\n",
+"double root_f(double x) { return x * x - 2; }\n",
+"double bisect_root(double left, double right, double eps) {\n    double fl = root_f(left), fr = root_f(right);\n    if (fl == 0) return left;\n    if (fr == 0) return right;\n    while (right - left > eps) {\n        double mid = left + (right - left) / 2;\n        if (mid == left || mid == right) break;\n        double fm = root_f(mid);\n        if (fm == 0) return mid;\n        if ((fl < 0 && fm < 0) || (fl > 0 && fm > 0)) {\n            left = mid;\n            fl = fm;\n        } else right = mid;\n    }\n    return left + (right - left) / 2;\n}\n",
+"typedef struct { double re, im; } Complex;\n",
+"Complex complex_add(Complex a, Complex b) {\n    Complex c = {a.re + b.re, a.im + b.im};\n    return c;\n}\n",
+"Complex complex_sub(Complex a, Complex b) {\n    Complex c = {a.re - b.re, a.im - b.im};\n    return c;\n}\n",
+"Complex complex_mul(Complex a, Complex b) {\n    Complex c = {a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re};\n    return c;\n}\n",
+"Complex complex_div(Complex a, Complex b) {\n    double den = b.re*b.re + b.im*b.im;\n    Complex c = {(a.re*b.re + a.im*b.im)/den,\n                 (a.im*b.re - a.re*b.im)/den};\n    return c;\n}\n",
+"typedef struct {\n    int kind;\n    double x1, x2, re, im;\n} QuadraticResult;\n",
+"QuadraticResult solve_quadratic(double a, double b, double c, double eps) {\n    QuadraticResult r = {0, 0, 0, 0, 0};\n    if (fabs(a) <= eps) { r.kind = -1; return r; }\n    double delta = b*b - 4*a*c;\n    if (fabs(delta) <= eps) {\n        r.kind = 1;\n        r.x1 = r.x2 = -b / (2*a);\n    } else if (delta > 0) {\n        r.kind = 2;\n\n        double q = -0.5 * (b + (b >= 0 ? sqrt(delta) : -sqrt(delta)));\n        r.x1 = q / a;\n        r.x2 = c / q;\n        if (r.x1 > r.x2) {\n            double t = r.x1; r.x1 = r.x2; r.x2 = t;\n        }\n    } else {\n        r.kind = 0;\n        r.re = -b / (2*a);\n        r.im = sqrt(-delta) / (2*fabs(a));\n    }\n    return r;\n}\n",
+"typedef struct {\n    int len;\n    int d[BIG_CAP];\n} BigInt;\n",
+"BigInt big_zero(void) {\n    BigInt a = {0};\n    a.len = 1;\n    return a;\n}\n",
+"BigInt big_from_string(char s[]) {\n    BigInt a = big_zero();\n    a.len = (int)strlen(s);\n    for (int i = 0; i < a.len; i++) a.d[i] = s[a.len - 1 - i] - '0';\n    while (a.len > 1 && a.d[a.len - 1] == 0) a.len--;\n    return a;\n}\n",
+"void big_print(BigInt a) {\n    for (int i = a.len - 1; i >= 0; i--) printf(\"%d\", a.d[i]);\n}\n",
+"int big_cmp(BigInt a, BigInt b) {\n    if (a.len < b.len) return -1;\n    if (a.len > b.len) return 1;\n    for (int i = a.len - 1; i >= 0; i--) {\n        if (a.d[i] < b.d[i]) return -1;\n        if (a.d[i] > b.d[i]) return 1;\n    }\n    return 0;\n}\n",
+"BigInt big_add(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len > b.len ? a.len : b.len;\n    int carry = 0;\n    for (int i = 0; i < c.len; i++) {\n        int sum = a.d[i] + b.d[i] + carry;\n        c.d[i] = sum % 10;\n        carry = sum / 10;\n    }\n    if (carry) c.d[c.len++] = carry;\n    return c;\n}\n",
+"BigInt big_sub_abs(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    int borrow = 0;\n    for (int i = 0; i < a.len; i++) {\n        int value = a.d[i] - b.d[i] - borrow;\n        borrow = value < 0;\n        if (borrow) value += 10;\n        c.d[i] = value;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"int big_sub(BigInt a, BigInt b, BigInt *out) {\n    int sign = big_cmp(a, b);\n    if (sign >= 0) *out = big_sub_abs(a, b);\n    else *out = big_sub_abs(b, a);\n    return sign;\n}\n",
+"BigInt big_mul(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    if ((a.len == 1 && a.d[0] == 0) || (b.len == 1 && b.d[0] == 0)) return c;\n    c.len = a.len + b.len;\n    for (int i = 0; i < a.len; i++) {\n        int carry = 0;\n        for (int j = 0; j < b.len; j++) {\n            int value = c.d[i+j] + a.d[i]*b.d[j] + carry;\n            c.d[i+j] = value % 10;\n            carry = value / 10;\n        }\n        c.d[i+b.len] = carry;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"void big_divmod(BigInt a, BigInt b, BigInt *q, BigInt *rem) {\n    *q = big_zero();\n    *rem = big_zero();\n    q->len = a.len;\n    for (int i = a.len - 1; i >= 0; i--) {\n        for (int j = rem->len; j > 0; j--) rem->d[j] = rem->d[j-1];\n        rem->d[0] = a.d[i];\n        rem->len++;\n        while (rem->len > 1 && rem->d[rem->len-1] == 0) rem->len--;\n        while (big_cmp(*rem, b) >= 0) {\n            *rem = big_sub_abs(*rem, b);\n            q->d[i]++;\n        }\n    }\n    while (q->len > 1 && q->d[q->len-1] == 0) q->len--;\n}\n",
+"BigInt big_div_small(BigInt a, int b, int *remainder) {\n    BigInt q = big_zero();\n    q.len = a.len;\n    long long rem = 0;\n    for (int i = a.len - 1; i >= 0; i--) {\n        rem = rem * 10 + a.d[i];\n        q.d[i] = (int)(rem / b);\n        rem %= b;\n    }\n    while (q.len > 1 && q.d[q.len - 1] == 0) q.len--;\n    *remainder = (int)rem;\n    return q;\n}\n",
+"BigInt big_mul_small(BigInt a, int b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    long long carry = 0;\n    for (int i = 0; i < a.len; i++) {\n        long long value = (long long)a.d[i] * b + carry;\n        c.d[i] = (int)(value % 10);\n        carry = value / 10;\n    }\n    while (carry) {\n        c.d[c.len++] = (int)(carry % 10);\n        carry /= 10;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"BigInt big_factorial(int n) {\n    BigInt result = big_zero();\n    result.d[0] = 1;\n    for (int i = 2; i <= n; i++) result = big_mul_small(result, i);\n    return result;\n}\n",
+"int grid[GRID_MAX][GRID_MAX], visited[GRID_MAX][GRID_MAX];\n",
+"int rows, cols;\n",
+"int dr[4] = {1, -1, 0, 0};\n",
+"int dc[4] = {0, 0, 1, -1};\n",
+"int dfs_grid(int r, int c) {\n    if (r < 0 || r >= rows || c < 0 || c >= cols) return 0;\n    if (grid[r][c] != 1 || visited[r][c]) return 0;\n    visited[r][c] = 1;\n    int count = 1;\n    for (int k = 0; k < 4; k++) count += dfs_grid(r + dr[k], c + dc[k]);\n    return count;\n}\n",
+"int st[RMQ_LOG][RMQ_MAX];\n",
+"int log2_floor[RMQ_MAX + 1];\n",
+"void build_rmq(int a[], int n) {\n    log2_floor[1] = 0;\n    for (int i = 2; i <= n; i++) log2_floor[i] = log2_floor[i/2] + 1;\n    for (int i = 0; i < n; i++) st[0][i] = a[i];\n    for (int k = 1; (1 << k) <= n; k++) {\n        for (int i = 0; i + (1 << k) <= n; i++) {\n            int x = st[k-1][i], y = st[k-1][i + (1 << (k-1))];\n            st[k][i] = x > y ? x : y;\n        }\n    }\n}\n",
+"int range_max(int left, int right) {\n    int k = log2_floor[right - left + 1];\n    int x = st[k][left], y = st[k][right - (1 << k) + 1];\n    return x > y ? x : y;\n}\n",
+"void trim_newline(char s[]) {\n    size_t n = strlen(s);\n    if (n && s[n-1] == '\\n') s[--n] = '\\0';\n    if (n && s[n-1] == '\\r') s[n-1] = '\\0';\n}\nint is_palindrome(char s[]) {\n    size_t n = strlen(s);\n    for (size_t i = 0; i < n/2; i++) if (s[i] != s[n-1-i]) return 0;\n    return 1;\n}\nint erase_first(char s[], char key[]) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    char *p = strstr(s, key);\n    if (!p) return 0;\n    memmove(p, p+n, strlen(p+n)+1);\n    return 1;\n}\nint count_substring(char s[], char key[], int overlap) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    int count = 0;\n    char *p = s;\n    while ((p = strstr(p, key)) != NULL) { count++; p += overlap ? 1 : n; }\n    return count;\n}\n",
+"#define FREQ_MAX 200000\nint frequency[FREQ_MAX+1];\nvoid build_frequency(int a[], int n) {\n    memset(frequency, 0, sizeof frequency);\n    for (int i = 0; i < n; i++) frequency[a[i]]++;\n}\n",
+"int longest_run(int a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"int lower_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
+"int answer_ok(long long x) {\n    return x >= 10;\n}\nlong long first_true(long long left, long long right) {\n    while (left < right) {\n        long long mid = left + (right-left)/2;\n        if (answer_ok(mid)) right = mid;\n        else left = mid+1;\n    }\n    return left;\n}\n",
+"#define STACK_CAP 10005\ntypedef struct { char data[STACK_CAP]; int size; } CharStack;\nvoid stack_init(CharStack *s) { s->size=0; }\nint stack_empty(CharStack *s) { return s->size==0; }\nvoid stack_push(CharStack *s, char value) { s->data[s->size++]=value; }\nchar stack_top(CharStack *s) { return s->data[s->size-1]; }\nvoid stack_pop(CharStack *s) { s->size--; }\nint brackets_match(char text[]) {\n    static CharStack s;\n    stack_init(&s);\n    for(int i=0; text[i]; i++) {\n        char ch=text[i];\n        if(ch=='(' || ch=='[' || ch=='{') stack_push(&s,ch);\n        else if(ch==')' || ch==']' || ch=='}') {\n            if(stack_empty(&s)) return 0;\n            char t=stack_top(&s);\n            if(!((t=='('&&ch==')')||(t=='['&&ch==']')||(t=='{'&&ch=='}'))) return 0;\n            stack_pop(&s);\n        }\n    }\n    return stack_empty(&s);\n}\n",
+"#define GRID_PATH_CAP 105\nint blocked[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long path_dp[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long count_grid_paths(int rows, int cols) {\n    memset(path_dp,0,sizeof path_dp);\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {\n        if(blocked[r][c]) continue;\n        if(r==0 && c==0) path_dp[r][c]=1;\n        else {\n            if(r) path_dp[r][c]+=path_dp[r-1][c];\n            if(c) path_dp[r][c]+=path_dp[r][c-1];\n        }\n    }\n    return path_dp[rows-1][cols-1];\n}\n",
+"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(int a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
+"#define WORD_CAP 105\ntypedef struct { char text[WORD_CAP]; int original; } Word;\nint cmp_word(const void *p, const void *q) {\n    const Word *a=(const Word *)p,*b=(const Word *)q;\n    size_t x=strlen(a->text),y=strlen(b->text);\n    if(x!=y) return x<y?-1:1;\n    int cmp=strcmp(a->text,b->text);\n    if(cmp) return cmp;\n    return (a->original>b->original)-(a->original<b->original);\n}\n",
+"#define MATRIX_MAX 105\nvoid matrix_multiply(long long a[][MATRIX_MAX], long long b[][MATRIX_MAX],\n                     long long result[][MATRIX_MAX], int n, int m, int p) {\n    for(int i=0;i<n;i++) for(int j=0;j<p;j++) {\n        result[i][j]=0;\n        for(int k=0;k<m;k++) result[i][j]+=a[i][k]*b[k][j];\n    }\n}\n",
+"Date days_to_date(int serial) {\n    int l=1,r=9999;\n    while(l<r) {\n        int m=l+(r-l+1)/2;\n        Date first={m,1,1};\n        if(date_to_days(first)<=serial) l=m; else r=m-1;\n    }\n    Date x={l,1,1};\n    int remaining=serial-date_to_days(x);\n    while(remaining>=days_in_month(x.y,x.m)) { remaining-=days_in_month(x.y,x.m); x.m++; }\n    x.d=remaining+1;\n    return x;\n}\nDate add_days(Date x,int delta) { return days_to_date(date_to_days(x)+delta); }\n",
+"void fixed_binary(unsigned long long x, int width, char out[]) {\n    for(int i=0;i<width;i++) out[i]=(char)('0'+((x>>(width-1-i))&1ULL));\n    out[width]='\\0';\n}\nunsigned long long rotate_left64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x<<k)|(x>>(64-k)) : x;\n}\nunsigned long long rotate_right64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x>>k)|(x<<(64-k)) : x;\n}\n",
+"int longest_char_run(const char s[], char target) {\n    int length = 0, best = 0;\n    for (int i = 0; s[i]; i++) {\n        length = s[i] == target ? length + 1 : 0;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"long long factorial_basic(int n) {\n    long long result = 1;\n    for (int i = 2; i <= n; i++) result *= i;\n    return result;\n}\n",
+"long long round_to_integer(double x) {\n    return llround(x);\n}\ndouble round_decimal(double x, int digits) {\n    double scale = pow(10.0, digits);\n    return round(x * scale) / scale;\n}\n",
+"void sort_int_array(int a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
+"int bsearch_sorted_int(const int a[], int n, int key) {\n    const int *found = (const int *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
+"double array_mean(const int a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const int a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
+"int print_fixed(double x, int digits) {\n    if (digits < 0 || digits > 15) return 0;\n    int n = snprintf(NULL, 0, \"%.*f\", digits, x);\n    if (n < 0) return 0;\n    char *text = malloc((size_t)n + 1);\n    if (!text) return 0;\n    if (snprintf(text, (size_t)n + 1, \"%.*f\", digits, x) != n) {\n        free(text);\n        return 0;\n    }\n    int skip = text[0] == '-' && strtod(text, NULL) == 0.0;\n    int ok = fputs(text + skip, stdout) != EOF;\n    free(text);\n    return ok;\n}\n",
+"int str_insert_char(char s[], size_t capacity, size_t pos, char ch) {\n    size_t n = strlen(s);\n    if (n >= capacity || pos > n || ch == '\\0' || n + 1 >= capacity) return 0;\n    memmove(s + pos + 1, s + pos, n - pos + 1);\n    s[pos] = ch;\n    return 1;\n}\nint str_erase(char s[], size_t pos, size_t count) {\n    size_t n = strlen(s);\n    if (pos > n || count > n - pos) return 0;\n    memmove(s + pos, s + pos + count, n - pos - count + 1);\n    return 1;\n}\nint str_run_bounds(const char s[], int n, int pos, int *left, int *right) {\n    if (pos < 0 || pos >= n) return 0;\n    int l = pos, r = pos + 1;\n    while (l > 0 && s[l - 1] == s[pos]) l--;\n    while (r < n && s[r] == s[pos]) r++;\n    *left = l;\n    *right = r;\n    return 1;\n}\n",
+};
+static const char *plain_wide_pieces[]={
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"int cmp_int(const void *a, const void *b) {\n    long long x = *(const long long *)a, y = *(const long long *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
+NULL,
+NULL,
+"void swap_int(long long *a, long long *b) {\n    long long t = *a; *a = *b; *b = t;\n}\n",
+"void bubble_sort(long long a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
+"int linear_search(long long a[], int n, long long key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
+"int binary_search(long long a[], int n, long long key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
+NULL,
+NULL,
+NULL,
+"void build_prefix(long long a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
+NULL,
+NULL,
+"long long max_subarray_sum(long long a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
+"long long max_forward_diff(long long a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"int longest_run(long long a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"int lower_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
+NULL,
+NULL,
+NULL,
+"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(long long a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"void sort_int_array(long long a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
+"int bsearch_sorted_int(const long long a[], int n, long long key) {\n    const long long *found = (const long long *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
+"double array_mean(const long long a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const long long a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
+NULL,
+NULL,
+};
+static const char *plain_io_codes[]={
+"",
+"int main(void) {\n@BODY@\n    return 0;\n}\n",
+"int main(void) {\n    int tests;\n    if (scanf(\"%d\", &tests) != 1) return 0;\n    while (tests--) {\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    VALUE n;\n\n    while (scanf(VALUE_SCAN, &n) == 1) {\n@LOOP@    }\n\n    return 0;\n}\n",
+"int main(void) {\n    VALUE a, b;\n\n    while (scanf(VALUE_SCAN VALUE_SCAN, &a, &b) == 2) {\n@LOOP@    }\n\n    return 0;\n}\n",
+"int main(void) {\n    while (scanf(\"TODO\",  ) ==  ) {\n@LOOP@    }\n\n    return 0;\n}\n",
+"int main(void) {\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, stdin) != NULL) {\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    int ch;\n    while ((ch = getchar()) != EOF) {\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    static VALUE a[ARRAY_MAX];\n    int n;\n    while (scanf(\"%d\", &n) == 1) {\n        if (n < 0 || n > ARRAY_MAX) return 0;\n        for (int i = 0; i < n; i++) {\n            if (scanf(VALUE_SCAN, &a[i]) != 1) return 0;\n        }\n@LOOP@\n    }\n    return 0;\n}\n",
+"int main(void) {\n    VALUE x;\n    while (scanf(VALUE_SCAN, &x) == 1) {\n        if (x == -1) break;\n@LOOP@    }\n\n    return 0;\n}\n",
+"int main(void) {\n    VALUE a, b;\n    while (scanf(VALUE_SCAN \" \" VALUE_SCAN, &a, &b) == 2) {\n        if (a == 0 && b == 0) break;\n@LOOP@\n    }\n    return 0;\n}\n",
+"int main(void) {\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        int op;\n        scanf(\"%d\", &op);\n        switch (op) {\n            case 1:\n\n                break;\n            case 2:\n\n                break;\n        }\n    }\n@OUTPUT@    return 0;\n}\n",
+"int main(void) {\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        char op;\n        scanf(\" %c\", &op);\n        switch (op) {\n            case 'Q':\n\n                break;\n            case 'C':\n\n                break;\n        }\n    }\n\n@OUTPUT@    return 0;\n}\n",
+"int main(void) {\n    int n, m, q;\n    if (scanf(\"%d%d%d\", &n, &m, &q) != 3) return 0;\n    for (int i = 0; i < n; i++) {\n    }\n    for (int i = 0; i < m; i++) {\n    }\n\n    for (int i = 0; i < q; i++) {\n    }\n    return 0;\n}\n",
+"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");\n    if (input == NULL) return 1;\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, input) != NULL) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
+"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");\n    if (input == NULL) return 1;\n\n    while (fscanf(input, \"TODO\",  ) ==  ) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
+"int main(void) {\n    FILE *output = fopen(\"output.txt\", \"w\");\n    if (output == NULL) return 1;\n@BODY@\n    if (fclose(output) != 0) return 1;\n    return 0;\n}\n",
+};
+static const char *plain_fragment_codes[]={
+"static VALUE a[ARRAY_MAX];\nint n;\nscanf(\"%d\", &n);\nfor (int i = 0; i < n; i++) scanf(VALUE_SCAN, &a[i]);\n",
+"static VALUE matrix[MATRIX_MAX][MATRIX_MAX];\nint rows, cols;\nscanf(\"%d%d\", &rows, &cols);\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) scanf(VALUE_SCAN, &matrix[r][c]);\n}\n",
+"typedef struct { int id; long long score; } ExamRecord;\nstatic ExamRecord records[ARRAY_MAX];\nint record_count;\nscanf(\"%d\", &record_count);\nfor (int i = 0; i < record_count; i++) scanf(\"%d%lld\", &records[i].id, &records[i].score);\n",
+"int rest;\nwhile ((rest = getchar()) != '\\n' && rest != EOF) {}\nchar line[LINE_CAP];\nif (fgets(line, sizeof line, stdin) != NULL) {\n}\n",
+"for (int i = 0; i < n; ) {\n    int j = i+1;\n    while (j < n && a[j] == a[i]) j++;\n\n    i = j;\n}\n",
+"const char *array_separator = SEPARATOR_LITERAL;\nfor (int i = 0; i < n; i++) {\n    if (i > 0) fputs(array_separator, stdout);\n    printf(VALUE_PRINT, a[i]);\n}\nputchar('\\n');\n",
+"for (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) printf(VALUE_PRINT \"%c\", matrix[r][c], c+1 == cols ? '\\n' : ' ');\n}\n",
+"int first_output = 1;\nconst char *item_separator = SEPARATOR_LITERAL;\nfor (int item = 0; item < 4; item++) {\n    if (!first_output) fputs(item_separator, stdout);\n    first_output = 0;\n    printf(\"%d\", 1);\n}\nputchar('\\n');\n",
+};
+static const char *brief_pieces[]={
+"int digit_value(char c) {\n    if (c >= '0' && c <= '9') return c - '0';\n    if (c >= 'a' && c <= 'f') return c - 'a' + 10;\n    return c - 'A' + 10;\n}\n",
+"long long base_to_dec(char s[], int base) {\n    int i = 0, sign = 1;\n    long long value = 0;\n    if (s[i] == '-') { sign = -1; i++; }\n    for (; s[i]; i++) value = value * base + digit_value(s[i]);\n    return sign * value;\n}\n",
+"void dec_to_base(long long n, int base, char out[]) {\n    char digits[] = \"0123456789ABCDEF\";\n    char temp[65];\n    int len = 0;\n    do {\n        temp[len++] = digits[n % base];\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len; i++) out[i] = temp[len - 1 - i];\n    out[len] = '\\0';\n}\n",
+"int int_to_digits(long long n, int base, int a[]) {\n    int len = 0;\n    do {\n        a[len++] = (int)(n % base);\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len / 2; i++) {\n        int t = a[i]; a[i] = a[len - 1 - i]; a[len - 1 - i] = t;\n    }\n    return len;\n}\n",
+"long long digits_to_int(int a[], int len, int base) {\n    long long value = 0;\n    for (int i = 0; i < len; i++) value = value * base + a[i];\n    return value;\n}\n",
+"long long ipow(long long base, int exp) {\n    long long result = 1;\n    for (int i = 0; i < exp; i++) result *= base;\n    return result;\n}\n",
+"int feq(double a, double b, double eps) {\n    return fabs(a - b) <= eps;\n}\n",
+"int get_bit(unsigned long long x, int pos) { return (x >> pos) & 1ULL; }\n",
+"unsigned long long set_bit(unsigned long long x, int pos) { return x | (1ULL << pos); }\n",
+"unsigned long long clear_bit(unsigned long long x, int pos) { return x & ~(1ULL << pos); }\n",
+"unsigned long long toggle_bit(unsigned long long x, int pos) { return x ^ (1ULL << pos); }\n",
+"unsigned long long pow2u(int n) { return 1ULL << n; }\n",
+"int is_power_of_two(unsigned long long x) {\n    return x != 0 && (x & (x - 1)) == 0;\n}\n",
+"int count_ones(unsigned long long x) {\n    int count = 0;\n    while (x) {\n        x &= x - 1;\n        count++;\n    }\n    return count;\n}\n",
+"long long gcd(long long a, long long b) {\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    while (b) {\n        long long t = a % b;\n        a = b; b = t;\n    }\n    return a;\n}\n",
+"long long lcm(long long a, long long b) {\n    if (a == 0 || b == 0) return 0;\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    return a / gcd(a, b) * b;\n}\n",
+"int is_prime_basic(int n) {\n    if (n < 2) return 0;\n    if (n == 2) return 1;\n    if (n % 2 == 0) return 0;\n    for (int i = 3; i <= n / i; i += 2)\n        if (n % i == 0) return 0;\n    return 1;\n}\n",
+"int is_prime[SIEVE_MAX + 1];\n",
+"int primes[SIEVE_MAX + 1], pc;\n",
+"void build_primes_sieve(int n) {\n    memset(is_prime, 0, sizeof is_prime);\n    pc = 0;\n    for (int i = 2; i <= n; i++) is_prime[i] = 1;\n    for (int i = 2; i <= n / i; i++) {\n        if (is_prime[i])\n            for (int j = i * i; j <= n; j += i) is_prime[j] = 0;\n    }\n    for (int i = 2; i <= n; i++)\n        if (is_prime[i]) primes[pc++] = i;\n}\n",
+"int cmp_int(const void *a, const void *b) {\n    int x = *(const int *)a, y = *(const int *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
+"typedef struct {\n    int id, score;\n} Record;\n",
+"int cmp_record(const void *a, const void *b) {\n    Record x = *(const Record *)a, y = *(const Record *)b;\n    if (x.score > y.score) return -1;\n    if (x.score < y.score) return 1;\n    if (x.id < y.id) return -1;\n    if (x.id > y.id) return 1;\n    return 0;\n}\n",
+"void swap_int(int *a, int *b) {\n    int t = *a; *a = *b; *b = t;\n}\n",
+"void bubble_sort(int a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
+"int linear_search(int a[], int n, int key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
+"int binary_search(int a[], int n, int key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
+"typedef struct { int value, index; } Entry;\n",
+"int cmp_entry(const void *a, const void *b) {\n    Entry x=*(const Entry *)a,y=*(const Entry *)b;\n    if(x.value!=y.value) return x.value<y.value?-1:1;\n    return (x.index>y.index)-(x.index<y.index);\n}\n",
+"int first_original(Entry a[],int n,int key) {\n    int l=0,r=n;\n    while(l<r){int m=l+(r-l)/2; if(a[m].value<key)l=m+1;else r=m;}\n    return l<n && a[l].value==key ? a[l].index : -1;\n}\n",
+"void build_prefix(int a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
+"long long range_sum(long long prefix[], int left, int right) {\n    return prefix[right] - prefix[left - 1];\n}\n",
+"long long poly_eval(long long a[], int degree, long long x) {\n    long long result = 0;\n    for (int i = degree; i >= 0; i--) result = result * x + a[i];\n    return result;\n}\n",
+"long long max_subarray_sum(int a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
+"long long max_forward_diff(int a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
+"typedef struct { int y, m, d; } Date;\n",
+"int is_leap(int y) {\n    return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;\n}\n",
+"int days_in_month(int y, int m) {\n    int days[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};\n    if (m < 1 || m > 12) return 0;\n    if (m == 2 && is_leap(y)) return 29;\n    return days[m];\n}\n",
+"int is_valid_date(Date x) {\n    return x.y >= 1 && x.y <= 9999 && x.m >= 1 && x.m <= 12\n        && x.d >= 1 && x.d <= days_in_month(x.y, x.m);\n}\n",
+"int day_of_year(Date x) {\n    int result = x.d;\n    for (int m = 1; m < x.m; m++) result += days_in_month(x.y, m);\n    return result;\n}\n",
+"Date next_day(Date x) {\n    x.d++;\n    if (x.d > days_in_month(x.y, x.m)) {\n        x.d = 1;\n        x.m++;\n        if (x.m > 12) { x.m = 1; x.y++; }\n    }\n    return x;\n}\n",
+"int date_to_days(Date x) {\n    int y = x.y - 1;\n    return y * 365 + y / 4 - y / 100 + y / 400 + day_of_year(x) - 1;\n}\n",
+"int date_diff(Date a, Date b) {\n    return abs(date_to_days(a) - date_to_days(b));\n}\n",
+"typedef struct { int h, m, s; } Time;\n",
+"int time_to_sec(Time t) { return t.h * 3600 + t.m * 60 + t.s; }\n",
+"int time_diff(Time a, Time b) {\n    return abs(time_to_sec(a) - time_to_sec(b));\n}\n",
+"Time next_second(Time t) {\n    t.s++;\n    if (t.s == 60) { t.s = 0; t.m++; }\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
+"Time next_minute(Time t) {\n    t.m++;\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
+"long long memo[93];\n",
+"int has[93];\n",
+"void init_memo(void) { memset(has, 0, sizeof has); }\n",
+"long long fib_memo(int n) {\n    if (n <= 1) return n;\n    if (has[n]) return memo[n];\n    memo[n] = fib_memo(n - 1) + fib_memo(n - 2);\n    has[n] = 1;\n    return memo[n];\n}\n",
+"/* TODO \346\214\211\351\242\230\347\233\256\344\277\256\346\224\271root_f\357\274\214\345\275\223\345\211\215\347\244\272\344\276\213x*x-2 */\ndouble root_f(double x) { return x * x - 2; }\n",
+"double bisect_root(double left, double right, double eps) {\n    double fl = root_f(left), fr = root_f(right);\n    if (fl == 0) return left;\n    if (fr == 0) return right;\n    while (right - left > eps) {\n        double mid = left + (right - left) / 2;\n        if (mid == left || mid == right) break;\n        double fm = root_f(mid);\n        if (fm == 0) return mid;\n        if ((fl < 0 && fm < 0) || (fl > 0 && fm > 0)) {\n            left = mid;\n            fl = fm;\n        } else right = mid;\n    }\n    return left + (right - left) / 2;\n}\n",
+"typedef struct { double re, im; } Complex;\n",
+"Complex complex_add(Complex a, Complex b) {\n    Complex c = {a.re + b.re, a.im + b.im};\n    return c;\n}\n",
+"Complex complex_sub(Complex a, Complex b) {\n    Complex c = {a.re - b.re, a.im - b.im};\n    return c;\n}\n",
+"Complex complex_mul(Complex a, Complex b) {\n    Complex c = {a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re};\n    return c;\n}\n",
+"Complex complex_div(Complex a, Complex b) {\n    double den = b.re*b.re + b.im*b.im;\n    Complex c = {(a.re*b.re + a.im*b.im)/den,\n                 (a.im*b.re - a.re*b.im)/den};\n    return c;\n}\n",
+"typedef struct {\n    int kind;\n    double x1, x2, re, im;\n} QuadraticResult;\n",
+"QuadraticResult solve_quadratic(double a, double b, double c, double eps) {\n    QuadraticResult r = {0, 0, 0, 0, 0};\n    if (fabs(a) <= eps) { r.kind = -1; return r; }\n    double delta = b*b - 4*a*c;\n    if (fabs(delta) <= eps) {\n        r.kind = 1;\n        r.x1 = r.x2 = -b / (2*a);\n    } else if (delta > 0) {\n        r.kind = 2;\n\n        double q = -0.5 * (b + (b >= 0 ? sqrt(delta) : -sqrt(delta)));\n        r.x1 = q / a;\n        r.x2 = c / q;\n        if (r.x1 > r.x2) {\n            double t = r.x1; r.x1 = r.x2; r.x2 = t;\n        }\n    } else {\n        r.kind = 0;\n        r.re = -b / (2*a);\n        r.im = sqrt(-delta) / (2*fabs(a));\n    }\n    return r;\n}\n",
+"typedef struct {\n    int len;\n    int d[BIG_CAP];\n} BigInt;\n",
+"BigInt big_zero(void) {\n    BigInt a = {0};\n    a.len = 1;\n    return a;\n}\n",
+"BigInt big_from_string(char s[]) {\n    BigInt a = big_zero();\n    a.len = (int)strlen(s);\n    for (int i = 0; i < a.len; i++) a.d[i] = s[a.len - 1 - i] - '0';\n    while (a.len > 1 && a.d[a.len - 1] == 0) a.len--;\n    return a;\n}\n",
+"void big_print(BigInt a) {\n    for (int i = a.len - 1; i >= 0; i--) printf(\"%d\", a.d[i]);\n}\n",
+"int big_cmp(BigInt a, BigInt b) {\n    if (a.len < b.len) return -1;\n    if (a.len > b.len) return 1;\n    for (int i = a.len - 1; i >= 0; i--) {\n        if (a.d[i] < b.d[i]) return -1;\n        if (a.d[i] > b.d[i]) return 1;\n    }\n    return 0;\n}\n",
+"BigInt big_add(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len > b.len ? a.len : b.len;\n    int carry = 0;\n    for (int i = 0; i < c.len; i++) {\n        int sum = a.d[i] + b.d[i] + carry;\n        c.d[i] = sum % 10;\n        carry = sum / 10;\n    }\n    if (carry) c.d[c.len++] = carry;\n    return c;\n}\n",
+"BigInt big_sub_abs(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    int borrow = 0;\n    for (int i = 0; i < a.len; i++) {\n        int value = a.d[i] - b.d[i] - borrow;\n        borrow = value < 0;\n        if (borrow) value += 10;\n        c.d[i] = value;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"int big_sub(BigInt a, BigInt b, BigInt *out) {\n    int sign = big_cmp(a, b);\n    if (sign >= 0) *out = big_sub_abs(a, b);\n    else *out = big_sub_abs(b, a);\n    return sign;\n}\n",
+"BigInt big_mul(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    if ((a.len == 1 && a.d[0] == 0) || (b.len == 1 && b.d[0] == 0)) return c;\n    c.len = a.len + b.len;\n    for (int i = 0; i < a.len; i++) {\n        int carry = 0;\n        for (int j = 0; j < b.len; j++) {\n            int value = c.d[i+j] + a.d[i]*b.d[j] + carry;\n            c.d[i+j] = value % 10;\n            carry = value / 10;\n        }\n        c.d[i+b.len] = carry;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"void big_divmod(BigInt a, BigInt b, BigInt *q, BigInt *rem) {\n    *q = big_zero();\n    *rem = big_zero();\n    q->len = a.len;\n    for (int i = a.len - 1; i >= 0; i--) {\n        for (int j = rem->len; j > 0; j--) rem->d[j] = rem->d[j-1];\n        rem->d[0] = a.d[i];\n        rem->len++;\n        while (rem->len > 1 && rem->d[rem->len-1] == 0) rem->len--;\n        while (big_cmp(*rem, b) >= 0) {\n            *rem = big_sub_abs(*rem, b);\n            q->d[i]++;\n        }\n    }\n    while (q->len > 1 && q->d[q->len-1] == 0) q->len--;\n}\n",
+"BigInt big_div_small(BigInt a, int b, int *remainder) {\n    BigInt q = big_zero();\n    q.len = a.len;\n    long long rem = 0;\n    for (int i = a.len - 1; i >= 0; i--) {\n        rem = rem * 10 + a.d[i];\n        q.d[i] = (int)(rem / b);\n        rem %= b;\n    }\n    while (q.len > 1 && q.d[q.len - 1] == 0) q.len--;\n    *remainder = (int)rem;\n    return q;\n}\n",
+"BigInt big_mul_small(BigInt a, int b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    long long carry = 0;\n    for (int i = 0; i < a.len; i++) {\n        long long value = (long long)a.d[i] * b + carry;\n        c.d[i] = (int)(value % 10);\n        carry = value / 10;\n    }\n    while (carry) {\n        c.d[c.len++] = (int)(carry % 10);\n        carry /= 10;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"BigInt big_factorial(int n) {\n    BigInt result = big_zero();\n    result.d[0] = 1;\n    for (int i = 2; i <= n; i++) result = big_mul_small(result, i);\n    return result;\n}\n",
+"int grid[GRID_MAX][GRID_MAX], visited[GRID_MAX][GRID_MAX];\n",
+"int rows, cols;\n",
+"int dr[4] = {1, -1, 0, 0};\n",
+"int dc[4] = {0, 0, 1, -1};\n",
+"int dfs_grid(int r, int c) {\n    if (r < 0 || r >= rows || c < 0 || c >= cols) return 0;\n    if (grid[r][c] != 1 || visited[r][c]) return 0;\n    visited[r][c] = 1;\n    int count = 1;\n    for (int k = 0; k < 4; k++) count += dfs_grid(r + dr[k], c + dc[k]);\n    return count;\n}\n",
+"int st[RMQ_LOG][RMQ_MAX];\n",
+"int log2_floor[RMQ_MAX + 1];\n",
+"void build_rmq(int a[], int n) {\n    log2_floor[1] = 0;\n    for (int i = 2; i <= n; i++) log2_floor[i] = log2_floor[i/2] + 1;\n    for (int i = 0; i < n; i++) st[0][i] = a[i];\n    for (int k = 1; (1 << k) <= n; k++) {\n        for (int i = 0; i + (1 << k) <= n; i++) {\n            int x = st[k-1][i], y = st[k-1][i + (1 << (k-1))];\n            st[k][i] = x > y ? x : y;\n        }\n    }\n}\n",
+"int range_max(int left, int right) {\n    int k = log2_floor[right - left + 1];\n    int x = st[k][left], y = st[k][right - (1 << k) + 1];\n    return x > y ? x : y;\n}\n",
+"void trim_newline(char s[]) {\n    size_t n = strlen(s);\n    if (n && s[n-1] == '\\n') s[--n] = '\\0';\n    if (n && s[n-1] == '\\r') s[n-1] = '\\0';\n}\nint is_palindrome(char s[]) {\n    size_t n = strlen(s);\n    for (size_t i = 0; i < n/2; i++) if (s[i] != s[n-1-i]) return 0;\n    return 1;\n}\nint erase_first(char s[], char key[]) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    char *p = strstr(s, key);\n    if (!p) return 0;\n    memmove(p, p+n, strlen(p+n)+1);\n    return 1;\n}\nint count_substring(char s[], char key[], int overlap) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    int count = 0;\n    char *p = s;\n    while ((p = strstr(p, key)) != NULL) { count++; p += overlap ? 1 : n; }\n    return count;\n}\n",
+"#define FREQ_MAX 200000\nint frequency[FREQ_MAX+1];\nvoid build_frequency(int a[], int n) {\n    memset(frequency, 0, sizeof frequency);\n    for (int i = 0; i < n; i++) frequency[a[i]]++;\n}\n",
+"int longest_run(int a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"int lower_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
+"int answer_ok(long long x) {\n    /* TODO: \346\224\271\346\210\220\344\273\216\345\201\207\345\210\260\347\234\237\347\232\204\345\215\225\350\260\203\346\235\241\344\273\266\357\274\233\346\255\244\345\244\204\344\273\205\344\270\272\347\244\272\344\276\213 */\n    return x >= 10;\n}\nlong long first_true(long long left, long long right) {\n    while (left < right) {\n        long long mid = left + (right-left)/2;\n        if (answer_ok(mid)) right = mid;\n        else left = mid+1;\n    }\n    return left;\n}\n",
+"#define STACK_CAP 10005\ntypedef struct { char data[STACK_CAP]; int size; } CharStack;\nvoid stack_init(CharStack *s) { s->size=0; }\nint stack_empty(CharStack *s) { return s->size==0; }\nvoid stack_push(CharStack *s, char value) { s->data[s->size++]=value; }\nchar stack_top(CharStack *s) { return s->data[s->size-1]; }\nvoid stack_pop(CharStack *s) { s->size--; }\nint brackets_match(char text[]) {\n    static CharStack s;\n    stack_init(&s);\n    for(int i=0; text[i]; i++) {\n        char ch=text[i];\n        if(ch=='(' || ch=='[' || ch=='{') stack_push(&s,ch);\n        else if(ch==')' || ch==']' || ch=='}') {\n            if(stack_empty(&s)) return 0;\n            char t=stack_top(&s);\n            if(!((t=='('&&ch==')')||(t=='['&&ch==']')||(t=='{'&&ch=='}'))) return 0;\n            stack_pop(&s);\n        }\n    }\n    return stack_empty(&s);\n}\n",
+"#define GRID_PATH_CAP 105\nint blocked[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long path_dp[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long count_grid_paths(int rows, int cols) {\n    memset(path_dp,0,sizeof path_dp);\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {\n        if(blocked[r][c]) continue;\n        if(r==0 && c==0) path_dp[r][c]=1;\n        else {\n            if(r) path_dp[r][c]+=path_dp[r-1][c];\n            if(c) path_dp[r][c]+=path_dp[r][c-1];\n        }\n    }\n    return path_dp[rows-1][cols-1];\n}\n",
+"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(int a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
+"#define WORD_CAP 105\ntypedef struct { char text[WORD_CAP]; int original; } Word;\nint cmp_word(const void *p, const void *q) {\n    const Word *a=(const Word *)p,*b=(const Word *)q;\n    size_t x=strlen(a->text),y=strlen(b->text);\n    if(x!=y) return x<y?-1:1;\n    int cmp=strcmp(a->text,b->text);\n    if(cmp) return cmp;\n    return (a->original>b->original)-(a->original<b->original);\n}\n",
+"#define MATRIX_MAX 105\nvoid matrix_multiply(long long a[][MATRIX_MAX], long long b[][MATRIX_MAX],\n                     long long result[][MATRIX_MAX], int n, int m, int p) {\n    for(int i=0;i<n;i++) for(int j=0;j<p;j++) {\n        result[i][j]=0;\n        for(int k=0;k<m;k++) result[i][j]+=a[i][k]*b[k][j];\n    }\n}\n",
+"Date days_to_date(int serial) {\n    int l=1,r=9999;\n    while(l<r) {\n        int m=l+(r-l+1)/2;\n        Date first={m,1,1};\n        if(date_to_days(first)<=serial) l=m; else r=m-1;\n    }\n    Date x={l,1,1};\n    int remaining=serial-date_to_days(x);\n    while(remaining>=days_in_month(x.y,x.m)) { remaining-=days_in_month(x.y,x.m); x.m++; }\n    x.d=remaining+1;\n    return x;\n}\nDate add_days(Date x,int delta) { return days_to_date(date_to_days(x)+delta); }\n",
+"void fixed_binary(unsigned long long x, int width, char out[]) {\n    for(int i=0;i<width;i++) out[i]=(char)('0'+((x>>(width-1-i))&1ULL));\n    out[width]='\\0';\n}\nunsigned long long rotate_left64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x<<k)|(x>>(64-k)) : x;\n}\nunsigned long long rotate_right64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x>>k)|(x<<(64-k)) : x;\n}\n",
+"int longest_char_run(const char s[], char target) {\n    int length = 0, best = 0;\n    for (int i = 0; s[i]; i++) {\n        length = s[i] == target ? length + 1 : 0;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"long long factorial_basic(int n) {\n    long long result = 1;\n    for (int i = 2; i <= n; i++) result *= i;\n    return result;\n}\n",
+"long long round_to_integer(double x) {\n    return llround(x);\n}\ndouble round_decimal(double x, int digits) {\n    double scale = pow(10.0, digits);\n    return round(x * scale) / scale;\n}\n",
+"void sort_int_array(int a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
+"int bsearch_sorted_int(const int a[], int n, int key) {\n    const int *found = (const int *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
+"double array_mean(const int a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const int a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
+"int print_fixed(double x, int digits) {\n    if (digits < 0 || digits > 15) return 0;\n    int n = snprintf(NULL, 0, \"%.*f\", digits, x);\n    if (n < 0) return 0;\n    char *text = malloc((size_t)n + 1);\n    if (!text) return 0;\n    if (snprintf(text, (size_t)n + 1, \"%.*f\", digits, x) != n) {\n        free(text);\n        return 0;\n    }\n    int skip = text[0] == '-' && strtod(text, NULL) == 0.0;\n    int ok = fputs(text + skip, stdout) != EOF;\n    free(text);\n    return ok;\n}\n",
+"int str_insert_char(char s[], size_t capacity, size_t pos, char ch) {\n    size_t n = strlen(s);\n    if (n >= capacity || pos > n || ch == '\\0' || n + 1 >= capacity) return 0;\n    memmove(s + pos + 1, s + pos, n - pos + 1);\n    s[pos] = ch;\n    return 1;\n}\nint str_erase(char s[], size_t pos, size_t count) {\n    size_t n = strlen(s);\n    if (pos > n || count > n - pos) return 0;\n    memmove(s + pos, s + pos + count, n - pos - count + 1);\n    return 1;\n}\nint str_run_bounds(const char s[], int n, int pos, int *left, int *right) {\n    if (pos < 0 || pos >= n) return 0;\n    int l = pos, r = pos + 1;\n    while (l > 0 && s[l - 1] == s[pos]) l--;\n    while (r < n && s[r] == s[pos]) r++;\n    *left = l;\n    *right = r;\n    return 1;\n}\n",
+};
+static const char *brief_wide_pieces[]={
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"int cmp_int(const void *a, const void *b) {\n    long long x = *(const long long *)a, y = *(const long long *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
+NULL,
+NULL,
+"void swap_int(long long *a, long long *b) {\n    long long t = *a; *a = *b; *b = t;\n}\n",
+"void bubble_sort(long long a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
+"int linear_search(long long a[], int n, long long key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
+"int binary_search(long long a[], int n, long long key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
+NULL,
+NULL,
+NULL,
+"void build_prefix(long long a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
+NULL,
+NULL,
+"long long max_subarray_sum(long long a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
+"long long max_forward_diff(long long a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"int longest_run(long long a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"int lower_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
+NULL,
+NULL,
+NULL,
+"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(long long a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"void sort_int_array(long long a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
+"int bsearch_sorted_int(const long long a[], int n, long long key) {\n    const long long *found = (const long long *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
+"double array_mean(const long long a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const long long a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
+NULL,
+NULL,
+};
+static const char *brief_io_codes[]={
+"",
+"int main(void) {\n@BODY@\n    return 0;\n}\n",
+"int main(void) {\n    int tests;\n    if (scanf(\"%d\", &tests) != 1) return 0;\n    while (tests--) {\n        /* TODO: \346\257\217\347\273\204\351\207\215\346\226\260\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201\357\274\214\350\257\273\345\205\245\346\234\254\347\273\204\345\205\266\344\275\231\346\225\260\346\215\256 */\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    VALUE n;\n    /* TODO: \345\276\252\347\216\257\345\211\215\345\210\235\345\247\213\345\214\226\347\264\257\350\256\241\347\212\266\346\200\201 */\n    while (scanf(VALUE_SCAN, &n) == 1) {\n@LOOP@    }\n    /* TODO: \350\213\245\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    VALUE a, b;\n    /* TODO: \345\276\252\347\216\257\345\211\215\345\210\235\345\247\213\345\214\226\347\264\257\350\256\241\347\212\266\346\200\201 */\n    while (scanf(VALUE_SCAN VALUE_SCAN, &a, &b) == 2) {\n@LOOP@    }\n    /* TODO: \350\213\245\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    /* TODO: \345\243\260\346\230\216\345\217\230\351\207\217\357\274\233\345\241\253\345\206\231\346\240\274\345\274\217\343\200\201\345\234\260\345\235\200\343\200\201\345\255\227\346\256\265\346\225\260\345\220\216\346\211\215\350\203\275\347\274\226\350\257\221 */\n    while (scanf(\"TODO\", /* TODO: \345\234\260\345\235\200 */) == /* TODO: \345\255\227\346\256\265\346\225\260 */) {\n@LOOP@    }\n    /* TODO: \345\246\202\351\234\200\346\234\200\347\273\210\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, stdin) != NULL) {\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    int ch;\n    while ((ch = getchar()) != EOF) {\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    static VALUE a[ARRAY_MAX];\n    int n;\n    while (scanf(\"%d\", &n) == 1) {\n        if (n < 0 || n > ARRAY_MAX) return 0;\n        for (int i = 0; i < n; i++) {\n            if (scanf(VALUE_SCAN, &a[i]) != 1) return 0;\n        }\n@LOOP@\n    }\n    return 0;\n}\n",
+"int main(void) {\n    VALUE x;\n    while (scanf(VALUE_SCAN, &x) == 1) {\n        if (x == -1) break;  /* TODO: \346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\350\241\250\347\244\272\347\273\223\346\235\237\347\232\204\346\225\260\345\200\274\357\274\233\344\270\215\345\217\202\344\270\216\345\244\204\347\220\206 */\n@LOOP@    }\n    /* TODO: \345\246\202\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    VALUE a, b;\n    while (scanf(VALUE_SCAN \" \" VALUE_SCAN, &a, &b) == 2) {\n        if (a == 0 && b == 0) break;\n@LOOP@\n    }\n    return 0;\n}\n",
+"int main(void) {\n    /* TODO: \350\257\273\345\205\245\345\210\235\345\247\213\346\225\260\346\215\256\345\271\266\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201 */\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        int op;\n        scanf(\"%d\", &op);\n        switch (op) {\n            case 1:\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206\357\274\233\351\234\200\350\246\201\346\227\266\350\276\223\345\207\272 */\n                break;\n            case 2:\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206 */\n                break;\n        }\n    }\n@OUTPUT@    return 0;\n}\n",
+"int main(void) {\n    /* TODO: \350\257\273\345\205\245\345\210\235\345\247\213\346\225\260\346\215\256\345\271\266\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201 */\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        char op;\n        scanf(\" %c\", &op);\n        switch (op) {\n            case 'Q':\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206\357\274\233\351\234\200\350\246\201\346\227\266\350\276\223\345\207\272 */\n                break;\n            case 'C':\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206 */\n                break;\n        }\n    }\n    /* TODO: \350\213\245\350\246\201\346\261\202\346\234\200\347\273\210\347\212\266\346\200\201\357\274\214\345\234\250\346\255\244\350\276\223\345\207\272 */\n@OUTPUT@    return 0;\n}\n",
+"int main(void) {\n    int n, m, q;\n    if (scanf(\"%d%d%d\", &n, &m, &q) != 3) return 0;\n    for (int i = 0; i < n; i++) {\n        /* TODO: \350\257\273\345\217\226\344\270\200\351\241\271\345\237\272\347\241\200\344\277\241\346\201\257\345\271\266\345\210\235\345\247\213\345\214\226 */\n    }\n    for (int i = 0; i < m; i++) {\n        /* TODO: \350\257\273\345\217\226\344\270\200\346\235\241\350\256\260\345\275\225\345\271\266\346\233\264\346\226\260\347\212\266\346\200\201 */\n    }\n    /* TODO: \346\214\211\351\242\230\346\204\217\347\273\237\344\270\200\345\244\204\347\220\206\357\274\214\344\276\213\345\246\202\346\216\222\345\272\217\346\210\226\345\273\272\350\241\250 */\n    for (int i = 0; i < q; i++) {\n        /* TODO: \350\257\273\345\217\226\344\270\200\346\254\241\346\237\245\350\257\242\345\271\266\350\276\223\345\207\272\347\255\224\346\241\210 */\n    }\n    return 0;\n}\n",
+"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215 */\n    if (input == NULL) return 1;\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, input) != NULL) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
+"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215 */\n    if (input == NULL) return 1;\n    /* TODO: \345\243\260\346\230\216\345\255\227\346\256\265\345\271\266\346\233\277\346\215\242\346\240\274\345\274\217\343\200\201\345\234\260\345\235\200\343\200\201\346\210\220\345\212\237\345\255\227\346\256\265\346\225\260 */\n    while (fscanf(input, \"TODO\", /* TODO: \345\234\260\345\235\200 */) == /* TODO: \345\255\227\346\256\265\346\225\260 */) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
+"int main(void) {\n    FILE *output = fopen(\"output.txt\", \"w\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215\357\274\233w\350\246\206\347\233\226\345\267\262\346\234\211\346\226\207\344\273\266 */\n    if (output == NULL) return 1;\n@BODY@    /* TODO: \346\214\211\351\242\230\346\204\217\347\224\250fprintf(output, ...)\345\206\231\345\205\245 */\n    if (fclose(output) != 0) return 1;\n    return 0;\n}\n",
+};
+static const char *brief_fragment_codes[]={
+"static VALUE a[ARRAY_MAX];\nint n;\nscanf(\"%d\", &n);\nfor (int i = 0; i < n; i++) scanf(VALUE_SCAN, &a[i]);\n",
+"static VALUE matrix[MATRIX_MAX][MATRIX_MAX];\nint rows, cols;\nscanf(\"%d%d\", &rows, &cols);\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) scanf(VALUE_SCAN, &matrix[r][c]);\n}\n",
+"/* TODO: \346\214\211\351\242\230\346\204\217\344\277\256\346\224\271\345\255\227\346\256\265\343\200\201\346\216\222\345\272\217\350\247\204\345\210\231\344\270\216\350\257\273\345\205\245\346\240\274\345\274\217\357\274\233\347\213\254\347\253\213\347\244\272\344\276\213\357\274\214\344\270\215\350\207\252\345\212\250\346\216\245\345\205\245\345\205\266\344\273\226\347\273\204\344\273\266 */\ntypedef struct { int id; long long score; } ExamRecord;\nstatic ExamRecord records[ARRAY_MAX];\nint record_count;\nscanf(\"%d\", &record_count);\nfor (int i = 0; i < record_count; i++) scanf(\"%d%lld\", &records[i].id, &records[i].score);\n/* TODO: \351\234\200\350\246\201\346\216\222\345\272\217\346\227\266\350\207\252\350\241\214\346\217\220\344\276\233\346\257\224\350\276\203\345\231\250\345\220\216qsort\357\274\233\346\214\211\351\242\230\346\204\217\346\237\245\350\257\242\346\210\226\344\277\256\346\224\271records[i] */\n",
+"int rest;\nwhile ((rest = getchar()) != '\\n' && rest != EOF) {}\nchar line[LINE_CAP];\nif (fgets(line, sizeof line, stdin) != NULL) {\n    /* TODO: \345\244\204\347\220\206line\357\274\233\345\246\202\351\234\200\345\216\273\346\215\242\350\241\214\357\274\214\351\200\211\345\255\227\347\254\246\344\270\262\345\237\272\347\241\200\347\273\204\344\273\266 */\n}\n",
+"/* TODO: a[0..n-1]\351\241\273\345\267\262\346\216\222\345\272\217\357\274\233\345\234\250\345\276\252\347\216\257\344\270\255\344\275\277\347\224\250\346\256\265\351\225\277j-i */\nfor (int i = 0; i < n; ) {\n    int j = i+1;\n    while (j < n && a[j] == a[i]) j++;\n    /* TODO: \345\200\274a[i]\345\207\272\347\216\260j-i\346\254\241 */\n    i = j;\n}\n",
+"/* TODO: a\345\222\214n\344\270\272\350\246\201\350\276\223\345\207\272\347\232\204\346\225\260\347\273\204\344\270\216\351\225\277\345\272\246\357\274\233\346\224\276\345\234\250\350\256\241\347\256\227\345\256\214\346\210\220\344\271\213\345\220\216 */\nconst char *array_separator = SEPARATOR_LITERAL;\nfor (int i = 0; i < n; i++) {\n    if (i > 0) fputs(array_separator, stdout);\n    printf(VALUE_PRINT, a[i]);\n}\nputchar('\\n');\n",
+"/* TODO: matrix\343\200\201rows\343\200\201cols\344\270\272\350\256\241\347\256\227\345\220\216\347\232\204\347\237\251\351\230\265\344\270\216\347\273\264\346\225\260 */\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) printf(VALUE_PRINT \"%c\", matrix[r][c], c+1 == cols ? '\\n' : ' ');\n}\n",
+"/* TODO: \344\277\256\346\224\271\345\276\252\347\216\257\350\214\203\345\233\264\345\222\214\350\276\223\345\207\272\345\206\205\345\256\271\357\274\233\350\213\245\347\255\233\351\200\211\351\241\271\347\233\256\357\274\214\346\212\212\345\210\244\346\226\255\346\224\276\345\234\250first_output\344\271\213\345\211\215 */\nint first_output = 1;\nconst char *item_separator = SEPARATOR_LITERAL;\nfor (int item = 0; item < 4; item++) {\n    if (!first_output) fputs(item_separator, stdout);\n    first_output = 0;\n    printf(\"%d\", 1);  /* TODO: \346\233\277\346\215\242\344\270\272\346\234\254\351\241\271\347\232\204\350\276\223\345\207\272 */\n}\nputchar('\\n');\n",
+};
+static const char *pieces[]={
+"int digit_value(char c) {\n    if (c >= '0' && c <= '9') return c - '0';\n    if (c >= 'a' && c <= 'f') return c - 'a' + 10;\n    return c - 'A' + 10;\n}\n",
+"long long base_to_dec(char s[], int base) {\n    int i = 0, sign = 1;\n    long long value = 0;\n    if (s[i] == '-') { sign = -1; i++; }\n    for (; s[i]; i++) value = value * base + digit_value(s[i]);\n    return sign * value;\n}\n",
+"void dec_to_base(long long n, int base, char out[]) {\n    char digits[] = \"0123456789ABCDEF\";\n    char temp[65];\n    int len = 0;\n    do {\n        temp[len++] = digits[n % base];\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len; i++) out[i] = temp[len - 1 - i];\n    out[len] = '\\0';\n}\n",
+"/* \351\235\236\350\264\237\346\225\264\346\225\260\346\213\206\346\210\220\351\253\230\344\275\215\345\234\250\345\211\215\347\232\204\346\225\260\344\275\215\346\225\260\347\273\204\357\274\233n=0 \345\276\227\345\210\260\344\270\200\344\275\215 0 */\nint int_to_digits(long long n, int base, int a[]) {\n    int len = 0;\n    do {\n        a[len++] = (int)(n % base);\n        n /= base;\n    } while (n > 0);\n    for (int i = 0; i < len / 2; i++) {\n        int t = a[i]; a[i] = a[len - 1 - i]; a[len - 1 - i] = t;\n    }\n    return len;\n}\n",
+"long long digits_to_int(int a[], int len, int base) {\n    long long value = 0;\n    for (int i = 0; i < len; i++) value = value * base + a[i];\n    return value;\n}\n",
+"long long ipow(long long base, int exp) {\n    long long result = 1;\n    for (int i = 0; i < exp; i++) result *= base;\n    return result;\n}\n",
+"/* \351\234\200\350\246\201 math.h */\nint feq(double a, double b, double eps) {\n    return fabs(a - b) <= eps;\n}\n",
+"int get_bit(unsigned long long x, int pos) { return (x >> pos) & 1ULL; }\n",
+"unsigned long long set_bit(unsigned long long x, int pos) { return x | (1ULL << pos); }\n",
+"unsigned long long clear_bit(unsigned long long x, int pos) { return x & ~(1ULL << pos); }\n",
+"unsigned long long toggle_bit(unsigned long long x, int pos) { return x ^ (1ULL << pos); }\n",
+"unsigned long long pow2u(int n) { return 1ULL << n; }\n",
+"int is_power_of_two(unsigned long long x) {\n    return x != 0 && (x & (x - 1)) == 0;\n}\n",
+"int count_ones(unsigned long long x) {\n    int count = 0;\n    while (x) {\n        x &= x - 1;                /* \346\257\217\346\254\241\346\266\210\346\216\211\346\234\200\344\275\216\344\275\215\347\232\204\344\270\200\344\270\252 1 */\n        count++;\n    }\n    return count;\n}\n",
+"long long gcd(long long a, long long b) {\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    while (b) {\n        long long t = a % b;\n        a = b; b = t;\n    }\n    return a;\n}\n",
+"long long lcm(long long a, long long b) {\n    if (a == 0 || b == 0) return 0;\n    if (a < 0) a = -a;\n    if (b < 0) b = -b;\n    return a / gcd(a, b) * b;\n}\n",
+"int is_prime_basic(int n) {\n    if (n < 2) return 0;\n    if (n == 2) return 1;\n    if (n % 2 == 0) return 0;\n    for (int i = 3; i <= n / i; i += 2)\n        if (n % i == 0) return 0;\n    return 1;\n}\n",
+"int is_prime[SIEVE_MAX + 1];\n",
+"int primes[SIEVE_MAX + 1], pc;\n",
+"void build_primes_sieve(int n) {\n    memset(is_prime, 0, sizeof is_prime);\n    pc = 0;\n    for (int i = 2; i <= n; i++) is_prime[i] = 1;\n    for (int i = 2; i <= n / i; i++) {\n        if (is_prime[i])\n            for (int j = i * i; j <= n; j += i) is_prime[j] = 0;\n    }\n    for (int i = 2; i <= n; i++)\n        if (is_prime[i]) primes[pc++] = i;\n}\n",
+"int cmp_int(const void *a, const void *b) {\n    int x = *(const int *)a, y = *(const int *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
+"typedef struct {\n    int id, score;\n} Record;\n",
+"/* \345\205\210 score \351\231\215\345\272\217\357\274\214\345\206\215 id \345\215\207\345\272\217\357\274\233\346\224\271\345\255\227\346\256\265\357\274\217\346\257\224\350\276\203\346\226\271\345\220\221\345\215\263\345\217\257\346\215\242\351\242\230 */\nint cmp_record(const void *a, const void *b) {\n    Record x = *(const Record *)a, y = *(const Record *)b;\n    if (x.score > y.score) return -1;\n    if (x.score < y.score) return 1;\n    if (x.id < y.id) return -1;\n    if (x.id > y.id) return 1;\n    return 0;\n}\n",
+"void swap_int(int *a, int *b) {\n    int t = *a; *a = *b; *b = t;\n}\n",
+"void bubble_sort(int a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
+"int linear_search(int a[], int n, int key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
+"/* \345\277\205\351\241\273\345\215\207\345\272\217 */\nint binary_search(int a[], int n, int key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
+"typedef struct { int value, index; } Entry;\n",
+"int cmp_entry(const void *a, const void *b) {\n    Entry x=*(const Entry *)a,y=*(const Entry *)b;\n    if(x.value!=y.value) return x.value<y.value?-1:1;\n    return (x.index>y.index)-(x.index<y.index);\n}\n",
+"int first_original(Entry a[],int n,int key) {\n    int l=0,r=n;\n    while(l<r){int m=l+(r-l)/2; if(a[m].value<key)l=m+1;else r=m;}\n    return l<n && a[l].value==key ? a[l].index : -1;\n}\n",
+"void build_prefix(int a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
+"/* \351\227\255\345\214\272\351\227\264 [left,right]\357\274\214\350\246\201\346\261\202 1<=left<=right<=n */\nlong long range_sum(long long prefix[], int left, int right) {\n    return prefix[right] - prefix[left - 1];\n}\n",
+"long long poly_eval(long long a[], int degree, long long x) {\n    long long result = 0;\n    for (int i = degree; i >= 0; i--) result = result * x + a[i];\n    return result;\n}\n",
+"long long max_subarray_sum(int a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
+"long long max_forward_diff(int a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
+"typedef struct { int y, m, d; } Date;\n",
+"int is_leap(int y) {\n    return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;\n}\n",
+"int days_in_month(int y, int m) {\n    int days[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};\n    if (m < 1 || m > 12) return 0;\n    if (m == 2 && is_leap(y)) return 29;\n    return days[m];\n}\n",
+"int is_valid_date(Date x) {\n    return x.y >= 1 && x.y <= 9999 && x.m >= 1 && x.m <= 12\n        && x.d >= 1 && x.d <= days_in_month(x.y, x.m);\n}\n",
+"int day_of_year(Date x) {\n    int result = x.d;\n    for (int m = 1; m < x.m; m++) result += days_in_month(x.y, m);\n    return result;\n}\n",
+"Date next_day(Date x) {\n    x.d++;\n    if (x.d > days_in_month(x.y, x.m)) {\n        x.d = 1;\n        x.m++;\n        if (x.m > 12) { x.m = 1; x.y++; }\n    }\n    return x;\n}\n",
+"int date_to_days(Date x) {\n    int y = x.y - 1;\n    return y * 365 + y / 4 - y / 100 + y / 400 + day_of_year(x) - 1;\n}\n",
+"int date_diff(Date a, Date b) {\n    return abs(date_to_days(a) - date_to_days(b));\n}\n",
+"typedef struct { int h, m, s; } Time;\n",
+"int time_to_sec(Time t) { return t.h * 3600 + t.m * 60 + t.s; }\n",
+"int time_diff(Time a, Time b) {\n    return abs(time_to_sec(a) - time_to_sec(b));\n}\n",
+"Time next_second(Time t) {\n    t.s++;\n    if (t.s == 60) { t.s = 0; t.m++; }\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
+"Time next_minute(Time t) {\n    t.m++;\n    if (t.m == 60) { t.m = 0; t.h++; }\n    if (t.h == 24) t.h = 0;\n    return t;\n}\n",
+"long long memo[93];\n",
+"int has[93];\n",
+"void init_memo(void) { memset(has, 0, sizeof has); }\n",
+"long long fib_memo(int n) {\n    if (n <= 1) return n;\n    if (has[n]) return memo[n];\n    memo[n] = fib_memo(n - 1) + fib_memo(n - 2);\n    has[n] = 1;\n    return memo[n];\n}\n",
+"/* TODO \346\214\211\351\242\230\347\233\256\344\277\256\346\224\271root_f\357\274\214\345\275\223\345\211\215\347\244\272\344\276\213x*x-2 */\ndouble root_f(double x) { return x * x - 2; }\n",
+"double bisect_root(double left, double right, double eps) {\n    double fl = root_f(left), fr = root_f(right);\n    if (fl == 0) return left;\n    if (fr == 0) return right;\n    while (right - left > eps) {\n        double mid = left + (right - left) / 2;\n        if (mid == left || mid == right) break;  /* \351\201\277\345\205\215\346\265\256\347\202\271\347\262\276\345\272\246\345\201\234\346\273\236 */\n        double fm = root_f(mid);\n        if (fm == 0) return mid;\n        if ((fl < 0 && fm < 0) || (fl > 0 && fm > 0)) {\n            left = mid;\n            fl = fm;\n        } else right = mid;\n    }\n    return left + (right - left) / 2;\n}\n",
+"typedef struct { double re, im; } Complex;\n",
+"Complex complex_add(Complex a, Complex b) {\n    Complex c = {a.re + b.re, a.im + b.im};\n    return c;\n}\n",
+"Complex complex_sub(Complex a, Complex b) {\n    Complex c = {a.re - b.re, a.im - b.im};\n    return c;\n}\n",
+"Complex complex_mul(Complex a, Complex b) {\n    Complex c = {a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re};\n    return c;\n}\n",
+"Complex complex_div(Complex a, Complex b) {\n    double den = b.re*b.re + b.im*b.im;\n    Complex c = {(a.re*b.re + a.im*b.im)/den,\n                 (a.im*b.re - a.re*b.im)/den};\n    return c;\n}\n",
+"typedef struct {\n    int kind;\n    double x1, x2, re, im;\n} QuadraticResult;\n",
+"QuadraticResult solve_quadratic(double a, double b, double c, double eps) {\n    QuadraticResult r = {0, 0, 0, 0, 0};\n    if (fabs(a) <= eps) { r.kind = -1; return r; }\n    double delta = b*b - 4*a*c;\n    if (fabs(delta) <= eps) {\n        r.kind = 1;\n        r.x1 = r.x2 = -b / (2*a);\n    } else if (delta > 0) {\n        r.kind = 2;\n        /* \347\250\263\345\256\232\347\232\204\347\255\211\344\273\267\345\205\254\345\274\217\357\274\214\345\207\217\345\260\221 -b \344\270\216 sqrt(delta) \347\233\270\345\207\217\346\227\266\347\232\204\346\266\210\345\216\273\350\257\257\345\267\256 */\n        double q = -0.5 * (b + (b >= 0 ? sqrt(delta) : -sqrt(delta)));\n        r.x1 = q / a;\n        r.x2 = c / q;\n        if (r.x1 > r.x2) {\n            double t = r.x1; r.x1 = r.x2; r.x2 = t;\n        }\n    } else {\n        r.kind = 0;\n        r.re = -b / (2*a);\n        r.im = sqrt(-delta) / (2*fabs(a));\n    }\n    return r;\n}\n",
+"typedef struct {\n    int len;\n    int d[BIG_CAP];\n} BigInt;\n",
+"BigInt big_zero(void) {\n    BigInt a = {0};\n    a.len = 1;\n    return a;\n}\n",
+"BigInt big_from_string(char s[]) {\n    BigInt a = big_zero();\n    a.len = (int)strlen(s);\n    for (int i = 0; i < a.len; i++) a.d[i] = s[a.len - 1 - i] - '0';\n    while (a.len > 1 && a.d[a.len - 1] == 0) a.len--;\n    return a;\n}\n",
+"void big_print(BigInt a) {\n    for (int i = a.len - 1; i >= 0; i--) printf(\"%d\", a.d[i]);\n}\n",
+"int big_cmp(BigInt a, BigInt b) {\n    if (a.len < b.len) return -1;\n    if (a.len > b.len) return 1;\n    for (int i = a.len - 1; i >= 0; i--) {\n        if (a.d[i] < b.d[i]) return -1;\n        if (a.d[i] > b.d[i]) return 1;\n    }\n    return 0;\n}\n",
+"BigInt big_add(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len > b.len ? a.len : b.len;\n    int carry = 0;\n    for (int i = 0; i < c.len; i++) {\n        int sum = a.d[i] + b.d[i] + carry;\n        c.d[i] = sum % 10;\n        carry = sum / 10;\n    }\n    if (carry) c.d[c.len++] = carry;\n    return c;\n}\n",
+"BigInt big_sub_abs(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    int borrow = 0;\n    for (int i = 0; i < a.len; i++) {\n        int value = a.d[i] - b.d[i] - borrow;\n        borrow = value < 0;\n        if (borrow) value += 10;\n        c.d[i] = value;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"int big_sub(BigInt a, BigInt b, BigInt *out) {\n    int sign = big_cmp(a, b);\n    if (sign >= 0) *out = big_sub_abs(a, b);\n    else *out = big_sub_abs(b, a);\n    return sign;\n}\n",
+"BigInt big_mul(BigInt a, BigInt b) {\n    BigInt c = big_zero();\n    if ((a.len == 1 && a.d[0] == 0) || (b.len == 1 && b.d[0] == 0)) return c;\n    c.len = a.len + b.len;\n    for (int i = 0; i < a.len; i++) {\n        int carry = 0;\n        for (int j = 0; j < b.len; j++) {\n            int value = c.d[i+j] + a.d[i]*b.d[j] + carry;\n            c.d[i+j] = value % 10;\n            carry = value / 10;\n        }\n        c.d[i+b.len] = carry;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"void big_divmod(BigInt a, BigInt b, BigInt *q, BigInt *rem) {\n    *q = big_zero();\n    *rem = big_zero();\n    q->len = a.len;\n    for (int i = a.len - 1; i >= 0; i--) {\n        /* \344\275\231\346\225\260\344\271\230 10\357\274\214\345\206\215\345\270\246\344\270\213\345\275\223\345\211\215\346\225\260\344\275\215 */\n        for (int j = rem->len; j > 0; j--) rem->d[j] = rem->d[j-1];\n        rem->d[0] = a.d[i];\n        rem->len++;\n        while (rem->len > 1 && rem->d[rem->len-1] == 0) rem->len--;\n        while (big_cmp(*rem, b) >= 0) {\n            *rem = big_sub_abs(*rem, b);\n            q->d[i]++;\n        }\n    }\n    while (q->len > 1 && q->d[q->len-1] == 0) q->len--;\n}\n",
+"BigInt big_div_small(BigInt a, int b, int *remainder) {\n    BigInt q = big_zero();\n    q.len = a.len;\n    long long rem = 0;\n    for (int i = a.len - 1; i >= 0; i--) {\n        rem = rem * 10 + a.d[i];\n        q.d[i] = (int)(rem / b);\n        rem %= b;\n    }\n    while (q.len > 1 && q.d[q.len - 1] == 0) q.len--;\n    *remainder = (int)rem;\n    return q;\n}\n",
+"BigInt big_mul_small(BigInt a, int b) {\n    BigInt c = big_zero();\n    c.len = a.len;\n    long long carry = 0;\n    for (int i = 0; i < a.len; i++) {\n        long long value = (long long)a.d[i] * b + carry;\n        c.d[i] = (int)(value % 10);\n        carry = value / 10;\n    }\n    while (carry) {\n        c.d[c.len++] = (int)(carry % 10);\n        carry /= 10;\n    }\n    while (c.len > 1 && c.d[c.len - 1] == 0) c.len--;\n    return c;\n}\n",
+"BigInt big_factorial(int n) {\n    BigInt result = big_zero();\n    result.d[0] = 1;\n    for (int i = 2; i <= n; i++) result = big_mul_small(result, i);\n    return result;\n}\n",
+"int grid[GRID_MAX][GRID_MAX], visited[GRID_MAX][GRID_MAX];\n",
+"int rows, cols;\n",
+"int dr[4] = {1, -1, 0, 0};\n",
+"int dc[4] = {0, 0, 1, -1};\n",
+"/* \350\277\224\345\233\236\346\226\260\350\256\277\351\227\256\347\232\204\346\240\274\345\255\220\346\225\260\357\274\233\350\266\212\347\225\214\343\200\201\345\242\231\343\200\201\345\267\262\350\256\277\351\227\256\345\235\207\350\277\224\345\233\236 0 */\nint dfs_grid(int r, int c) {\n    if (r < 0 || r >= rows || c < 0 || c >= cols) return 0;\n    if (grid[r][c] != 1 || visited[r][c]) return 0;\n    visited[r][c] = 1;\n    int count = 1;\n    for (int k = 0; k < 4; k++) count += dfs_grid(r + dr[k], c + dc[k]);\n    return count;\n}\n",
+"int st[RMQ_LOG][RMQ_MAX];\n",
+"int log2_floor[RMQ_MAX + 1];\n",
+"void build_rmq(int a[], int n) {\n    log2_floor[1] = 0;\n    for (int i = 2; i <= n; i++) log2_floor[i] = log2_floor[i/2] + 1;\n    for (int i = 0; i < n; i++) st[0][i] = a[i];\n    for (int k = 1; (1 << k) <= n; k++) {\n        for (int i = 0; i + (1 << k) <= n; i++) {\n            int x = st[k-1][i], y = st[k-1][i + (1 << (k-1))];\n            st[k][i] = x > y ? x : y;\n        }\n    }\n}\n",
+"int range_max(int left, int right) {\n    int k = log2_floor[right - left + 1];\n    int x = st[k][left], y = st[k][right - (1 << k) + 1];\n    return x > y ? x : y;\n}\n",
+"void trim_newline(char s[]) {\n    size_t n = strlen(s);\n    if (n && s[n-1] == '\\n') s[--n] = '\\0';\n    if (n && s[n-1] == '\\r') s[n-1] = '\\0';\n}\nint is_palindrome(char s[]) {\n    size_t n = strlen(s);\n    for (size_t i = 0; i < n/2; i++) if (s[i] != s[n-1-i]) return 0;\n    return 1;\n}\nint erase_first(char s[], char key[]) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    char *p = strstr(s, key);\n    if (!p) return 0;\n    memmove(p, p+n, strlen(p+n)+1);\n    return 1;\n}\nint count_substring(char s[], char key[], int overlap) {\n    size_t n = strlen(key);\n    if (!n) return 0;\n    int count = 0;\n    char *p = s;\n    while ((p = strstr(p, key)) != NULL) { count++; p += overlap ? 1 : n; }\n    return count;\n}\n",
+"#define FREQ_MAX 200000\nint frequency[FREQ_MAX+1];\nvoid build_frequency(int a[], int n) {\n    memset(frequency, 0, sizeof frequency);\n    for (int i = 0; i < n; i++) frequency[a[i]]++;\n}\n",
+"int longest_run(int a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"int lower_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(int a[], int n, int key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
+"int answer_ok(long long x) {\n    /* TODO: \346\224\271\346\210\220\344\273\216\345\201\207\345\210\260\347\234\237\347\232\204\345\215\225\350\260\203\346\235\241\344\273\266\357\274\233\346\255\244\345\244\204\344\273\205\344\270\272\347\244\272\344\276\213 */\n    return x >= 10;\n}\nlong long first_true(long long left, long long right) {\n    /* \350\246\201\346\261\202\351\227\255\345\214\272\351\227\264\345\206\205\350\207\263\345\260\221\344\270\200\344\270\252\347\234\237\345\200\274\357\274\214left<=right\357\274\233right-left\344\270\215\346\272\242\345\207\272 */\n    while (left < right) {\n        long long mid = left + (right-left)/2;\n        if (answer_ok(mid)) right = mid;\n        else left = mid+1;\n    }\n    return left;\n}\n",
+"#define STACK_CAP 10005\ntypedef struct { char data[STACK_CAP]; int size; } CharStack;\nvoid stack_init(CharStack *s) { s->size=0; }\nint stack_empty(CharStack *s) { return s->size==0; }\nvoid stack_push(CharStack *s, char value) { s->data[s->size++]=value; }\nchar stack_top(CharStack *s) { return s->data[s->size-1]; }\nvoid stack_pop(CharStack *s) { s->size--; }\nint brackets_match(char text[]) {\n    static CharStack s;\n    stack_init(&s);\n    for(int i=0; text[i]; i++) {\n        char ch=text[i];\n        if(ch=='(' || ch=='[' || ch=='{') stack_push(&s,ch);\n        else if(ch==')' || ch==']' || ch=='}') {\n            if(stack_empty(&s)) return 0;\n            char t=stack_top(&s);\n            if(!((t=='('&&ch==')')||(t=='['&&ch==']')||(t=='{'&&ch=='}'))) return 0;\n            stack_pop(&s);\n        }\n    }\n    return stack_empty(&s);\n}\n",
+"#define GRID_PATH_CAP 105\nint blocked[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long path_dp[GRID_PATH_CAP][GRID_PATH_CAP];\nlong long count_grid_paths(int rows, int cols) {\n    memset(path_dp,0,sizeof path_dp);\n    for(int r=0;r<rows;r++) for(int c=0;c<cols;c++) {\n        if(blocked[r][c]) continue;\n        if(r==0 && c==0) path_dp[r][c]=1;\n        else {\n            if(r) path_dp[r][c]+=path_dp[r-1][c];\n            if(c) path_dp[r][c]+=path_dp[r][c-1];\n        }\n    }\n    return path_dp[rows-1][cols-1];\n}\n",
+"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(int a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
+"#define WORD_CAP 105\ntypedef struct { char text[WORD_CAP]; int original; } Word;\nint cmp_word(const void *p, const void *q) {\n    const Word *a=(const Word *)p,*b=(const Word *)q;\n    size_t x=strlen(a->text),y=strlen(b->text);\n    if(x!=y) return x<y?-1:1;\n    int cmp=strcmp(a->text,b->text);\n    if(cmp) return cmp;\n    return (a->original>b->original)-(a->original<b->original);\n}\n",
+"#define MATRIX_MAX 105\nvoid matrix_multiply(long long a[][MATRIX_MAX], long long b[][MATRIX_MAX],\n                     long long result[][MATRIX_MAX], int n, int m, int p) {\n    for(int i=0;i<n;i++) for(int j=0;j<p;j++) {\n        result[i][j]=0;\n        for(int k=0;k<m;k++) result[i][j]+=a[i][k]*b[k][j];\n    }\n}\n",
+"Date days_to_date(int serial) {\n    int l=1,r=9999;\n    while(l<r) {\n        int m=l+(r-l+1)/2;\n        Date first={m,1,1};\n        if(date_to_days(first)<=serial) l=m; else r=m-1;\n    }\n    Date x={l,1,1};\n    int remaining=serial-date_to_days(x);\n    while(remaining>=days_in_month(x.y,x.m)) { remaining-=days_in_month(x.y,x.m); x.m++; }\n    x.d=remaining+1;\n    return x;\n}\nDate add_days(Date x,int delta) { return days_to_date(date_to_days(x)+delta); }\n",
+"void fixed_binary(unsigned long long x, int width, char out[]) {\n    for(int i=0;i<width;i++) out[i]=(char)('0'+((x>>(width-1-i))&1ULL));\n    out[width]='\\0';\n}\nunsigned long long rotate_left64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x<<k)|(x>>(64-k)) : x;\n}\nunsigned long long rotate_right64(unsigned long long x,int k) {\n    k%=64;\n    return k ? (x>>k)|(x<<(64-k)) : x;\n}\n",
+"int longest_char_run(const char s[], char target) {\n    int length = 0, best = 0;\n    for (int i = 0; s[i]; i++) {\n        length = s[i] == target ? length + 1 : 0;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"long long factorial_basic(int n) {\n    long long result = 1;\n    for (int i = 2; i <= n; i++) result *= i;\n    return result;\n}\n",
+"long long round_to_integer(double x) {\n    return llround(x);\n}\ndouble round_decimal(double x, int digits) {\n    double scale = pow(10.0, digits);\n    return round(x * scale) / scale;\n}\n",
+"void sort_int_array(int a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
+"int bsearch_sorted_int(const int a[], int n, int key) {\n    const int *found = (const int *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
+"double array_mean(const int a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const int a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
+"int print_fixed(double x, int digits) {\n    if (digits < 0 || digits > 15) return 0;\n    int n = snprintf(NULL, 0, \"%.*f\", digits, x);\n    if (n < 0) return 0;\n    char *text = malloc((size_t)n + 1);\n    if (!text) return 0;\n    if (snprintf(text, (size_t)n + 1, \"%.*f\", digits, x) != n) {\n        free(text);\n        return 0;\n    }\n    int skip = text[0] == '-' && strtod(text, NULL) == 0.0;\n    int ok = fputs(text + skip, stdout) != EOF;\n    free(text);\n    return ok;\n}\n",
+"int str_insert_char(char s[], size_t capacity, size_t pos, char ch) {\n    size_t n = strlen(s);\n    if (n >= capacity || pos > n || ch == '\\0' || n + 1 >= capacity) return 0;\n    memmove(s + pos + 1, s + pos, n - pos + 1);\n    s[pos] = ch;\n    return 1;\n}\nint str_erase(char s[], size_t pos, size_t count) {\n    size_t n = strlen(s);\n    if (pos > n || count > n - pos) return 0;\n    memmove(s + pos, s + pos + count, n - pos - count + 1);\n    return 1;\n}\nint str_run_bounds(const char s[], int n, int pos, int *left, int *right) {\n    if (pos < 0 || pos >= n) return 0;\n    int l = pos, r = pos + 1;\n    while (l > 0 && s[l - 1] == s[pos]) l--;\n    while (r < n && s[r] == s[pos]) r++;\n    *left = l;\n    *right = r;\n    return 1;\n}\n",
+};
+static const char *wide_pieces[]={
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"int cmp_int(const void *a, const void *b) {\n    long long x = *(const long long *)a, y = *(const long long *)b;\n    if (x < y) return -1;\n    if (x > y) return 1;\n    return 0;\n}\n",
+NULL,
+NULL,
+"void swap_int(long long *a, long long *b) {\n    long long t = *a; *a = *b; *b = t;\n}\n",
+"void bubble_sort(long long a[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (a[j] > a[j + 1]) {\n                swap_int(&a[j], &a[j + 1]);\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;\n    }\n}\n",
+"int linear_search(long long a[], int n, long long key) {\n    for (int i = 0; i < n; i++)\n        if (a[i] == key) return i;\n    return -1;\n}\n",
+"/* \345\277\205\351\241\273\345\215\207\345\272\217 */\nint binary_search(long long a[], int n, long long key) {\n    int left = 0, right = n - 1;\n    while (left <= right) {\n        int mid = left + (right - left) / 2;\n        if (a[mid] == key) return mid;\n        if (a[mid] < key) left = mid + 1;\n        else right = mid - 1;\n    }\n    return -1;\n}\n",
+NULL,
+NULL,
+NULL,
+"void build_prefix(long long a[], int n, long long prefix[]) {\n    prefix[0] = 0;\n    for (int i = 1; i <= n; i++) prefix[i] = prefix[i - 1] + a[i];\n}\n",
+NULL,
+NULL,
+"long long max_subarray_sum(long long a[], int n) {\n    long long ending = a[0], best = a[0];\n    for (int i = 1; i < n; i++) {\n        if (ending > 0) ending += a[i];\n        else ending = a[i];\n        if (ending > best) best = ending;\n    }\n    return best;\n}\n",
+"long long max_forward_diff(long long a[], int n) {\n    long long max_before = a[0];\n    long long best = (long long)a[0] - a[1];\n    for (int j = 1; j < n; j++) {\n        long long diff = max_before - a[j];\n        if (diff > best) best = diff;\n        if (a[j] > max_before) max_before = a[j];\n    }\n    return best;\n}\n",
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"int longest_run(long long a[], int n, int consecutive) {\n    if (n == 0) return 0;\n    int length = 1, best = 1;\n    for (int i = 1; i < n; i++) {\n        int ok = consecutive ? (a[i] > a[i-1] && (unsigned long long)a[i] - (unsigned long long)a[i-1] == 1) : a[i] == a[i-1];\n        length = ok ? length+1 : 1;\n        if (length > best) best = length;\n    }\n    return best;\n}\n",
+"int lower_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<key) l=m+1; else r=m; }\n    return l;\n}\nint upper_bound_int(long long a[], int n, long long key) {\n    int l=0, r=n;\n    while(l<r) { int m=l+(r-l)/2; if(a[m]<=key) l=m+1; else r=m; }\n    return l;\n}\n",
+NULL,
+NULL,
+NULL,
+"typedef struct { int value, original; } RankItem;\nint cmp_rank_item(const void *p, const void *q) {\n    RankItem a=*(const RankItem *)p,b=*(const RankItem *)q;\n    if(a.value!=b.value) return a.value<b.value?-1:1;\n    return (a.original>b.original)-(a.original<b.original);\n}\nvoid make_rank(RankItem a[], int n, int rank[]) {\n    qsort(a,n,sizeof a[0],cmp_rank_item);\n    for(int i=0;i<n;i++) rank[a[i].original]=i;\n}\nint unique_sorted(long long a[], int n) {\n    int size=0;\n    for(int i=0;i<n;i++) if(i==0 || a[i]!=a[i-1]) a[size++]=a[i];\n    return size;\n}\n",
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+NULL,
+"void sort_int_array(long long a[], int n) {\n    qsort(a, (size_t)n, sizeof a[0], cmp_int);\n}\n",
+"int bsearch_sorted_int(const long long a[], int n, long long key) {\n    const long long *found = (const long long *)bsearch(&key, a, (size_t)n, sizeof a[0], cmp_int);\n    return found ? (int)(found - a) : -1;\n}\n",
+"double array_mean(const long long a[], int n) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) sum += (double)a[i];\n    return sum / n;\n}\ndouble array_variance(const long long a[], int n, double mean) {\n    double sum = 0.0;\n    for (int i = 0; i < n; i++) {\n        double diff = (double)a[i] - mean;\n        sum += diff * diff;\n    }\n    return sum / n;\n}\n",
+NULL,
+NULL,
+};
+static const char *io_codes[]={
+"",
+"int main(void) {\n@BODY@\n    return 0;\n}\n",
+"int main(void) {\n    int tests;\n    if (scanf(\"%d\", &tests) != 1) return 0;\n    while (tests--) {\n        /* TODO: \346\257\217\347\273\204\351\207\215\346\226\260\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201\357\274\214\350\257\273\345\205\245\346\234\254\347\273\204\345\205\266\344\275\231\346\225\260\346\215\256 */\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    VALUE n;\n    /* TODO: \345\276\252\347\216\257\345\211\215\345\210\235\345\247\213\345\214\226\347\264\257\350\256\241\347\212\266\346\200\201 */\n    while (scanf(VALUE_SCAN, &n) == 1) {\n@LOOP@    }\n    /* TODO: \350\213\245\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    VALUE a, b;\n    /* TODO: \345\276\252\347\216\257\345\211\215\345\210\235\345\247\213\345\214\226\347\264\257\350\256\241\347\212\266\346\200\201 */\n    while (scanf(VALUE_SCAN VALUE_SCAN, &a, &b) == 2) {\n@LOOP@    }\n    /* TODO: \350\213\245\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    /* TODO: \345\243\260\346\230\216\345\217\230\351\207\217\357\274\233\345\241\253\345\206\231\346\240\274\345\274\217\343\200\201\345\234\260\345\235\200\343\200\201\345\255\227\346\256\265\346\225\260\345\220\216\346\211\215\350\203\275\347\274\226\350\257\221 */\n    while (scanf(\"TODO\", /* TODO: \345\234\260\345\235\200 */) == /* TODO: \345\255\227\346\256\265\346\225\260 */) {\n@LOOP@    }\n    /* TODO: \345\246\202\351\234\200\346\234\200\347\273\210\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, stdin) != NULL) {\n        /* \344\277\235\347\225\231\347\251\272\350\241\214\345\222\214\350\241\214\351\246\226\347\251\272\347\231\275\357\274\233line\345\217\257\350\203\275\345\214\205\345\220\253\346\234\253\345\260\276\346\215\242\350\241\214\357\274\233\346\225\264\350\241\214\351\241\273\346\224\276\345\276\227\344\270\213 */\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    int ch;  /* getchar\350\277\224\345\233\236int\357\274\214\344\270\215\350\203\275\347\224\250char\344\277\235\345\255\230EOF */\n    while ((ch = getchar()) != EOF) {\n@LOOP@    }\n    return 0;\n}\n",
+"int main(void) {\n    static VALUE a[ARRAY_MAX];\n    int n;\n    while (scanf(\"%d\", &n) == 1) {\n        if (n < 0 || n > ARRAY_MAX) return 0;\n        for (int i = 0; i < n; i++) {\n            if (scanf(VALUE_SCAN, &a[i]) != 1) return 0;\n        }\n@LOOP@\n    }\n    return 0;\n}\n",
+"int main(void) {\n    VALUE x;\n    while (scanf(VALUE_SCAN, &x) == 1) {\n        if (x == -1) break;  /* TODO: \346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\350\241\250\347\244\272\347\273\223\346\235\237\347\232\204\346\225\260\345\200\274\357\274\233\344\270\215\345\217\202\344\270\216\345\244\204\347\220\206 */\n@LOOP@    }\n    /* TODO: \345\246\202\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
+"int main(void) {\n    VALUE a, b;\n    while (scanf(VALUE_SCAN \" \" VALUE_SCAN, &a, &b) == 2) {\n        if (a == 0 && b == 0) break;\n@LOOP@\n    }\n    return 0;\n}\n",
+"int main(void) {\n    /* TODO: \350\257\273\345\205\245\345\210\235\345\247\213\346\225\260\346\215\256\345\271\266\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201 */\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        int op;\n        scanf(\"%d\", &op);\n        switch (op) {\n            case 1:\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206\357\274\233\351\234\200\350\246\201\346\227\266\350\276\223\345\207\272 */\n                break;\n            case 2:\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206 */\n                break;\n        }\n    }\n@OUTPUT@    return 0;\n}\n",
+"int main(void) {\n    /* TODO: \350\257\273\345\205\245\345\210\235\345\247\213\346\225\260\346\215\256\345\271\266\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201 */\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        char op;\n        scanf(\" %c\", &op);\n        switch (op) {\n            case 'Q':\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206\357\274\233\351\234\200\350\246\201\346\227\266\350\276\223\345\207\272 */\n                break;\n            case 'C':\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206 */\n                break;\n        }\n    }\n    /* TODO: \350\213\245\350\246\201\346\261\202\346\234\200\347\273\210\347\212\266\346\200\201\357\274\214\345\234\250\346\255\244\350\276\223\345\207\272 */\n@OUTPUT@    return 0;\n}\n",
+"int main(void) {\n    int n, m, q;\n    if (scanf(\"%d%d%d\", &n, &m, &q) != 3) return 0;\n    for (int i = 0; i < n; i++) {\n        /* TODO: \350\257\273\345\217\226\344\270\200\351\241\271\345\237\272\347\241\200\344\277\241\346\201\257\345\271\266\345\210\235\345\247\213\345\214\226 */\n    }\n    for (int i = 0; i < m; i++) {\n        /* TODO: \350\257\273\345\217\226\344\270\200\346\235\241\350\256\260\345\275\225\345\271\266\346\233\264\346\226\260\347\212\266\346\200\201 */\n    }\n    /* TODO: \346\214\211\351\242\230\346\204\217\347\273\237\344\270\200\345\244\204\347\220\206\357\274\214\344\276\213\345\246\202\346\216\222\345\272\217\346\210\226\345\273\272\350\241\250 */\n    for (int i = 0; i < q; i++) {\n        /* TODO: \350\257\273\345\217\226\344\270\200\346\254\241\346\237\245\350\257\242\345\271\266\350\276\223\345\207\272\347\255\224\346\241\210 */\n    }\n    return 0;\n}\n",
+"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215 */\n    if (input == NULL) return 1;\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, input) != NULL) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
+"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215 */\n    if (input == NULL) return 1;\n    /* TODO: \345\243\260\346\230\216\345\255\227\346\256\265\345\271\266\346\233\277\346\215\242\346\240\274\345\274\217\343\200\201\345\234\260\345\235\200\343\200\201\346\210\220\345\212\237\345\255\227\346\256\265\346\225\260 */\n    while (fscanf(input, \"TODO\", /* TODO: \345\234\260\345\235\200 */) == /* TODO: \345\255\227\346\256\265\346\225\260 */) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
+"int main(void) {\n    FILE *output = fopen(\"output.txt\", \"w\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215\357\274\233w\350\246\206\347\233\226\345\267\262\346\234\211\346\226\207\344\273\266 */\n    if (output == NULL) return 1;\n@BODY@    /* TODO: \346\214\211\351\242\230\346\204\217\347\224\250fprintf(output, ...)\345\206\231\345\205\245 */\n    if (fclose(output) != 0) return 1;\n    return 0;\n}\n",
+};
+static const char *fragment_codes[]={
+"static VALUE a[ARRAY_MAX];\nint n;\nscanf(\"%d\", &n);\nfor (int i = 0; i < n; i++) scanf(VALUE_SCAN, &a[i]);\n",
+"static VALUE matrix[MATRIX_MAX][MATRIX_MAX];\nint rows, cols;\nscanf(\"%d%d\", &rows, &cols);\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) scanf(VALUE_SCAN, &matrix[r][c]);\n}\n",
+"/* TODO: \346\214\211\351\242\230\346\204\217\344\277\256\346\224\271\345\255\227\346\256\265\343\200\201\346\216\222\345\272\217\350\247\204\345\210\231\344\270\216\350\257\273\345\205\245\346\240\274\345\274\217\357\274\233\347\213\254\347\253\213\347\244\272\344\276\213\357\274\214\344\270\215\350\207\252\345\212\250\346\216\245\345\205\245\345\205\266\344\273\226\347\273\204\344\273\266 */\ntypedef struct { int id; long long score; } ExamRecord;\nstatic ExamRecord records[ARRAY_MAX];\nint record_count;\nscanf(\"%d\", &record_count);\nfor (int i = 0; i < record_count; i++) scanf(\"%d%lld\", &records[i].id, &records[i].score);\n/* TODO: \351\234\200\350\246\201\346\216\222\345\272\217\346\227\266\350\207\252\350\241\214\346\217\220\344\276\233\346\257\224\350\276\203\345\231\250\345\220\216qsort\357\274\233\346\214\211\351\242\230\346\204\217\346\237\245\350\257\242\346\210\226\344\277\256\346\224\271records[i] */\n",
+"/* \344\273\205\345\275\223\351\242\230\346\204\217\350\246\201\346\261\202\344\270\213\344\270\200\346\225\264\350\241\214\357\274\232\344\270\242\345\274\203\345\275\223\345\211\215\350\241\214\345\211\251\344\275\231\345\206\205\345\256\271\357\274\214\344\277\235\347\225\231\344\270\213\344\270\200\350\241\214\350\241\214\351\246\226\347\251\272\347\231\275 */\nint rest;\nwhile ((rest = getchar()) != '\\n' && rest != EOF) {}\nchar line[LINE_CAP];\nif (fgets(line, sizeof line, stdin) != NULL) {\n    /* TODO: \345\244\204\347\220\206line\357\274\233\345\246\202\351\234\200\345\216\273\346\215\242\350\241\214\357\274\214\351\200\211\345\255\227\347\254\246\344\270\262\345\237\272\347\241\200\347\273\204\344\273\266 */\n}\n",
+"/* TODO: a[0..n-1]\351\241\273\345\267\262\346\216\222\345\272\217\357\274\233\345\234\250\345\276\252\347\216\257\344\270\255\344\275\277\347\224\250\346\256\265\351\225\277j-i */\nfor (int i = 0; i < n; ) {\n    int j = i+1;\n    while (j < n && a[j] == a[i]) j++;\n    /* TODO: \345\200\274a[i]\345\207\272\347\216\260j-i\346\254\241 */\n    i = j;\n}\n",
+"/* TODO: a\345\222\214n\344\270\272\350\246\201\350\276\223\345\207\272\347\232\204\346\225\260\347\273\204\344\270\216\351\225\277\345\272\246\357\274\233\346\224\276\345\234\250\350\256\241\347\256\227\345\256\214\346\210\220\344\271\213\345\220\216 */\nconst char *array_separator = SEPARATOR_LITERAL;\nfor (int i = 0; i < n; i++) {\n    if (i > 0) fputs(array_separator, stdout);\n    printf(VALUE_PRINT, a[i]);\n}\nputchar('\\n');\n",
+"/* TODO: matrix\343\200\201rows\343\200\201cols\344\270\272\350\256\241\347\256\227\345\220\216\347\232\204\347\237\251\351\230\265\344\270\216\347\273\264\346\225\260 */\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) printf(VALUE_PRINT \"%c\", matrix[r][c], c+1 == cols ? '\\n' : ' ');\n}\n",
+"/* TODO: \344\277\256\346\224\271\345\276\252\347\216\257\350\214\203\345\233\264\345\222\214\350\276\223\345\207\272\345\206\205\345\256\271\357\274\233\350\213\245\347\255\233\351\200\211\351\241\271\347\233\256\357\274\214\346\212\212\345\210\244\346\226\255\346\224\276\345\234\250first_output\344\271\213\345\211\215 */\nint first_output = 1;\nconst char *item_separator = SEPARATOR_LITERAL;\nfor (int item = 0; item < 4; item++) {\n    if (!first_output) fputs(item_separator, stdout);\n    first_output = 0;\n    printf(\"%d\", 1);  /* TODO: \346\233\277\346\215\242\344\270\272\346\234\254\351\241\271\347\232\204\350\276\223\345\207\272 */\n}\nputchar('\\n');\n",
+};
+static const char *header_names[]={
+"stdio.h",
+"stdlib.h",
+"string.h",
+"math.h",
+"stdint.h",
+"limits.h",
+"stdbool.h",
+"stddef.h",
+};
+static const int piece_headers[]={
+0,
+0,
+0,
+0,
+0,
+8,
+8,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+4,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+2,
+0,
+0,
+2,
+0,
+0,
+0,
+0,
+4,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+8,
+0,
+0,
+4,
+1,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+4,
+4,
+0,
+0,
+0,
+0,
+4,
+2,
+4,
+0,
+0,
+0,
+0,
+0,
+8,
+2,
+2,
+8,
+3,
+4,
+};
 typedef struct {const char *name,*short_name,*note,*cap,*help;int group,value_type;int ids[104];} Component;
 static const Component components[]={
 {"\350\277\233\345\210\266\350\275\254\346\215\242\344\270\216\346\213\206\345\210\206\346\225\260\344\275\215","\350\277\233\345\210\266\350\275\254\346\215\242/\346\213\206\346\225\260\344\275\215","\345\237\272\346\225\2602/8/10/16\357\274\233\350\275\254\345\207\272\351\235\236\350\264\237\357\274\233\347\273\223\346\236\234\344\270\215\346\272\242\345\207\272\343\200\202","","digit_value\357\274\232\345\220\210\346\263\225\346\225\260\345\255\227\345\255\227\347\254\2460\342\200\2239/a\342\200\223f/A\342\200\223F\357\274\233\345\246\202 digit_value('F') \350\277\224\345\233\23615\343\200\202\nbase_to_dec\357\274\232base\344\270\2722/8/10/16\357\274\233\345\205\201\350\256\270\345\211\215\345\257\274\350\264\237\345\217\267\357\274\214\346\227\2400x\345\211\215\347\274\200\357\274\233\350\277\224\345\233\236long long\343\200\202\ndec_to_base\357\274\232n>=0\357\274\233\347\273\223\346\236\234\345\206\231\345\205\245out\357\274\214\344\270\215\350\277\224\345\233\236\345\255\227\347\254\246\344\270\262\357\274\233out\350\266\263\345\244\237\345\244\247\357\274\214\345\246\202char out[65]\343\200\202\nint_to_digits\357\274\232n>=0\357\274\233\351\253\230\344\275\215\345\234\250\345\211\215\345\206\231\345\205\245a\357\274\214\350\277\224\345\233\236\344\275\215\346\225\260\357\274\2330\346\213\206\346\210\220\344\270\200\344\275\2150\343\200\202\ndigits_to_int\357\274\232a\344\270\272\351\253\230\344\275\215\345\234\250\345\211\215\347\232\204len\344\275\215\346\225\260\344\275\215\357\274\214\345\220\204\344\275\215\345\260\217\344\272\216base\357\274\233\350\277\224\345\233\236\346\225\264\346\225\260\343\200\202",0,0,{0,1,2,3,4,-1}},
@@ -630,16 +1253,16 @@ static const char *group_names[]={
 "\346\227\245\346\234\237\344\270\216\346\227\266\351\227\264",
 "\351\200\222\345\275\222\343\200\201\346\240\210\344\270\216\347\275\221\346\240\274",
 };
-typedef struct {const char *name,*code,*help,*cap,*separator_default;int group,phase,value_type;} Fragment;
+typedef struct {const char *name,*code,*help,*cap,*separator_default;int group,phase,value_type,headers;} Fragment;
 static const Fragment fragments[]={
-{"\350\257\273\345\205\245n\344\270\252\346\225\260\347\273\204\345\205\203\347\264\240","static VALUE a[ARRAY_MAX];\nint n;\nscanf(\"%d\", &n);\nfor (int i = 0; i < n; i++) scanf(VALUE_SCAN, &a[i]);\n","\347\224\237\346\210\220\346\225\260\347\273\204\345\243\260\346\230\216\343\200\201\351\225\277\345\272\246n\345\222\214\350\257\273\345\205\245\345\276\252\347\216\257\357\274\214\351\273\230\350\256\244\344\275\277\347\224\2500\344\270\213\346\240\207\343\200\202","ARRAY_MAX","",0,0,1},
-{"\350\257\273\345\205\245\346\214\207\345\256\232\350\241\214\345\210\227\347\232\204\347\237\251\351\230\265","static VALUE matrix[MATRIX_MAX][MATRIX_MAX];\nint rows, cols;\nscanf(\"%d%d\", &rows, &cols);\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) scanf(VALUE_SCAN, &matrix[r][c]);\n}\n","\347\224\237\346\210\220\347\237\251\351\230\265\345\243\260\346\230\216\345\222\214\344\270\244\345\261\202\350\257\273\345\205\245\345\276\252\347\216\257\357\274\214\350\241\214\346\225\260\343\200\201\345\210\227\346\225\260\347\224\261\350\276\223\345\205\245\347\273\231\345\207\272\343\200\202","MATRIX_MAX","",0,0,1},
-{"\350\257\273\345\205\245\344\270\200\347\273\204\347\273\223\346\236\204\344\275\223\350\256\260\345\275\225","/* TODO: \346\214\211\351\242\230\346\204\217\344\277\256\346\224\271\345\255\227\346\256\265\343\200\201\346\216\222\345\272\217\350\247\204\345\210\231\344\270\216\350\257\273\345\205\245\346\240\274\345\274\217\357\274\233\347\213\254\347\253\213\347\244\272\344\276\213\357\274\214\344\270\215\350\207\252\345\212\250\346\216\245\345\205\245\345\205\266\344\273\226\347\273\204\344\273\266 */\ntypedef struct { int id; long long score; } ExamRecord;\nstatic ExamRecord records[ARRAY_MAX];\nint record_count;\nscanf(\"%d\", &record_count);\nfor (int i = 0; i < record_count; i++) scanf(\"%d%lld\", &records[i].id, &records[i].score);\n/* TODO: \351\234\200\350\246\201\346\216\222\345\272\217\346\227\266\350\207\252\350\241\214\346\217\220\344\276\233\346\257\224\350\276\203\345\231\250\345\220\216qsort\357\274\233\346\214\211\351\242\230\346\204\217\346\237\245\350\257\242\346\210\226\344\277\256\346\224\271records[i] */\n","\347\273\231\345\207\272id\345\222\214score\344\270\244\345\255\227\346\256\265\347\244\272\344\276\213\357\274\233\346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\345\255\227\346\256\265\344\270\216\346\240\274\345\274\217\357\274\214\346\216\222\345\272\217\346\257\224\350\276\203\345\207\275\346\225\260\344\273\215\351\234\200\350\207\252\350\241\214\346\217\220\344\276\233\343\200\202","ARRAY_MAX","",0,0,0},
-{"\350\257\273\345\256\214\346\225\260\345\255\227\345\220\216\357\274\214\345\206\215\350\257\273\344\270\213\344\270\200\346\225\264\350\241\214","/* \344\273\205\345\275\223\351\242\230\346\204\217\350\246\201\346\261\202\344\270\213\344\270\200\346\225\264\350\241\214\357\274\232\344\270\242\345\274\203\345\275\223\345\211\215\350\241\214\345\211\251\344\275\231\345\206\205\345\256\271\357\274\214\344\277\235\347\225\231\344\270\213\344\270\200\350\241\214\350\241\214\351\246\226\347\251\272\347\231\275 */\nint rest;\nwhile ((rest = getchar()) != '\\n' && rest != EOF) {}\nchar line[LINE_CAP];\nif (fgets(line, sizeof line, stdin) != NULL) {\n    /* TODO: \345\244\204\347\220\206line\357\274\233\345\246\202\351\234\200\345\216\273\346\215\242\350\241\214\357\274\214\351\200\211\345\255\227\347\254\246\344\270\262\345\237\272\347\241\200\347\273\204\344\273\266 */\n}\n","\344\270\242\345\274\203\345\275\223\345\211\215\350\241\214\347\232\204\345\211\251\344\275\231\345\206\205\345\256\271\357\274\214\345\206\215\350\257\273\345\217\226\344\270\213\344\270\200\350\241\214\357\274\233\345\217\252\346\234\211\351\242\230\347\233\256\347\241\256\345\256\236\350\246\201\344\270\213\344\270\200\346\225\264\350\241\214\346\227\266\346\211\215\351\200\211\343\200\202","LINE_CAP","",1,0,0},
-{"\346\211\253\346\217\217\346\216\222\345\272\217\345\220\216\347\233\270\345\220\214\345\200\274\347\232\204\344\270\200\346\256\265","/* TODO: a[0..n-1]\351\241\273\345\267\262\346\216\222\345\272\217\357\274\233\345\234\250\345\276\252\347\216\257\344\270\255\344\275\277\347\224\250\346\256\265\351\225\277j-i */\nfor (int i = 0; i < n; ) {\n    int j = i+1;\n    while (j < n && a[j] == a[i]) j++;\n    /* TODO: \345\200\274a[i]\345\207\272\347\216\260j-i\346\254\241 */\n    i = j;\n}\n","\346\225\260\347\273\204\351\241\273\345\267\262\346\216\222\345\272\217\357\274\233\345\276\252\347\216\257\345\206\205\345\217\257\345\217\226\345\276\227\346\257\217\346\256\265\347\232\204\345\200\274\344\270\216\345\207\272\347\216\260\346\254\241\346\225\260\343\200\202","","",2,1,0},
-{"\350\276\223\345\207\272\346\225\260\347\273\204\357\274\214\350\207\252\345\256\232\344\271\211\345\205\203\347\264\240\345\210\206\351\232\224\347\254\246","/* TODO: a\345\222\214n\344\270\272\350\246\201\350\276\223\345\207\272\347\232\204\346\225\260\347\273\204\344\270\216\351\225\277\345\272\246\357\274\233\346\224\276\345\234\250\350\256\241\347\256\227\345\256\214\346\210\220\344\271\213\345\220\216 */\nconst char *array_separator = SEPARATOR_LITERAL;\nfor (int i = 0; i < n; i++) {\n    if (i > 0) fputs(array_separator, stdout);\n    printf(VALUE_PRINT, a[i]);\n}\nputchar('\\n');\n","\350\276\223\345\207\272a[0..n-1]\357\274\233\345\210\206\351\232\224\347\254\246\344\273\205\345\234\250\345\205\203\347\264\240\344\271\213\351\227\264\350\276\223\345\207\272\357\274\214\346\234\253\345\260\276\345\215\225\347\213\254\346\215\242\350\241\214\343\200\202\351\273\230\350\256\244\347\251\272\346\240\274\357\274\214\344\271\237\345\217\257\351\205\215\347\275\256\351\200\227\345\217\267\343\200\201\345\212\240\345\217\267\343\200\201\344\273\273\346\204\217\347\237\255\345\255\227\347\254\246\344\270\262\346\210\226\344\270\215\345\210\206\351\232\224\343\200\202","ARRAY_MAX,SEPARATOR"," ",3,2,1},
-{"\350\276\223\345\207\272\347\237\251\351\230\265\357\274\214\346\257\217\350\241\214\346\234\253\345\260\276\346\215\242\350\241\214","/* TODO: matrix\343\200\201rows\343\200\201cols\344\270\272\350\256\241\347\256\227\345\220\216\347\232\204\347\237\251\351\230\265\344\270\216\347\273\264\346\225\260 */\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) printf(VALUE_PRINT \"%c\", matrix[r][c], c+1 == cols ? '\\n' : ' ');\n}\n","\345\234\250\350\256\241\347\256\227\345\220\216\351\200\220\350\241\214\350\276\223\345\207\272matrix\357\274\214\345\205\203\347\264\240\351\227\264\344\270\200\344\270\252\347\251\272\346\240\274\357\274\214\346\257\217\350\241\214\346\234\253\345\260\276\346\215\242\350\241\214\343\200\202","","",3,2,1},
-{"\351\200\220\351\241\271\350\276\223\345\207\272\357\274\214\344\273\205\345\234\250\344\270\244\351\241\271\344\271\213\351\227\264\346\211\223\345\215\260\345\210\206\351\232\224\347\254\246","/* TODO: \344\277\256\346\224\271\345\276\252\347\216\257\350\214\203\345\233\264\345\222\214\350\276\223\345\207\272\345\206\205\345\256\271\357\274\233\350\213\245\347\255\233\351\200\211\351\241\271\347\233\256\357\274\214\346\212\212\345\210\244\346\226\255\346\224\276\345\234\250first_output\344\271\213\345\211\215 */\nint first_output = 1;\nconst char *item_separator = SEPARATOR_LITERAL;\nfor (int item = 0; item < 4; item++) {\n    if (!first_output) fputs(item_separator, stdout);\n    first_output = 0;\n    printf(\"%d\", 1);  /* TODO: \346\233\277\346\215\242\344\270\272\346\234\254\351\241\271\347\232\204\350\276\223\345\207\272 */\n}\nputchar('\\n');\n","\345\276\252\347\216\257\347\244\272\344\276\213\350\276\223\345\207\272\345\233\233\344\270\2521\357\274\233\351\205\215\347\275\256\345\212\240\345\217\267\345\217\257\345\276\227\345\210\2601+1+1+1\343\200\202first_output\350\256\260\345\275\225\346\230\257\345\220\246\345\267\262\350\276\223\345\207\272\350\277\207\344\270\200\351\241\271\357\274\214\347\255\233\351\200\211\350\276\223\345\207\272\346\227\266\344\271\237\350\203\275\351\201\277\345\205\215\351\246\226\345\260\276\345\244\232\345\207\272\345\210\206\351\232\224\347\254\246\357\274\233\346\234\253\345\260\276\346\215\242\350\241\214\345\215\225\347\213\254\345\244\204\347\220\206\343\200\202","SEPARATOR","+",3,2,0},
+{"\350\257\273\345\205\245n\344\270\252\346\225\260\347\273\204\345\205\203\347\264\240","static VALUE a[ARRAY_MAX];\nint n;\nscanf(\"%d\", &n);\nfor (int i = 0; i < n; i++) scanf(VALUE_SCAN, &a[i]);\n","\347\224\237\346\210\220\346\225\260\347\273\204\345\243\260\346\230\216\343\200\201\351\225\277\345\272\246n\345\222\214\350\257\273\345\205\245\345\276\252\347\216\257\357\274\214\351\273\230\350\256\244\344\275\277\347\224\2500\344\270\213\346\240\207\343\200\202","ARRAY_MAX","",0,0,1,1},
+{"\350\257\273\345\205\245\346\214\207\345\256\232\350\241\214\345\210\227\347\232\204\347\237\251\351\230\265","static VALUE matrix[MATRIX_MAX][MATRIX_MAX];\nint rows, cols;\nscanf(\"%d%d\", &rows, &cols);\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) scanf(VALUE_SCAN, &matrix[r][c]);\n}\n","\347\224\237\346\210\220\347\237\251\351\230\265\345\243\260\346\230\216\345\222\214\344\270\244\345\261\202\350\257\273\345\205\245\345\276\252\347\216\257\357\274\214\350\241\214\346\225\260\343\200\201\345\210\227\346\225\260\347\224\261\350\276\223\345\205\245\347\273\231\345\207\272\343\200\202","MATRIX_MAX","",0,0,1,1},
+{"\350\257\273\345\205\245\344\270\200\347\273\204\347\273\223\346\236\204\344\275\223\350\256\260\345\275\225","/* TODO: \346\214\211\351\242\230\346\204\217\344\277\256\346\224\271\345\255\227\346\256\265\343\200\201\346\216\222\345\272\217\350\247\204\345\210\231\344\270\216\350\257\273\345\205\245\346\240\274\345\274\217\357\274\233\347\213\254\347\253\213\347\244\272\344\276\213\357\274\214\344\270\215\350\207\252\345\212\250\346\216\245\345\205\245\345\205\266\344\273\226\347\273\204\344\273\266 */\ntypedef struct { int id; long long score; } ExamRecord;\nstatic ExamRecord records[ARRAY_MAX];\nint record_count;\nscanf(\"%d\", &record_count);\nfor (int i = 0; i < record_count; i++) scanf(\"%d%lld\", &records[i].id, &records[i].score);\n/* TODO: \351\234\200\350\246\201\346\216\222\345\272\217\346\227\266\350\207\252\350\241\214\346\217\220\344\276\233\346\257\224\350\276\203\345\231\250\345\220\216qsort\357\274\233\346\214\211\351\242\230\346\204\217\346\237\245\350\257\242\346\210\226\344\277\256\346\224\271records[i] */\n","\347\273\231\345\207\272id\345\222\214score\344\270\244\345\255\227\346\256\265\347\244\272\344\276\213\357\274\233\346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\345\255\227\346\256\265\344\270\216\346\240\274\345\274\217\357\274\214\346\216\222\345\272\217\346\257\224\350\276\203\345\207\275\346\225\260\344\273\215\351\234\200\350\207\252\350\241\214\346\217\220\344\276\233\343\200\202","ARRAY_MAX","",0,0,0,1},
+{"\350\257\273\345\256\214\346\225\260\345\255\227\345\220\216\357\274\214\345\206\215\350\257\273\344\270\213\344\270\200\346\225\264\350\241\214","/* \344\273\205\345\275\223\351\242\230\346\204\217\350\246\201\346\261\202\344\270\213\344\270\200\346\225\264\350\241\214\357\274\232\344\270\242\345\274\203\345\275\223\345\211\215\350\241\214\345\211\251\344\275\231\345\206\205\345\256\271\357\274\214\344\277\235\347\225\231\344\270\213\344\270\200\350\241\214\350\241\214\351\246\226\347\251\272\347\231\275 */\nint rest;\nwhile ((rest = getchar()) != '\\n' && rest != EOF) {}\nchar line[LINE_CAP];\nif (fgets(line, sizeof line, stdin) != NULL) {\n    /* TODO: \345\244\204\347\220\206line\357\274\233\345\246\202\351\234\200\345\216\273\346\215\242\350\241\214\357\274\214\351\200\211\345\255\227\347\254\246\344\270\262\345\237\272\347\241\200\347\273\204\344\273\266 */\n}\n","\344\270\242\345\274\203\345\275\223\345\211\215\350\241\214\347\232\204\345\211\251\344\275\231\345\206\205\345\256\271\357\274\214\345\206\215\350\257\273\345\217\226\344\270\213\344\270\200\350\241\214\357\274\233\345\217\252\346\234\211\351\242\230\347\233\256\347\241\256\345\256\236\350\246\201\344\270\213\344\270\200\346\225\264\350\241\214\346\227\266\346\211\215\351\200\211\343\200\202","LINE_CAP","",1,0,0,1},
+{"\346\211\253\346\217\217\346\216\222\345\272\217\345\220\216\347\233\270\345\220\214\345\200\274\347\232\204\344\270\200\346\256\265","/* TODO: a[0..n-1]\351\241\273\345\267\262\346\216\222\345\272\217\357\274\233\345\234\250\345\276\252\347\216\257\344\270\255\344\275\277\347\224\250\346\256\265\351\225\277j-i */\nfor (int i = 0; i < n; ) {\n    int j = i+1;\n    while (j < n && a[j] == a[i]) j++;\n    /* TODO: \345\200\274a[i]\345\207\272\347\216\260j-i\346\254\241 */\n    i = j;\n}\n","\346\225\260\347\273\204\351\241\273\345\267\262\346\216\222\345\272\217\357\274\233\345\276\252\347\216\257\345\206\205\345\217\257\345\217\226\345\276\227\346\257\217\346\256\265\347\232\204\345\200\274\344\270\216\345\207\272\347\216\260\346\254\241\346\225\260\343\200\202","","",2,1,0,0},
+{"\350\276\223\345\207\272\346\225\260\347\273\204\357\274\214\350\207\252\345\256\232\344\271\211\345\205\203\347\264\240\345\210\206\351\232\224\347\254\246","/* TODO: a\345\222\214n\344\270\272\350\246\201\350\276\223\345\207\272\347\232\204\346\225\260\347\273\204\344\270\216\351\225\277\345\272\246\357\274\233\346\224\276\345\234\250\350\256\241\347\256\227\345\256\214\346\210\220\344\271\213\345\220\216 */\nconst char *array_separator = SEPARATOR_LITERAL;\nfor (int i = 0; i < n; i++) {\n    if (i > 0) fputs(array_separator, stdout);\n    printf(VALUE_PRINT, a[i]);\n}\nputchar('\\n');\n","\350\276\223\345\207\272a[0..n-1]\357\274\233\345\210\206\351\232\224\347\254\246\344\273\205\345\234\250\345\205\203\347\264\240\344\271\213\351\227\264\350\276\223\345\207\272\357\274\214\346\234\253\345\260\276\345\215\225\347\213\254\346\215\242\350\241\214\343\200\202\351\273\230\350\256\244\347\251\272\346\240\274\357\274\214\344\271\237\345\217\257\351\205\215\347\275\256\351\200\227\345\217\267\343\200\201\345\212\240\345\217\267\343\200\201\344\273\273\346\204\217\347\237\255\345\255\227\347\254\246\344\270\262\346\210\226\344\270\215\345\210\206\351\232\224\343\200\202","ARRAY_MAX,SEPARATOR"," ",3,2,1,1},
+{"\350\276\223\345\207\272\347\237\251\351\230\265\357\274\214\346\257\217\350\241\214\346\234\253\345\260\276\346\215\242\350\241\214","/* TODO: matrix\343\200\201rows\343\200\201cols\344\270\272\350\256\241\347\256\227\345\220\216\347\232\204\347\237\251\351\230\265\344\270\216\347\273\264\346\225\260 */\nfor (int r = 0; r < rows; r++) {\n    for (int c = 0; c < cols; c++) printf(VALUE_PRINT \"%c\", matrix[r][c], c+1 == cols ? '\\n' : ' ');\n}\n","\345\234\250\350\256\241\347\256\227\345\220\216\351\200\220\350\241\214\350\276\223\345\207\272matrix\357\274\214\345\205\203\347\264\240\351\227\264\344\270\200\344\270\252\347\251\272\346\240\274\357\274\214\346\257\217\350\241\214\346\234\253\345\260\276\346\215\242\350\241\214\343\200\202","","",3,2,1,1},
+{"\351\200\220\351\241\271\350\276\223\345\207\272\357\274\214\344\273\205\345\234\250\344\270\244\351\241\271\344\271\213\351\227\264\346\211\223\345\215\260\345\210\206\351\232\224\347\254\246","/* TODO: \344\277\256\346\224\271\345\276\252\347\216\257\350\214\203\345\233\264\345\222\214\350\276\223\345\207\272\345\206\205\345\256\271\357\274\233\350\213\245\347\255\233\351\200\211\351\241\271\347\233\256\357\274\214\346\212\212\345\210\244\346\226\255\346\224\276\345\234\250first_output\344\271\213\345\211\215 */\nint first_output = 1;\nconst char *item_separator = SEPARATOR_LITERAL;\nfor (int item = 0; item < 4; item++) {\n    if (!first_output) fputs(item_separator, stdout);\n    first_output = 0;\n    printf(\"%d\", 1);  /* TODO: \346\233\277\346\215\242\344\270\272\346\234\254\351\241\271\347\232\204\350\276\223\345\207\272 */\n}\nputchar('\\n');\n","\345\276\252\347\216\257\347\244\272\344\276\213\350\276\223\345\207\272\345\233\233\344\270\2521\357\274\233\351\205\215\347\275\256\345\212\240\345\217\267\345\217\257\345\276\227\345\210\2601+1+1+1\343\200\202first_output\350\256\260\345\275\225\346\230\257\345\220\246\345\267\262\350\276\223\345\207\272\350\277\207\344\270\200\351\241\271\357\274\214\347\255\233\351\200\211\350\276\223\345\207\272\346\227\266\344\271\237\350\203\275\351\201\277\345\205\215\351\246\226\345\260\276\345\244\232\345\207\272\345\210\206\351\232\224\347\254\246\357\274\233\346\234\253\345\260\276\346\215\242\350\241\214\345\215\225\347\213\254\345\244\204\347\220\206\343\200\202","SEPARATOR","+",3,2,0,1},
 };
 static const char *io_names[]={
 "\345\217\252\350\246\201\347\273\204\344\273\266\345\207\275\346\225\260\357\274\214\344\270\215\347\224\237\346\210\220main",
@@ -650,9 +1273,12 @@ static const char *io_names[]={
 "\350\207\252\345\267\261\345\241\253\345\206\231\346\257\217\347\273\204\350\257\273\344\273\200\344\271\210\357\274\214\347\233\264\345\210\260\350\276\223\345\205\245\347\273\223\346\235\237",
 "\344\270\200\350\241\214\344\270\200\350\241\214\350\257\273\346\226\207\346\234\254\357\274\214\347\233\264\345\210\260\350\276\223\345\205\245\347\273\223\346\235\237",
 "\344\270\200\344\270\252\345\255\227\347\254\246\344\270\200\344\270\252\345\255\227\347\254\246\350\257\273\357\274\214\347\233\264\345\210\260\350\276\223\345\205\245\347\273\223\346\235\237",
+"\346\257\217\347\273\204\345\205\210\350\257\273n\345\222\214n\344\270\252\346\225\264\346\225\260\357\274\214\347\233\264\345\210\260EOF",
 "\350\257\273\345\210\260-1\345\260\261\345\201\234\346\255\242\357\274\210\345\201\234\346\255\242\345\200\274\345\217\257\344\277\256\346\224\271\357\274\211",
+"\346\257\217\346\254\241\350\257\273\344\270\244\344\270\252\346\225\264\346\225\260\357\274\214\345\235\207\344\270\2720\346\227\266\345\201\234\346\255\242\357\274\210\345\217\257\344\277\256\346\224\271\357\274\211",
 "\350\257\273q\346\254\241\346\223\215\344\275\234\357\274\214\347\224\2501\343\200\2012\347\255\211\346\225\260\345\255\227\345\214\272\345\210\206",
 "\350\257\273q\346\254\241\346\223\215\344\275\234\357\274\214\347\224\250Q\343\200\201C\347\255\211\345\255\227\346\257\215\345\214\272\345\210\206",
+"\345\210\235\345\247\213\345\214\226\344\277\241\346\201\257\357\274\214\345\206\215\345\244\204\347\220\206\350\256\260\345\275\225\357\274\214\346\234\200\345\220\216\345\233\236\347\255\224\346\237\245\350\257\242",
 "\344\270\200\350\241\214\344\270\200\350\241\214\350\257\273\345\217\226\346\226\207\346\234\254\346\226\207\344\273\266",
 "\346\214\211\346\214\207\345\256\232\345\255\227\346\256\265\350\257\273\345\217\226\346\226\207\346\234\254\346\226\207\344\273\266",
 "\346\212\212\347\273\223\346\236\234\345\206\231\345\205\245\346\226\207\346\234\254\346\226\207\344\273\266",
@@ -666,28 +1292,15 @@ static const char *io_help[]={
 "\351\234\200\350\246\201\350\207\252\345\267\261\345\241\253\345\206\231scanf\346\240\274\345\274\217\343\200\201\345\217\230\351\207\217\345\234\260\345\235\200\345\217\212\346\210\220\345\212\237\345\255\227\346\256\265\346\225\260\357\274\214\350\241\245\351\275\220\345\211\215\344\270\215\350\203\275\347\274\226\350\257\221\343\200\202",
 "fgets\351\200\220\350\241\214\350\257\273\357\274\214\344\277\235\347\225\231\347\251\272\350\241\214\345\222\214\350\241\214\351\246\226\347\251\272\346\240\274\357\274\233\350\257\273\345\210\260\350\276\223\345\205\245\347\273\223\346\235\237\345\201\234\346\255\242\357\274\214\346\263\250\346\204\217\346\234\253\350\241\214\345\217\257\350\203\275\346\262\241\346\234\211\346\215\242\350\241\214\343\200\202",
 "getchar\351\200\220\345\255\227\347\254\246\350\257\273\357\274\214\350\277\236\347\251\272\346\240\274\345\222\214\346\215\242\350\241\214\344\271\237\344\274\232\350\257\273\345\205\245\357\274\233\350\277\224\345\233\236\345\200\274\345\277\205\351\241\273\345\205\210\346\224\276\350\277\233int\357\274\214\346\211\215\350\203\275\344\270\216EOF\346\257\224\350\276\203\343\200\202",
+"\346\257\217\347\273\204\346\210\220\345\212\237\350\257\273\345\205\245n\345\220\216\357\274\214\345\206\215\350\257\273n\344\270\252\346\225\264\346\225\260\357\274\233\345\234\250\346\234\254\347\273\204\345\276\252\347\216\257\345\206\205\345\244\204\347\220\206\343\200\202\345\256\271\351\207\217\351\241\273\350\246\206\347\233\226n\357\274\214\346\257\217\347\273\204\350\207\252\350\241\214\346\270\205\347\251\272\345\205\266\344\273\226\347\212\266\346\200\201\343\200\202",
 "\345\205\210\350\257\273\344\270\200\344\270\252\346\225\264\346\225\260\357\274\214\347\255\211\344\272\216-1\345\260\261\351\200\200\345\207\272\345\276\252\347\216\257\357\274\214-1\346\234\254\350\272\253\344\270\215\345\244\204\347\220\206\357\274\233\351\242\230\347\233\256\345\201\234\346\255\242\345\200\274\344\270\215\345\220\214\346\227\266\344\277\256\346\224\271\345\210\244\346\226\255\343\200\202",
+"\347\244\272\344\276\213\344\273\245\344\270\244\344\270\252\346\225\260\345\235\207\344\270\2720\344\275\234\344\270\272\345\201\234\346\255\242\346\235\241\344\273\266\357\274\214\344\270\215\345\244\204\347\220\206\345\201\234\346\255\242\346\225\260\346\215\256\357\274\233\346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\346\235\241\344\273\266\343\200\202",
 "\345\205\210\345\210\235\345\247\213\345\214\226\346\225\260\346\215\256\357\274\214\345\206\215\350\257\273\346\223\215\344\275\234\346\254\241\346\225\260q\343\200\202\346\257\217\346\254\241\350\257\273\344\270\200\344\270\252\346\225\260\345\255\227\347\274\226\345\217\267\357\274\214\344\276\213\345\246\2021\346\237\245\350\257\242\343\200\2012\344\277\256\346\224\271\357\274\233\345\220\204\345\210\206\346\224\257\346\214\211\351\242\230\347\233\256\350\257\273\345\217\202\346\225\260\343\200\202",
 "\345\205\210\345\210\235\345\247\213\345\214\226\346\225\260\346\215\256\357\274\214\345\206\215\350\257\273\346\223\215\344\275\234\346\254\241\346\225\260q\343\200\202\346\257\217\346\254\241\350\257\273\344\270\200\344\270\252\345\255\227\346\257\215\357\274\214\344\276\213\345\246\202Q\346\237\245\350\257\242\343\200\201C\344\277\256\346\224\271\357\274\233\345\220\204\345\210\206\346\224\257\346\214\211\351\242\230\347\233\256\350\257\273\345\217\202\346\225\260\343\200\202",
+"\345\215\225\344\270\252\344\273\273\345\212\241\347\232\204\345\244\232\344\270\252\351\230\266\346\256\265\357\274\214\344\270\215\346\230\257\345\244\232\347\273\204\346\265\213\350\257\225\343\200\202\347\244\272\344\276\213\350\257\273n\343\200\201m\343\200\201q\357\274\233\346\214\211\351\242\230\347\233\256\350\241\245\345\205\205\345\217\202\346\225\260\344\270\216\345\255\227\346\256\265\357\274\214\345\271\266\345\234\250\344\272\213\344\273\266\345\220\216\343\200\201\346\237\245\350\257\242\345\211\215\346\216\222\345\272\217\346\210\226\345\273\272\350\241\250\343\200\202",
 "\345\205\210\346\211\223\345\274\200input.txt\357\274\214\345\206\215\347\224\250fgets\351\200\220\350\241\214\350\257\273\345\217\226\357\274\233\344\277\256\346\224\271\346\226\207\344\273\266\345\220\215\357\274\214\344\277\235\347\225\231\346\211\223\345\274\200\345\244\261\350\264\245\346\243\200\346\237\245\344\270\216fclose\343\200\202",
 "\345\205\210\346\211\223\345\274\200input.txt\357\274\214\345\206\215\347\224\250fscanf\351\200\220\346\235\241\350\257\273\357\274\233\346\226\207\344\273\266\345\220\215\343\200\201\345\255\227\346\256\265\346\240\274\345\274\217\344\270\216\345\217\230\351\207\217\351\203\275\351\234\200\346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\343\200\202",
 "\346\211\223\345\274\200output.txt\357\274\214\347\224\250fprintf\345\206\231\345\205\245\357\274\233w\346\250\241\345\274\217\344\274\232\350\246\206\347\233\226\345\220\214\345\220\215\346\226\207\344\273\266\357\274\214\344\275\277\347\224\250\345\211\215\345\205\210\347\241\256\350\256\244\346\226\207\344\273\266\345\220\215\343\200\202",
-};
-static const char *io_codes[]={
-"",
-"int main(void) {\n@BODY@\n    return 0;\n}\n",
-"int main(void) {\n    int tests;\n    if (scanf(\"%d\", &tests) != 1) return 0;\n    while (tests--) {\n        /* TODO: \346\257\217\347\273\204\351\207\215\346\226\260\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201\357\274\214\350\257\273\345\205\245\346\234\254\347\273\204\345\205\266\344\275\231\346\225\260\346\215\256 */\n@LOOP@    }\n    return 0;\n}\n",
-"int main(void) {\n    VALUE n;\n    /* TODO: \345\276\252\347\216\257\345\211\215\345\210\235\345\247\213\345\214\226\347\264\257\350\256\241\347\212\266\346\200\201 */\n    while (scanf(VALUE_SCAN, &n) == 1) {\n@LOOP@    }\n    /* TODO: \350\213\245\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
-"int main(void) {\n    VALUE a, b;\n    /* TODO: \345\276\252\347\216\257\345\211\215\345\210\235\345\247\213\345\214\226\347\264\257\350\256\241\347\212\266\346\200\201 */\n    while (scanf(VALUE_SCAN VALUE_SCAN, &a, &b) == 2) {\n@LOOP@    }\n    /* TODO: \350\213\245\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
-"int main(void) {\n    /* TODO: \345\243\260\346\230\216\345\217\230\351\207\217\357\274\233\345\241\253\345\206\231\346\240\274\345\274\217\343\200\201\345\234\260\345\235\200\343\200\201\345\255\227\346\256\265\346\225\260\345\220\216\346\211\215\350\203\275\347\274\226\350\257\221 */\n    while (scanf(\"TODO\", /* TODO: \345\234\260\345\235\200 */) == /* TODO: \345\255\227\346\256\265\346\225\260 */) {\n@LOOP@    }\n    /* TODO: \345\246\202\351\234\200\346\234\200\347\273\210\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
-"int main(void) {\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, stdin) != NULL) {\n        /* \344\277\235\347\225\231\347\251\272\350\241\214\345\222\214\350\241\214\351\246\226\347\251\272\347\231\275\357\274\233line\345\217\257\350\203\275\345\214\205\345\220\253\346\234\253\345\260\276\346\215\242\350\241\214\357\274\233\346\225\264\350\241\214\351\241\273\346\224\276\345\276\227\344\270\213 */\n@LOOP@    }\n    return 0;\n}\n",
-"int main(void) {\n    int ch;  /* getchar\350\277\224\345\233\236int\357\274\214\344\270\215\350\203\275\347\224\250char\344\277\235\345\255\230EOF */\n    while ((ch = getchar()) != EOF) {\n@LOOP@    }\n    return 0;\n}\n",
-"int main(void) {\n    VALUE x;\n    while (scanf(VALUE_SCAN, &x) == 1) {\n        if (x == -1) break;  /* TODO: \346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\350\241\250\347\244\272\347\273\223\346\235\237\347\232\204\346\225\260\345\200\274\357\274\233\344\270\215\345\217\202\344\270\216\345\244\204\347\220\206 */\n@LOOP@    }\n    /* TODO: \345\246\202\351\234\200\346\261\207\346\200\273\350\276\223\345\207\272\357\274\214\345\206\231\345\234\250\350\277\231\351\207\214 */\n    return 0;\n}\n",
-"int main(void) {\n    /* TODO: \350\257\273\345\205\245\345\210\235\345\247\213\346\225\260\346\215\256\345\271\266\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201 */\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        int op;\n        scanf(\"%d\", &op);\n        switch (op) {\n            case 1:\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206\357\274\233\351\234\200\350\246\201\346\227\266\350\276\223\345\207\272 */\n                break;\n            case 2:\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206 */\n                break;\n        }\n    }\n@OUTPUT@    return 0;\n}\n",
-"int main(void) {\n    /* TODO: \350\257\273\345\205\245\345\210\235\345\247\213\346\225\260\346\215\256\345\271\266\345\210\235\345\247\213\345\214\226\347\212\266\346\200\201 */\n@INPUT@    int q;\n    scanf(\"%d\", &q);\n    while (q--) {\n        char op;\n        scanf(\" %c\", &op);\n        switch (op) {\n            case 'Q':\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206\357\274\233\351\234\200\350\246\201\346\227\266\350\276\223\345\207\272 */\n                break;\n            case 'C':\n                /* TODO: \350\257\273\346\234\254\346\223\215\344\275\234\345\217\202\346\225\260\345\271\266\345\244\204\347\220\206 */\n                break;\n        }\n    }\n    /* TODO: \350\213\245\350\246\201\346\261\202\346\234\200\347\273\210\347\212\266\346\200\201\357\274\214\345\234\250\346\255\244\350\276\223\345\207\272 */\n@OUTPUT@    return 0;\n}\n",
-"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215 */\n    if (input == NULL) return 1;\n    char line[LINE_CAP];\n    while (fgets(line, sizeof line, input) != NULL) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
-"int main(void) {\n    FILE *input = fopen(\"input.txt\", \"r\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215 */\n    if (input == NULL) return 1;\n    /* TODO: \345\243\260\346\230\216\345\255\227\346\256\265\345\271\266\346\233\277\346\215\242\346\240\274\345\274\217\343\200\201\345\234\260\345\235\200\343\200\201\346\210\220\345\212\237\345\255\227\346\256\265\346\225\260 */\n    while (fscanf(input, \"TODO\", /* TODO: \345\234\260\345\235\200 */) == /* TODO: \345\255\227\346\256\265\346\225\260 */) {\n@LOOP@    }\n    fclose(input);\n    return 0;\n}\n",
-"int main(void) {\n    FILE *output = fopen(\"output.txt\", \"w\");  /* TODO: \344\277\256\346\224\271\346\226\207\344\273\266\345\220\215\357\274\233w\350\246\206\347\233\226\345\267\262\346\234\211\346\226\207\344\273\266 */\n    if (output == NULL) return 1;\n@BODY@    /* TODO: \346\214\211\351\242\230\346\204\217\347\224\250fprintf(output, ...)\345\206\231\345\205\245 */\n    if (fclose(output) != 0) return 1;\n    return 0;\n}\n",
 };
 static const int io_group[]={
 0,
@@ -698,7 +1311,10 @@ static const int io_group[]={
 2,
 2,
 2,
+2,
 3,
+3,
+4,
 4,
 4,
 5,
@@ -719,26 +1335,73 @@ static const char *fragment_group_names[]={
 "\345\244\204\347\220\206\345\267\262\347\273\217\350\257\273\345\205\245\347\232\204\346\225\260\346\215\256",
 "\346\214\211\351\242\230\347\233\256\346\240\274\345\274\217\350\276\223\345\207\272",
 };
-typedef struct {const char *cap;int value_type,functions_only,incomplete,file_write;} IoOptions;
+typedef struct {const char *cap;int value_type,functions_only,incomplete,file_write,headers;} IoOptions;
 static const IoOptions io_options[]={
-{"",0,1,0,0},
-{"",0,0,0,0},
-{"",0,0,0,0},
-{"",1,0,0,0},
-{"",1,0,0,0},
-{"",0,0,1,0},
-{"LINE_CAP",0,0,0,0},
-{"",0,0,0,0},
-{"",1,0,0,0},
-{"",0,0,0,0},
-{"",0,0,0,0},
-{"LINE_CAP",0,0,0,0},
-{"",0,0,1,0},
-{"",0,0,0,1},
+{"",0,1,0,0,0},
+{"",0,0,0,0,1},
+{"",0,0,0,0,1},
+{"",1,0,0,0,1},
+{"",1,0,0,0,1},
+{"",0,0,1,0,1},
+{"LINE_CAP",0,0,0,0,1},
+{"",0,0,0,0,1},
+{"ARRAY_MAX",1,0,0,0,1},
+{"",1,0,0,0,1},
+{"",1,0,0,0,1},
+{"",0,0,0,0,1},
+{"",0,0,0,0,1},
+{"",0,0,0,0,1},
+{"LINE_CAP",0,0,0,0,1},
+{"",0,0,1,0,1},
+{"",0,0,0,1,1},
 };
-enum { IO_FUNCTIONS, IO_BLANK, IO_TESTS, IO_EOF_ONE, IO_EOF_TWO, IO_EOF_CUSTOM, IO_LINES, IO_CHARS, IO_SENTINEL, IO_OP_NUMBER, IO_OP_LETTER, IO_FILE_LINES, IO_FILE_RECORDS, IO_FILE_WRITE };
+enum { IO_FUNCTIONS, IO_BLANK, IO_TESTS, IO_EOF_ONE, IO_EOF_TWO, IO_EOF_CUSTOM, IO_LINES, IO_CHARS, IO_EOF_ARRAY, IO_SENTINEL, IO_SENTINEL_TWO, IO_OP_NUMBER, IO_OP_LETTER, IO_PHASED, IO_FILE_LINES, IO_FILE_RECORDS, IO_FILE_WRITE };
 enum { SN_READ_ARRAY, SN_READ_MATRIX, SN_RECORDS, SN_LINE_AFTER_SCAN, SN_GROUP_SCAN, SN_OUTPUT_ARRAY, SN_OUTPUT_MATRIX, SN_OUTPUT_ITEMS };
 #define DEFAULT_IO IO_BLANK
+typedef struct {const char *name;int io,readers,count,choices[8];} Flow;
+static const Flow flows[]={
+{"\345\217\252\347\224\237\346\210\220\345\207\275\346\225\260\357\274\214\344\270\215\347\224\237\346\210\220main",0,0,0,{0}},
+{"\347\251\272\347\231\275main\357\274\217\345\215\225\347\273\204\346\225\260\346\215\256\357\274\214\350\207\252\345\267\261\345\206\231\344\270\273\344\275\223",1,1,0,{0}},
+{"\345\205\210\350\257\273T\357\274\214\345\206\215\345\244\204\347\220\206T\347\273\204",2,1,0,{0}},
+{"\344\270\200\347\233\264\350\257\273\345\210\260\350\276\223\345\205\245\347\273\223\346\235\237\357\274\210EOF\357\274\211",-1,0,6,{3,4,6,7,8,5}},
+{"\351\201\207\345\210\260\346\214\207\345\256\232\345\200\274\345\201\234\346\255\242",-1,0,2,{9,10}},
+{"\345\210\235\345\247\213\345\214\226\344\277\241\346\201\257 \342\206\222 \345\244\204\347\220\206\350\256\260\345\275\225 \342\206\222 \345\233\236\347\255\224\346\237\245\350\257\242",13,0,0,{0}},
+{"\346\214\211\346\225\260\345\255\227\346\223\215\344\275\234\346\214\207\344\273\244\345\244\204\347\220\206",11,0,0,{0}},
+{"\346\214\211\345\255\227\347\254\246\346\223\215\344\275\234\346\214\207\344\273\244\345\244\204\347\220\206",12,0,0,{0}},
+{"\351\200\220\350\241\214\350\257\273\345\217\226\346\226\207\346\234\254\346\226\207\344\273\266",14,0,0,{0}},
+{"\346\214\211\345\255\227\346\256\265\350\257\273\345\217\226\346\226\207\346\234\254\346\226\207\344\273\266\357\274\210\350\207\252\345\267\261\350\241\245\350\257\273\346\263\225\357\274\211",15,0,0,{0}},
+{"\345\206\231\345\205\245\346\226\207\346\234\254\346\226\207\344\273\266",16,0,0,{0}},
+};
+#define FLOWS ((int)(sizeof flows/sizeof flows[0]))
+#define UI_FLOW_TITLE "\351\200\211\346\213\251\347\250\213\345\272\217\346\265\201\347\250\213\344\270\216\350\257\273\346\263\225"
+#define UI_FLOW_PROMPT "\347\250\213\345\272\217\346\265\201\347\250\213\357\274\210\345\233\236\350\275\246=\347\251\272\347\231\275main\357\274\211"
+#define UI_FLOW_OTHER "\345\257\274\345\207\272\345\205\250\351\207\217\345\207\275\346\225\260\346\211\213\345\206\214\345\271\266\351\200\200\345\207\272"
+#define UI_READER "\346\257\217\347\273\204\350\257\273\345\205\245\357\274\2320\350\207\252\345\267\261\345\206\231\357\274\210\351\273\230\350\256\244\357\274\211\357\274\2141\345\205\210\350\257\273n\345\206\215\350\257\273n\344\270\252\346\225\264\346\225\260\357\274\2142\350\257\273\346\225\264\346\225\260\347\237\251\351\230\265"
+#define UI_READER_CHOICE "\351\200\211\346\213\251\345\205\267\344\275\223\350\257\273\346\263\225"
+#define UI_COMPONENT_TITLE "\351\200\211\346\213\251\345\207\275\346\225\260\347\273\204\344\273\266\357\274\210\345\217\257\351\200\211\357\274\214\347\233\264\346\216\245\345\233\236\350\275\246\350\267\263\350\277\207\357\274\211"
+#define UI_COMPONENT_PROMPT "\347\274\226\345\217\267\345\217\257\350\267\250\347\261\273\357\274\214\347\224\250\347\251\272\346\240\274/\351\200\227\345\217\267\345\210\206\351\232\224\357\274\233\345\233\236\350\275\246\344\277\235\347\225\231\357\274\210\351\246\226\346\254\241\344\270\215\351\200\211\357\274\211\357\274\2140\346\270\205\347\251\272\357\274\214?\345\205\263\351\224\256\350\257\215\346\237\245\346\211\276\357\274\214q\345\217\226\346\266\210\343\200\202"
+#define UI_FUNCTIONS_REQUIRED "\344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\350\207\263\345\260\221\351\200\211\346\213\251\344\270\200\344\270\252\347\273\204\344\273\266\357\274\233q\345\217\226\346\266\210\343\200\202"
+#define UI_EXTRAS_TITLE "\345\217\257\351\200\211\345\244\204\347\220\206/\350\276\223\345\207\272\344\273\243\347\240\201"
+#define UI_EXTRAS_NOTE "\351\273\230\350\256\244\350\207\252\345\267\261\345\206\231\350\276\223\345\207\272\357\274\233\350\277\231\344\272\233\347\211\207\346\256\265\345\217\252\346\217\220\344\276\233\344\273\243\347\240\201\357\274\214\351\234\200\350\246\201\350\207\252\350\241\214\350\241\224\346\216\245\345\217\230\351\207\217\344\270\216\346\211\247\350\241\214\351\241\272\345\272\217\343\200\202"
+#define UI_EXTRAS_PROMPT "\345\233\236\350\275\246\344\277\235\347\225\231\357\274\210\351\246\226\346\254\241\344\270\215\351\200\211\357\274\211\357\274\2140\346\270\205\347\251\272\357\274\214\347\274\226\345\217\267\347\224\250\347\251\272\346\240\274/\351\200\227\345\217\267\345\210\206\351\232\224\357\274\214q\345\217\226\346\266\210\343\200\202"
+#define UI_CONFIG_TITLE "\346\214\211\351\234\200\351\205\215\347\275\256\357\274\210\345\220\204\351\241\271\345\233\236\350\275\246\351\207\207\347\224\250\345\275\223\345\211\215\345\200\274\357\274\211"
+#define UI_CONFIRM_TITLE "\347\241\256\350\256\244\345\271\266\347\224\237\346\210\220"
+#define UI_CONFIRM_PROMPT "\345\233\236\350\275\246\345\244\215\345\210\266\344\273\243\347\240\201\357\274\2331\344\277\235\345\255\230\346\226\207\344\273\266\357\274\2332\350\277\224\345\233\236\344\277\256\346\224\271\357\274\233o\350\241\245\345\205\205\345\244\204\347\220\206/\350\276\223\345\207\272\357\274\233m\346\263\250\351\207\212\346\250\241\345\274\217\357\274\233q\345\217\226\346\266\210\n\351\200\211\346\213\251\357\274\232"
+#define UI_COMMENT_PROMPT "\346\263\250\351\207\212\346\250\241\345\274\217\357\274\2320\346\227\240\346\263\250\351\207\212\357\274\2141\347\262\276\347\256\200\357\274\210\351\273\230\350\256\244\357\274\211\357\274\2142\345\256\214\346\225\264"
+#define UI_MODIFY_PROMPT "\350\277\224\345\233\236\344\277\256\346\224\271\357\274\2321\347\250\213\345\272\217\346\265\201\347\250\213\357\274\2142\345\207\275\346\225\260\347\273\204\344\273\266\357\274\2143\345\217\202\346\225\260\357\274\2330\350\277\224\345\233\236\347\241\256\350\256\244"
+#define UI_COMPLETE_TITLE "\345\256\214\346\210\220"
+#define UI_COPY_OK "\344\273\243\347\240\201\345\267\262\345\244\215\345\210\266\357\274\214\345\217\257\347\262\230\350\264\264\345\210\260\347\274\226\350\276\221\345\231\250\343\200\202"
+#define UI_COPY_FAILED "\345\244\215\345\210\266\345\244\261\350\264\245\357\274\214\345\217\257\344\277\235\345\255\230\346\226\207\344\273\266\346\210\226\346\237\245\347\234\213\344\273\243\347\240\201\343\200\202"
+#define UI_BLANK_HELP "\346\234\254\346\254\241\345\217\252\347\224\237\346\210\220\347\251\272\347\231\275main\357\274\214\350\257\267\350\207\252\350\241\214\347\274\226\345\206\231\350\276\223\345\205\245\343\200\201\350\256\241\347\256\227\345\222\214\350\276\223\345\207\272\343\200\202"
+#define UI_GENERAL_HELP "\346\214\211\351\242\230\346\204\217\350\241\245\351\275\220\350\276\223\345\205\245\343\200\201\350\256\241\347\256\227\345\222\214\350\276\223\345\207\272\357\274\233\346\211\200\351\200\211\345\207\275\346\225\260\351\234\200\350\246\201\350\207\252\350\241\214\350\260\203\347\224\250\343\200\202"
+#define UI_ONLY_FUNCTION_HELP "\344\273\205\347\224\237\346\210\220\345\207\275\346\225\260\357\274\233\346\216\245\345\205\245\345\267\262\346\234\211\347\250\213\345\272\217\345\211\215\346\243\200\346\237\245\351\207\215\345\220\215\343\200\201\347\261\273\345\236\213\345\222\214\344\270\213\346\240\207\343\200\202"
+#define UI_AFTER_PROMPT "\n\345\233\236\350\275\246\351\200\200\345\207\272    c \346\237\245\347\234\213\344\273\243\347\240\201    s \344\277\235\345\255\230\346\226\207\344\273\266\n\351\200\211\346\213\251\357\274\232"
+#define UI_TODO "/* TODO: \346\214\211\351\242\230\346\204\217\345\244\204\347\220\206 */\n"
+#define UI_FUNCTION_WARNING "/* \344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\357\274\232\346\216\245\345\205\245\345\211\215\346\243\200\346\237\245\345\220\214\345\220\215\345\207\275\346\225\260\343\200\201\345\256\217\343\200\201\347\273\223\346\236\204\344\275\223\345\222\214\345\205\250\345\261\200\345\217\230\351\207\217\343\200\202 */\n"
+#define UI_NO_DELIVERY "\346\234\254\346\254\241\345\260\232\346\234\252\345\217\226\345\207\272\344\273\243\347\240\201\357\274\214\350\257\267\347\224\250s\344\277\235\345\255\230\357\274\214\346\210\226\347\224\250c\346\237\245\347\234\213\345\220\216\346\211\213\345\212\250\345\244\215\345\210\266\343\200\202"
+#define UI_CODE_COMPONENT "/* %s\357\274\232%s */\n"
+#define UI_CODE_HINT "/* %s */\n"
+#define UI_CODE_MAIN "/* \350\276\223\345\205\245\350\276\223\345\207\272\351\252\250\346\236\266 */\n"
 
 /* UTF-8 inside; Unicode Windows console I/O at the boundary.
  * Files and clipboard data are never converted by the display adapter.
@@ -938,7 +1601,7 @@ static int io_read_line(char *out,size_t cap) {
 #define IO_GROUPS ((int)(sizeof io_group_names/sizeof io_group_names[0]))
 #define FRAGMENT_GROUPS ((int)(sizeof fragment_group_names/sizeof fragment_group_names[0]))
 typedef struct {
-    int io, selected[COUNT], snippet[FRAGMENTS], wide, separator_set;
+    int io, selected[COUNT], snippet[FRAGMENTS], wide, separator_set, comments, flow, reader;
     char separator[128];
     int sieve, big, grid, rmq, freq, stack, path, word, matrix, array, line;
 } Config;
@@ -957,7 +1620,7 @@ static const Setting settings[]={
 {"LINE_CAP","\346\234\200\351\225\277\344\270\200\350\241\214\345\255\227\347\254\246\346\225\260\357\274\210\345\214\205\345\220\253\345\217\257\350\203\275\347\232\204\346\215\242\350\241\214\357\274\214\344\270\215\345\220\253\347\273\210\346\255\242\347\254\246\357\274\211","",offsetof(Config,line),1024,1,2000000,1},
 };
 #define SETTINGS ((int)(sizeof settings/sizeof settings[0]))
-static int interactive, clear_enabled;
+static int interactive, clear_enabled, banner_shown;
 
 /* Color is optional; readable headings remain in plain/redirected output. */
 static void emphasis(FILE *f,const char *tag,const char *message,int level) {
@@ -967,12 +1630,6 @@ static void emphasis(FILE *f,const char *tag,const char *message,int level) {
     fprintf(f,"\343\200\220%s\343\200\221 %s\n",tag,message);
     if(color)fputs("\033[0m",f);
 }
-static void section_heading(FILE *f,const char *title) {
-    fputs("\n\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\n",f);
-    emphasis(f,title,"",0);
-    fputs("\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\342\224\201\n",f);
-}
-
 static int *setting_value(Config *c,const Setting *s) {
     return (int *)((char *)c+s->offset);
 }
@@ -981,7 +1638,7 @@ static int setting_read(const Config *c,const Setting *s) {
 }
 static Config defaults(void) {
     Config c; memset(&c,0,sizeof c); c.io=DEFAULT_IO;
-    strcpy(c.separator," ");
+    strcpy(c.separator," ");c.comments=1;c.flow=1;
     for(int i=0;i<SETTINGS;i++)*setting_value(&c,&settings[i])=settings[i].def;
     return c;
 }
@@ -993,10 +1650,11 @@ static int read_line(char *s, size_t cap) {
 static int ask(const char *label, int def, int low, int high) {
     char s[128],*end;
     for(;;) {
-        printf("%s [%d]\357\274\210-1\345\217\226\346\266\210\357\274\211\357\274\232",label,def); fflush(stdout);
+        printf("%s [%d]\357\274\210\345\233\236\350\275\246\351\207\207\347\224\250\357\274\233q\345\217\226\346\266\210\357\274\211\357\274\232",label,def); fflush(stdout);
         int ok=read_line(s,sizeof s);
         if(!ok) return -1;
         if(ok<0) continue;
+        if(!strcmp(s,"q"))return -1;
         if(!*s) return def;
         errno=0; long n=strtol(s,&end,10);
         while(*end==' ' || *end=='\t') end++;
@@ -1048,8 +1706,10 @@ static int display_width(const char *s) {
 }
 static void screen(int step,const char *title) {
     if(clear_enabled) fputs("\033[2J\033[H",stdout);
-    printf("C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v%s | \350\256\276\350\256\241\350\200\205\357\274\232%s\n",APP_VERSION,APP_DESIGNER);
-    puts("\351\200\211\346\213\251\347\273\204\344\273\266\347\224\237\346\210\220\344\273\243\347\240\201\357\274\214\347\262\230\350\264\264\345\210\260\347\274\226\350\276\221\345\231\250\345\220\216\346\214\211\351\242\230\346\204\217\344\277\256\346\224\271\343\200\202");
+    if(clear_enabled || !banner_shown) {
+        printf("C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v%s | \350\256\276\350\256\241\350\200\205\357\274\232%s\n",APP_VERSION,APP_DESIGNER);
+        banner_shown=1;
+    }
     printf("[");
     for(int i=1;i<=4;i++) fputs(i<=step?"##":"--",stdout);
     printf("] %d/4 %s\n",step,title);
@@ -1115,14 +1775,14 @@ static int choose_components(Config *c) {
     char s[1024];
     const char *message=NULL;
     for(;;) {
-        screen(2,"\351\200\211\346\213\251\350\246\201\345\212\240\345\205\245\347\232\204\347\273\204\344\273\266\345\207\275\346\225\260");
+        screen(2,io_options[c->io].functions_only?"\351\200\211\346\213\251\345\207\275\346\225\260\347\273\204\344\273\266\357\274\210\350\207\263\345\260\221\351\200\211\344\270\200\344\270\252\357\274\211":UI_COMPONENT_TITLE);
         printf("\345\267\262\351\200\211\350\276\223\345\205\245\350\276\223\345\207\272\357\274\232%s\n",io_names[c->io]);
         menu_components();
-        puts("\347\274\226\345\217\267\345\217\257\350\267\250\347\261\273\357\274\214\347\224\250\347\251\272\346\240\274/\351\200\227\345\217\267\345\210\206\351\232\224\357\274\233\345\233\236\350\275\246\344\277\235\347\225\231\357\274\2330\346\270\205\347\251\272\357\274\233?\345\205\263\351\224\256\350\257\215\346\237\245\346\211\276\357\274\233-1\345\217\226\346\266\210\343\200\202");
+        puts(UI_COMPONENT_PROMPT);
         if(message) emphasis(stdout,"\350\257\267\351\207\215\346\226\260\351\200\211\346\213\251",message,1);
         printf("\347\273\204\344\273\266\357\274\232");fflush(stdout);
         int ok=read_line(s,sizeof s);
-        if(!ok || (ok>0&&!strcmp(s,"-1"))) return 0;
+        if(!ok || (ok>0&&!strcmp(s,"q"))) return 0;
         if(ok<0) continue;
         if(s[0]=='?') {
             for(int i=0;i<COUNT;i++) if(!s[1] || strstr(components[i].name,s+1) || strstr(components[i].help,s+1))
@@ -1132,7 +1792,7 @@ static int choose_components(Config *c) {
             continue;
         }
         if(!*s) {
-            if(io_options[c->io].functions_only&&!any_selected(c)) {message="\344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\350\207\263\345\260\221\351\200\211\346\213\251\344\270\200\344\270\252\347\273\204\344\273\266\343\200\202";continue;}
+            if(io_options[c->io].functions_only&&!any_selected(c)) {message=UI_FUNCTIONS_REQUIRED;continue;}
             return 1;
         }
         int selected[COUNT]={0},valid=1,zero=0,count=0;
@@ -1150,72 +1810,66 @@ static int choose_components(Config *c) {
         memcpy(c->selected,selected,sizeof selected);return 1;
     }
 }
-static void pair_row(const char *left,const char *right) {
-    int width=terminal_width();
-    int col=(width-4)/2;
-    if(width<64 || display_width(left)>col || (right&&display_width(right)>col)) {
-        puts(left);if(right&&*right)puts(right);return;
+static int choose_flow(Config *c) {
+    screen(1,UI_FLOW_TITLE);
+    for(int i=0;i<FLOWS;i++) {
+        if(i==0)puts("\n\343\200\220\350\207\252\345\267\261\345\206\231\344\270\273\344\275\223\343\200\221");
+        if(i==2)puts("\n\343\200\220\351\207\215\345\244\215\345\244\204\347\220\206\346\225\260\346\215\256\343\200\221");
+        if(i==5)puts("\n\343\200\220\345\210\206\351\230\266\346\256\265\344\270\216\346\223\215\344\275\234\346\214\207\344\273\244\343\200\221");
+        if(i==8)puts("\n\343\200\220\346\226\207\346\234\254\346\226\207\344\273\266\343\200\221");
+        printf("%2d %s\n",i+1,flows[i].name);
     }
-    fputs(left,stdout);
-    if(right&&*right) {
-        for(int k=display_width(left);k<col+4;k++)putchar(' ');
-        fputs(right,stdout);
+    printf("\n%d %s\n",FLOWS+1,UI_FLOW_OTHER);
+    int pick=ask(UI_FLOW_PROMPT,c->flow+1,1,FLOWS+1);
+    if(pick<0)return 0;
+    if(pick==FLOWS+1)return 2;
+    const Flow *flow=&flows[pick-1];
+    int io=flow->io,reader=0;
+    if(flow->count) {
+        for(int i=0;i<flow->count;i++)printf("%d %s\n",i+1,io_names[flow->choices[i]]);
+        int def=1;
+        if(c->flow==pick-1)for(int i=0;i<flow->count;i++)if(flow->choices[i]==c->io)def=i+1;
+        int chosen=ask(UI_READER_CHOICE,def,1,flow->count);
+        if(chosen<0)return 0;
+        io=flow->choices[chosen-1];
     }
+    if(flow->readers) {
+        reader=ask(UI_READER,c->flow==pick-1?c->reader:0,0,2);
+        if(reader<0)return 0;
+    }
+    if(c->flow!=pick-1||c->io!=io||c->reader!=reader)memset(c->snippet,0,sizeof c->snippet);
+    c->flow=pick-1;c->io=io;c->reader=reader;
+    if(reader)c->snippet[reader==1?SN_READ_ARRAY:SN_READ_MATRIX]=1;
+    printf("\345\267\262\351\200\211\357\274\232%s",io_names[io]);
+    if(reader)printf("\357\274\233%s",fragments[reader==1?SN_READ_ARRAY:SN_READ_MATRIX].name);
     putchar('\n');
+    return 1;
 }
-
-static void menu_io(void) {
-    for(int group=0;group<IO_GROUPS;group++) {
-        putchar('\n');emphasis(stdout,io_group_names[group],"",0);
-        int pending=-1;
-        for(int i=0;i<IO_COUNT;i++) if(io_group[i]==group) {
-            if(pending<0) {pending=i;continue;}
-            char a[160],b[160];
-            snprintf(a,sizeof a,"%2d %s",pending+1,io_names[pending]);
-            snprintf(b,sizeof b,"%2d %s",i+1,io_names[i]);
-            pair_row(a,b);pending=-1;
-        }
-        if(pending>=0)printf("%2d %s\n",pending+1,io_names[pending]);
+static int choose_extras(Config *c) {
+    screen(3,UI_EXTRAS_TITLE);puts(UI_EXTRAS_NOTE);
+    int map[FRAGMENTS],count=0;
+    for(int i=0;i<FRAGMENTS;i++)if(fragments[i].phase>0) {
+        map[count++]=i;printf("%d %s\n",count,fragments[i].name);
     }
-    printf("\n\343\200\220\345\205\266\344\273\226\343\200\221\n%d \345\257\274\345\207\272\345\205\250\351\207\217\350\204\232\346\211\213\346\236\266\346\211\213\345\206\214\357\274\210\345\257\274\345\207\272\345\220\216\351\200\200\345\207\272\357\274\211\n",IO_COUNT+1);
-}
-static void menu_fragments(void) {
-    for(int group=0;group<FRAGMENT_GROUPS;group++) {
-        putchar('\n');emphasis(stdout,fragment_group_names[group],"",0);
-        int pending=-1;
-        for(int i=0;i<FRAGMENTS;i++) if(fragments[i].group==group) {
-            if(pending<0) {pending=i;continue;}
-            char a[160],b[160];
-            snprintf(a,sizeof a,"%d %s",pending+1,fragments[pending].name);
-            snprintf(b,sizeof b,"%d %s",i+1,fragments[i].name);
-            pair_row(a,b);pending=-1;
-        }
-        if(pending>=0)printf("%d %s\n",pending+1,fragments[pending].name);
-    }
-}
-static int choose_fragments(Config *c) {
-    if(io_options[c->io].functions_only) {memset(c->snippet,0,sizeof c->snippet);return 1;}
-    screen(2,"\351\200\211\346\213\251main\351\207\214\347\232\204\344\273\243\347\240\201\347\211\207\346\256\265\357\274\210\345\217\257\350\267\263\350\277\207\357\274\211");
-    emphasis(stdout,"\347\211\207\346\256\265\347\224\250\351\200\224","\346\212\212\345\270\270\350\247\201\347\232\204\350\257\273\345\205\245\343\200\201\345\244\204\347\220\206\346\210\226\350\276\223\345\207\272\345\276\252\347\216\257\346\224\276\350\277\233main\357\274\233\344\273\215\351\234\200\346\214\211\351\242\230\346\204\217\344\277\256\346\224\271\343\200\202",0);
-    menu_fragments();
-    puts("\n\345\233\236\350\275\246\344\277\235\347\225\231\357\274\210\345\210\235\346\254\241\344\270\272\344\270\215\351\200\211\357\274\211\357\274\2330\346\270\205\347\251\272\357\274\233\350\276\223\345\205\245\347\274\226\345\217\267\345\210\227\350\241\250\357\274\233-1\345\217\226\346\266\210\343\200\202");
-    char s[256];
+    puts(UI_EXTRAS_PROMPT);char line[256];
     for(;;) {
-        printf("\347\211\207\346\256\265\357\274\232");fflush(stdout);
-        int ok=read_line(s,sizeof s);
-        if(!ok||(ok>0&&!strcmp(s,"-1"))) return 0;
-        if(ok<0) continue;
-        if(!*s) return 1;
-        int selected[FRAGMENTS]={0},bad=0,zero=0,count=0;char *p=s;
+        fputs("\347\211\207\346\256\265\357\274\232",stdout);fflush(stdout);
+        int ok=read_line(line,sizeof line);
+        if(!ok || (ok>0&&!strcmp(line,"q")))return 0;
+        if(ok<0)continue;
+        if(!*line)return 1;
+        int values[FRAGMENTS]={0},zero=0,chosen=0,bad=0;char *p=line;
         while(*p) {
-            while(*p==' '||*p==','||*p=='\t') p++;
-            if(!*p) break;
+            while(*p==' '||*p=='\t'||*p==',')p++;
+            if(!*p)break;
             char *end;errno=0;long n=strtol(p,&end,10);
-            if(errno||p==end||n<0||n>FRAGMENTS||(*end&&*end!=' '&&*end!=','&&*end!='\t')) {bad=1;break;}
-            if(!n)zero=1;else {selected[n-1]=1;count++;}p=end;
+            if(errno||p==end||n<0||n>count||(*end&&*end!=' '&&*end!='\t'&&*end!=',')){bad=1;break;}
+            if(n) {values[map[n-1]]=1;chosen++;}else zero=1;
+            p=end;
         }
-        if(bad||(zero&&count)) {emphasis(stdout,"\347\274\226\345\217\267\346\234\211\350\257\257","\347\211\207\346\256\265\347\274\226\345\217\267\346\227\240\346\225\210\357\274\214\350\257\267\351\207\215\346\226\260\350\276\223\345\205\245\357\274\233\345\216\237\351\200\211\346\213\251\344\277\235\347\225\231\343\200\202",1);continue;}
-        memcpy(c->snippet,selected,sizeof selected);return 1;
+        if(bad||(zero&&chosen)){puts("\347\274\226\345\217\267\346\227\240\346\225\210\357\274\214\345\216\237\351\200\211\346\213\251\344\277\235\347\225\231\343\200\202");continue;}
+        for(int i=0;i<FRAGMENTS;i++)if(fragments[i].phase>0)c->snippet[i]=values[i];
+        return 1;
     }
 }
 static int contains_cap(const char *list,const char *name) {
@@ -1252,9 +1906,9 @@ static int configure_separator(Config *c) {
     if(n==4) {
         char text[sizeof c->separator];
         for(;;) {
-            printf("\350\276\223\345\205\245\345\210\206\351\232\224\345\255\227\347\254\246\344\270\262\357\274\210\346\214\211\345\216\237\346\240\267\344\275\277\347\224\250\357\274\233\345\233\236\350\275\246\344\277\235\347\225\231\357\274\233-1\345\217\226\346\266\210\357\274\211[%s]\357\274\232",c->separator);fflush(stdout);
+            printf("\350\276\223\345\205\245\345\210\206\351\232\224\345\255\227\347\254\246\344\270\262\357\274\210\346\214\211\345\216\237\346\240\267\344\275\277\347\224\250\357\274\233\345\233\236\350\275\246\344\277\235\347\225\231\357\274\233q\345\217\226\346\266\210\357\274\211[%s]\357\274\232",c->separator);fflush(stdout);
             int ok=read_line(text,sizeof text);
-            if(!ok||(ok>0&&!strcmp(text,"-1")))return 0;
+            if(!ok||(ok>0&&!strcmp(text,"q")))return 0;
             if(ok<0)continue;
             if(*text)strcpy(c->separator,text);
             break;
@@ -1265,7 +1919,10 @@ static int configure_separator(Config *c) {
     return 1;
 }
 static int configure(Config *c) {
-    screen(3,"\346\214\211\351\234\200\351\205\215\347\275\256");
+    int needed=needs_value_type(c)||has_cap(c,"SEPARATOR");
+    for(int i=0;i<SETTINGS;i++)if(has_cap(c,settings[i].macro))needed=1;
+    if(!needed)return 1;
+    screen(3,UI_CONFIG_TITLE);
     if(needs_value_type(c)) {int n=ask("\351\200\211\344\270\255\344\273\243\347\240\201\347\232\204\346\225\264\346\225\260\347\261\273\345\236\213\357\274\2321 int\357\274\210\347\272\246\302\26121\344\272\277\357\274\211\357\274\2142 long long\357\274\210\346\233\264\345\244\247\357\274\211",c->wide+1,1,2);if(n<0)return 0;c->wide=n-1;}
     for(int i=0;i<SETTINGS;i++) {
         const Setting *s=&settings[i];
@@ -1275,9 +1932,6 @@ static int configure(Config *c) {
         *setting_value(c,s)=n+s->extra;
     }
     if(has_cap(c,"SEPARATOR")&&!configure_separator(c))return 0;
-    emphasis(stdout,"\344\275\277\347\224\250\345\211\215\347\241\256\350\256\244","\347\224\237\346\210\220\347\232\204\346\230\257\345\276\205\344\277\256\346\224\271\344\273\243\347\240\201\357\274\233\345\244\232\347\273\204\346\225\260\346\215\256\346\257\217\347\273\204\346\214\211\351\242\230\346\204\217\346\270\205\347\251\272\347\212\266\346\200\201\343\200\202",1);
-    if(io_options[c->io].incomplete)
-        emphasis(stdout,"\350\241\245\351\275\220\345\220\216\346\211\215\350\203\275\347\274\226\350\257\221","\350\257\267\345\241\253\345\206\231\350\257\273\345\205\245\346\240\274\345\274\217\343\200\201\345\217\230\351\207\217\345\234\260\345\235\200\345\222\214\346\210\220\345\212\237\350\257\273\345\217\226\347\232\204\345\255\227\346\256\265\346\225\260\343\200\202",1);
     return 1;
 }
 /* Produce a safe C string literal; percent signs stay data, never printf formats. */
@@ -1342,6 +1996,9 @@ static void buf_printf(CodeBuffer *b,const char *fmt,...) {
     va_end(args);
 }
 
+static const char *fragment_code(const Config *c,int i) {
+    return c->comments==0?plain_fragment_codes[i]:c->comments==1?brief_fragment_codes[i]:fragment_codes[i];
+}
 static void expand(CodeBuffer *f,const char *s,const Config *c,int indent) {
     int start=1;
     char literal[1024];string_literal(c->separator,literal);
@@ -1362,30 +2019,24 @@ static void expand(CodeBuffer *f,const char *s,const Config *c,int indent) {
 
 static void emit_inputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0)
-        expand(f,fragments[i].code,c,indent);
+        expand(f,fragment_code(c,i),c,indent);
 }
 static void emit_outputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0)
-        expand(f,fragments[i].code,c,indent);
+        expand(f,fragment_code(c,i),c,indent);
 }
 static void emit_body(CodeBuffer *f,const Config *c,int indent) {
-    for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0) {
-        expand(f,"/* \345\217\257\351\200\211\347\211\207\346\256\265\357\274\232",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
-        expand(f,fragments[i].code,c,indent);
-    }
-    expand(f,"\n/* TODO: \346\214\211\351\242\230\347\233\256\350\256\241\347\256\227\357\274\214\346\214\211\351\234\200\350\260\203\347\224\250\344\270\212\351\235\242\347\232\204\345\207\275\346\225\260 */\n\n",c,indent);
-    for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0) {
-        expand(f,"/* \345\217\257\351\200\211\347\211\207\346\256\265\357\274\232",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
-        expand(f,fragments[i].code,c,indent);
-    }
+    emit_inputs(f,c,indent);
+    if(c->comments)expand(f,UI_TODO,c,indent);
+    emit_outputs(f,c,indent);
 }
 static void emit_main(CodeBuffer *f,const Config *c) {
-    const char *p=io_codes[c->io];
+    const char *p=c->comments==0?plain_io_codes[c->io]:c->comments==1?brief_io_codes[c->io]:io_codes[c->io];
     while(*p) {
-        if(!strncmp(p,"@BODY@",6)) {emit_body(f,c,4);p+=6;}
-        else if(!strncmp(p,"@LOOP@",6)) {emit_body(f,c,8);p+=6;}
-        else if(!strncmp(p,"@INPUT@",7)) {emit_inputs(f,c,4);p+=7;}
-        else if(!strncmp(p,"@OUTPUT@",8)) {emit_outputs(f,c,4);p+=8;}
+        if(!strncmp(p,"@BODY@",6)) {emit_body(f,c,4);p+=6;if(*p=='\n')p++;}
+        else if(!strncmp(p,"@LOOP@",6)) {emit_body(f,c,8);p+=6;if(*p=='\n')p++;}
+        else if(!strncmp(p,"@INPUT@",7)) {emit_inputs(f,c,4);p+=7;if(*p=='\n')p++;}
+        else if(!strncmp(p,"@OUTPUT@",8)) {emit_outputs(f,c,4);p+=8;if(*p=='\n')p++;}
         else {
             const char *end=strchr(p,'\n');size_t n=end?(size_t)(end-p)+1:strlen(p);
             char line[1024];
@@ -1395,7 +2046,9 @@ static void emit_main(CodeBuffer *f,const Config *c) {
     }
 }
 static void emit_piece(CodeBuffer *f,int id,const Config *c) {
-    const char *s=c->wide&&wide_pieces[id]?wide_pieces[id]:pieces[id];
+    const char *s=c->comments==0?plain_pieces[id]:c->comments==1?brief_pieces[id]:pieces[id];
+    const char *wide=c->comments==0?plain_wide_pieces[id]:c->comments==1?brief_wide_pieces[id]:wide_pieces[id];
+    if(c->wide&&wide)s=wide;
     while(*s) {
         const char *e=strchr(s,'\n');size_t n=e?(size_t)(e-s)+1:strlen(s);
         if(strncmp(s,"#define ",8)) buf_write(f,s,n);
@@ -1403,8 +2056,15 @@ static void emit_piece(CodeBuffer *f,int id,const Config *c) {
     }
 }
 static void emit(CodeBuffer *f,const Config *c) {
-    buf_puts("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n",f);
-    if(io_options[c->io].functions_only)buf_puts("/* \344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\357\274\232\346\216\245\345\205\245\345\267\262\346\234\211\347\250\213\345\272\217\345\211\215\346\243\200\346\237\245\345\220\214\345\220\215\345\207\275\346\225\260\343\200\201\345\256\217\343\200\201\347\273\223\346\236\204\344\275\223\344\270\216\345\205\250\345\261\200\345\217\230\351\207\217\343\200\202 */\n",f);
+    if(c->comments)buf_puts(code_credit,f);
+    int mask=io_options[c->io].headers;
+    for(int i=0;i<COUNT;i++)if(c->selected[i])
+        for(int j=0;components[i].ids[j]>=0;j++)mask|=piece_headers[components[i].ids[j]];
+    for(int i=0;i<FRAGMENTS;i++)if(c->snippet[i])mask|=fragments[i].headers;
+    for(int i=0;i<(int)(sizeof header_names/sizeof header_names[0]);i++)
+        if(mask&(1<<i))buf_printf(f,"#include <%s>\n",header_names[i]);
+    if(mask)buf_putc('\n',f);
+    if(c->comments&&io_options[c->io].functions_only)buf_puts(UI_FUNCTION_WARNING,f);
     for(int i=0;i<SETTINGS;i++) {
         const Setting *s=&settings[i];
         if(!has_cap(c,s->macro))continue;
@@ -1415,19 +2075,19 @@ static void emit(CodeBuffer *f,const Config *c) {
             buf_printf(f,"#define %s %d\n",s->log_macro,levels);
         }
     }
-    buf_putc('\n',f);
+    if(f->length&&f->text[f->length-1]=='\n'&&(f->length<2||f->text[f->length-2]!='\n'))buf_putc('\n',f);
     int emitted[PIECES]={0};
     for(int i=0;i<COUNT;i++)if(c->selected[i]) {
-        buf_printf(f,"/* ===== %d %s =====\n * %s\n */\n",i+1,components[i].name,components[i].note);
+        if(c->comments)buf_printf(f,UI_CODE_COMPONENT,components[i].name,components[i].note);
         for(int j=0;components[i].ids[j]>=0;j++) {
             int id=components[i].ids[j];
             if(emitted[id])continue;
             /* Each source function carries a short usage note; full details stay in console/manual. */
-            if(piece_hints[id][0])buf_printf(f,"/* %s */\n",piece_hints[id]);
+            if(c->comments==2&&piece_hints[id][0])buf_printf(f,UI_CODE_HINT,piece_hints[id]);
             emit_piece(f,id,c);buf_putc('\n',f);emitted[id]=1;
         }
     }
-    if(!io_options[c->io].functions_only) {buf_puts("/* ===== \350\276\223\345\205\245\350\276\223\345\207\272\351\252\250\346\236\266 ===== */\n",f);emit_main(f,c);}
+    if(!io_options[c->io].functions_only) {if(c->comments==2)buf_puts(UI_CODE_MAIN,f);emit_main(f,c);}
 }
 static char *generate(const Config *c,size_t *size) {
     CodeBuffer output={0};
@@ -1436,6 +2096,8 @@ static char *generate(const Config *c,size_t *size) {
         free(output.text);
         return NULL;
     }
+    while(output.length>1 && output.text[output.length-1]=='\n' && output.text[output.length-2]=='\n')output.length--;
+    output.text[output.length]=0;
     *size=output.length;
     return output.text;
 }
@@ -1516,7 +2178,7 @@ static FILE *open_file(const char *path,const char *mode) {
 }
 static FILE *open_output(const char *def,char path[1024]) {
     for(;;) {
-        printf("\344\277\235\345\255\230\350\267\257\345\276\204 [\345\233\236\350\275\246=%s\357\274\233-1\345\217\226\346\266\210]\357\274\232",def);fflush(stdout);
+        printf("\344\277\235\345\255\230\350\267\257\345\276\204 [\345\233\236\350\275\246=%s\357\274\233q\345\217\226\346\266\210]\357\274\232",def);fflush(stdout);
         int ok=read_line(path,1024);
         if(!ok||(ok>0&&!strcmp(path,"-1")))return NULL;
         if(ok<0)continue;
@@ -1535,50 +2197,29 @@ static int save_text(const char *s,size_t n) {
     emphasis(stdout,"\344\273\243\347\240\201\345\267\262\344\277\235\345\255\230",path,2);return 1;
 }
 static void explain(FILE *f,const Config *c) {
-    section_heading(f,"\346\234\254\346\254\241\344\275\277\347\224\250\350\257\264\346\230\216 \302\267 \350\257\267\345\205\210\351\230\205\350\257\273");
-    emphasis(f,"\350\276\223\345\205\245\350\276\223\345\207\272\346\226\271\345\274\217",io_names[c->io],0);
-    fprintf(f,"%s\n",io_help[c->io]);
-    if(io_options[c->io].functions_only)
-        emphasis(f,"\347\262\230\350\264\264\345\211\215\346\243\200\346\237\245","\346\216\245\345\210\260\345\267\262\346\234\211\347\250\213\345\272\217\346\227\266\357\274\214\346\243\200\346\237\245\345\220\214\345\220\215\345\207\275\346\225\260\343\200\201\345\256\217\343\200\201\347\273\223\346\236\204\344\275\223\345\222\214\345\205\250\345\261\200\346\225\260\347\273\204\357\274\233\344\277\235\347\225\231OJ\346\214\207\345\256\232\347\255\276\345\220\215\343\200\202",1);
-    else
-        emphasis(f,"\345\277\205\351\241\273\344\277\256\346\224\271","\345\234\250TODO\345\244\204\350\241\245\351\275\220\351\242\230\347\233\256\350\276\223\345\205\245\343\200\201\350\256\241\347\256\227\345\222\214\350\276\223\345\207\272\357\274\233\347\273\204\344\273\266\345\207\275\346\225\260\344\270\215\344\274\232\350\207\252\345\212\250\350\260\203\347\224\250\343\200\202",1);
-    if(io_options[c->io].incomplete)
-        emphasis(f,"\350\241\245\351\275\220\345\220\216\346\211\215\350\203\275\347\274\226\350\257\221","\350\257\273\345\205\245\346\240\274\345\274\217\343\200\201\345\217\230\351\207\217\345\234\260\345\235\200\343\200\201\346\210\220\345\212\237\350\257\273\345\217\226\345\255\227\346\256\265\346\225\260\347\233\256\345\211\215\344\273\215\346\230\257\345\276\205\345\241\253\345\206\231\345\206\205\345\256\271\343\200\202",1);
-    if(io_options[c->io].file_write)emphasis(f,"\345\206\231\345\205\245\345\211\215\347\241\256\350\256\244","\346\226\207\344\273\266\345\206\231\345\205\245\344\275\277\347\224\250w\346\250\241\345\274\217\357\274\214\344\274\232\350\246\206\347\233\226\345\220\214\345\220\215\346\226\207\344\273\266\357\274\233\345\205\210\346\214\211\351\242\230\347\233\256\344\277\256\346\224\271\346\226\207\344\273\266\345\220\215\343\200\202",1);
-    int used[PIECES]={0},count=0;
-    for(int i=0;i<COUNT;i++) if(c->selected[i]) {
-        char title[200];snprintf(title,sizeof title,"%d. %s",i+1,components[i].name);
-        fputc('\n',f);emphasis(f,title,"",0);
-        emphasis(f,"\344\275\277\347\224\250\345\211\215\346\217\220",components[i].note,1);count++;
-        int fresh=0;
-        for(int j=0;components[i].ids[j]>=0;j++) {
-            int id=components[i].ids[j];
-            if(!used[id] && piece_details[id][0]) {
-                const char *details=c->wide&&wide_piece_details[id]?wide_piece_details[id]:piece_details[id];
-                fprintf(f,"%s\n",details);fresh=1;
+    if(!any_selected(c)) {
+        if(c->io==IO_BLANK&&!c->reader)fprintf(f,"\n%s\n",UI_BLANK_HELP);
+        else fprintf(f,"\n%s\n",io_help[c->io]);
+    } else {
+        fprintf(f,"\n\346\234\254\346\254\241\345\207\275\346\225\260\347\224\250\346\263\225\n");int used[PIECES]={0};
+        for(int i=0;i<COUNT;i++)if(c->selected[i]) {
+            fprintf(f,"\n%d. %s\n\344\275\277\347\224\250\345\211\215\346\217\220\357\274\232%s\n",i+1,components[i].name,components[i].note);
+            for(int j=0;components[i].ids[j]>=0;j++) {
+                int id=components[i].ids[j];
+                if(!used[id])fprintf(f,"%s\n",c->wide&&wide_piece_details[id]?wide_piece_details[id]:piece_details[id]);
+                used[id]=1;
             }
-            used[id]=1;
         }
-        if(!fresh)fputs("\345\205\261\347\224\250\345\207\275\346\225\260\345\267\262\345\234\250\345\211\215\351\235\242\350\257\264\346\230\216\357\274\214\344\270\215\351\207\215\345\244\215\345\210\227\345\207\272\343\200\202\n",f);
+        fprintf(f,"\n%s\n",io_options[c->io].functions_only?UI_ONLY_FUNCTION_HELP:UI_GENERAL_HELP);
     }
-    if(!count)
-        emphasis(f,"\346\234\254\346\254\241\346\234\252\351\200\211\347\273\204\344\273\266\345\207\275\346\225\260","\345\217\252\347\224\237\346\210\220\344\272\206\347\250\213\345\272\217\345\244\226\346\241\206\345\222\214\346\211\200\351\200\211main\347\211\207\346\256\265\357\274\233\350\256\241\347\256\227\346\255\245\351\252\244\351\234\200\350\246\201\350\207\252\345\267\261\347\274\226\345\206\231\343\200\202",0);
-    for(int i=0;i<FRAGMENTS;i++)if(c->snippet[i]) {
-        char title[160];snprintf(title,sizeof title,"\347\211\207\346\256\265%d\357\274\232%s",i+1,fragments[i].name);
-        fputc('\n',f);emphasis(f,title,"",0);
-        fprintf(f,"%s\n",fragments[i].help);
-        emphasis(f,"\351\234\200\350\246\201\350\241\224\346\216\245","\346\243\200\346\237\245\345\217\230\351\207\217\345\220\215\343\200\201\344\270\213\346\240\207\343\200\201\344\275\234\347\224\250\345\237\237\344\270\216\346\211\247\350\241\214\351\241\272\345\272\217\357\274\233\350\277\231\344\272\233\347\211\207\346\256\265\344\270\215\344\274\232\350\207\252\345\212\250\351\200\202\351\205\215\351\242\230\347\233\256\343\200\202",1);
-    }
-    if(needs_value_type(c))
-        emphasis(f,"\346\234\254\346\254\241\346\225\260\345\200\274\347\261\273\345\236\213",c->wide?"\351\200\211\344\270\255\347\232\204\346\225\264\346\225\260\346\225\260\347\273\204/\346\225\264\346\225\260\350\257\273\345\205\245\344\275\277\347\224\250long long\357\274\214\350\257\273\345\205\245\346\240\274\345\274\217\344\270\272%lld\343\200\202":"\351\200\211\344\270\255\347\232\204\346\225\264\346\225\260\346\225\260\347\273\204/\346\225\264\346\225\260\350\257\273\345\205\245\344\275\277\347\224\250int\357\274\214\350\257\273\345\205\245\346\240\274\345\274\217\344\270\272%d\343\200\202",0);
-    section_heading(f,"\346\216\245\344\270\213\346\235\245\346\200\216\344\271\210\345\201\232");
-    emphasis(f,"\344\270\213\344\270\200\346\255\245","\345\234\250\347\274\226\350\276\221\345\231\250\344\270\255\350\241\245\351\275\220TODO \342\206\222 \346\240\270\345\257\271\351\242\230\347\233\256\346\240\274\345\274\217 \342\206\222 \347\274\226\350\257\221\345\271\266\350\257\225\346\240\267\344\276\213\343\200\202",1);
-    if(count)fputs("\344\273\243\347\240\201\346\227\201\345\267\262\344\277\235\347\225\231\347\256\200\347\237\255\350\260\203\347\224\250\346\263\250\351\207\212\357\274\214\345\256\214\346\225\264\347\224\250\346\263\225\345\217\257\345\257\271\347\205\247\344\270\212\351\235\242\347\232\204\345\207\275\346\225\260\350\257\264\346\230\216\343\200\202\n",f);
+    for(int i=0;i<FRAGMENTS;i++)if(c->snippet[i])fprintf(f,"%s\357\274\232%s\n",fragments[i].name,fragments[i].help);
+    if(io_options[c->io].incomplete)emphasis(f,"\351\241\273\350\241\245\351\275\220\350\257\273\346\263\225","\345\241\253\345\206\231\346\240\274\345\274\217\343\200\201\345\217\230\351\207\217\345\234\260\345\235\200\345\222\214\346\210\220\345\212\237\350\257\273\345\217\226\345\255\227\346\256\265\346\225\260\345\220\216\346\211\215\350\203\275\347\274\226\350\257\221\343\200\202",1);
+    if(io_options[c->io].file_write)emphasis(f,"\346\263\250\346\204\217","w\346\250\241\345\274\217\344\274\232\350\246\206\347\233\226\345\220\214\345\220\215\346\226\207\344\273\266\357\274\214\350\257\267\345\205\210\344\277\256\346\224\271\346\226\207\344\273\266\345\220\215\343\200\202",1);
 }
 static void handbook(FILE *f) {
     fprintf(f,"# C\350\257\255\350\250\200\345\205\250\351\207\217\350\204\232\346\211\213\346\236\266\346\211\213\345\206\214 v%s\n\n\350\256\276\350\256\241\350\200\205\357\274\232%s\n\n\345\205\210\351\200\211\351\252\250\346\236\266\344\270\216\347\273\204\344\273\266\357\274\214\345\206\215\351\205\215\347\275\256\343\200\202\351\273\230\350\256\244\345\244\215\345\210\266\346\272\220\347\240\201\357\274\233\350\276\223\345\205\245c\346\237\245\347\234\213\346\272\220\347\240\201\343\200\201s\345\217\246\345\255\230\343\200\201\345\233\236\350\275\246\351\200\200\345\207\272\343\200\202\344\273\243\347\240\201\351\234\200\350\207\252\350\241\214\345\256\214\346\210\220\351\242\230\346\204\217\345\222\214\345\207\275\346\225\260\350\260\203\347\224\250\343\200\202\n\n## \350\276\223\345\205\245\350\276\223\345\207\272\351\252\250\346\236\266\n\n",APP_VERSION,APP_DESIGNER);
     for(int i=0;i<IO_COUNT;i++) {
-        Config c=defaults();c.io=i;
+        Config c=defaults();c.io=i;c.comments=2;
         if(i==0 || io_group[i]!=io_group[i-1])fprintf(f,"### %s\n\n",io_group_names[io_group[i]]);
         fprintf(f,"#### %d. %s\n\n%s\n\n",i+1,io_names[i],io_help[i]);
         if(io_options[i].functions_only){fputs("\345\217\252\350\276\223\345\207\272\345\207\275\346\225\260\343\200\201\347\273\223\346\236\204\344\275\223\343\200\201\345\256\217\345\222\214\344\276\235\350\265\226\357\274\214\346\216\245\345\205\245\345\267\262\346\234\211\347\250\213\345\272\217\345\211\215\346\243\200\346\237\245\351\207\215\345\220\215\343\200\202\n\n",f);continue;}
@@ -1596,7 +2237,7 @@ static void handbook(FILE *f) {
     for(int g=0;g<GROUPS;g++) {
         fprintf(f,"### %s\n\n",group_names[g]);
         for(int i=0;i<COUNT;i++)if(components[i].group==g) {
-            Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;
+            Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;c.comments=2;
             fprintf(f,"#### %d. %s\n\n",i+1,components[i].name);explain(f,&c);
             fputs("\n```c\n",f);emit_to_file(f,&c,1,NULL);fputs("```\n\n",f);
         }
@@ -1612,12 +2253,11 @@ static void handbook(FILE *f) {
 }
 static void after_output(const char *source,size_t length,const Config *c,int delivered) {
     explain(stdout,c);
-    if(!delivered)emphasis(stdout,"\344\273\243\347\240\201\345\260\232\346\234\252\345\217\226\345\207\272","\346\234\254\346\254\241\346\262\241\346\234\211\346\210\220\345\212\237\345\244\215\345\210\266\346\210\226\344\277\235\345\255\230\343\200\202\350\257\267\347\224\250s\344\277\235\345\255\230\346\226\207\344\273\266\357\274\214\346\210\226\347\224\250c\346\230\276\347\244\272\345\220\216\346\211\213\345\212\250\345\244\215\345\210\266\343\200\202",1);
+    if(!delivered)emphasis(stdout,"\344\273\243\347\240\201\345\260\232\346\234\252\345\217\226\345\207\272",UI_NO_DELIVERY,1);
     if(!interactive||io_input_ended||feof(stdin))return;
     char s[64];
     for(;;) {
-        emphasis(stdout,"\345\217\257\351\200\211\346\223\215\344\275\234","\347\233\264\346\216\245\345\233\236\350\275\246\351\200\200\345\207\272\357\274\233\350\276\223\345\205\245c\346\237\245\347\234\213\346\272\220\347\240\201\357\274\233\350\276\223\345\205\245s\345\217\246\345\255\230\344\270\272\346\226\207\344\273\266\343\200\202",0);
-        fputs("\344\275\240\347\232\204\351\200\211\346\213\251\357\274\232",stdout);fflush(stdout);
+        fputs(UI_AFTER_PROMPT,stdout);fflush(stdout);
         int ok=read_line(s,sizeof s);
         if(!ok || (ok>0&&!*s))return;
         if(ok<0)continue;
@@ -1657,46 +2297,61 @@ int main(int argc,char **argv) {
     Config c=defaults();int stage=1;
     while(1) {
         if(stage==1) {
-            screen(1,"\351\200\211\346\213\251\347\250\213\345\272\217\347\232\204\350\276\223\345\205\245\350\276\223\345\207\272\346\226\271\345\274\217");
-            menu_io();
-            int n=ask("\350\276\223\345\205\245\344\270\212\351\235\242\347\232\204\345\272\217\345\217\267",c.io+1,1,IO_COUNT+1);
-            if(n<0){pause_exit();return 0;}
-            if(n==IO_COUNT+1) {
+            int n=choose_flow(&c);
+            if(!n){pause_exit();return 0;}
+            if(n==2) {
                 char path[1024];FILE *f=open_output("C_templates_manual.md",path);
-                if(f){handbook(f);if(close_output(f))emphasis(stdout,"\344\277\235\345\255\230\345\244\261\350\264\245","\346\211\213\345\206\214\345\206\231\345\205\245\345\244\261\350\264\245\357\274\214\350\257\267\351\207\215\350\257\225\343\200\202",3);else emphasis(stdout,"\346\211\213\345\206\214\345\267\262\344\277\235\345\255\230",path,2);}
+                if(f){handbook(f);if(close_output(f))emphasis(stdout,"\344\277\235\345\255\230\345\244\261\350\264\245","\346\211\213\345\206\214\345\206\231\345\205\245\345\244\261\350\264\245\343\200\202",3);else emphasis(stdout,"\346\211\213\345\206\214\345\267\262\344\277\235\345\255\230",path,2);}
                 pause_exit();return 0;
             }
-            c.io=n-1;stage=2;
+            stage=2;
         }
         if(stage==2) {
-            if(!choose_components(&c)||!choose_fragments(&c)){pause_exit();return 0;}
+            if(!choose_components(&c)){pause_exit();return 0;}
             stage=3;
         }
         if(stage==3) {
             if(!configure(&c)){pause_exit();return 0;}
-            section_heading(stdout,"\347\224\237\346\210\220\345\211\215\347\241\256\350\256\244");emphasis(stdout,"\350\276\223\345\205\245\350\276\223\345\207\272\346\226\271\345\274\217",io_names[c.io],0);
-            for(int i=0;i<COUNT;i++)if(c.selected[i])printf("%d %s\n",i+1,components[i].name);
-            for(int i=0;i<FRAGMENTS;i++)if(c.snippet[i])printf("\347\211\207\346\256\265%d %s\n",i+1,fragments[i].name);
-            if(io_options[c.io].functions_only)emphasis(stdout,"\345\217\252\350\276\223\345\207\272\345\207\275\346\225\260","\344\270\215\344\274\232\345\210\233\345\273\272main\357\274\233\346\216\245\345\205\245\345\267\262\346\234\211\344\273\243\347\240\201\345\211\215\346\243\200\346\237\245\345\220\214\345\220\215\345\256\232\344\271\211\343\200\202",1);
-            int choice=ask("\345\233\236\350\275\246/1\345\244\215\345\210\266\345\210\260\345\211\252\350\264\264\346\235\277\357\274\2142\344\277\235\345\255\230\346\226\207\344\273\266\357\274\2143\346\224\271\351\252\250\346\236\266\357\274\2144\346\224\271\347\273\204\344\273\266\357\274\2145\346\224\271\345\256\271\351\207\217\357\274\2140\345\217\226\346\266\210",1,0,5);
-            if(choice<1){pause_exit();return 0;}
-            if(choice==3){stage=1;continue;}
-            if(choice==4){stage=2;continue;}
-            if(choice==5){stage=3;continue;}
-            size_t length;char *source=generate(&c,&length);
-            if(!source){emphasis(stdout,"\347\224\237\346\210\220\345\244\261\350\264\245","\346\227\240\346\263\225\346\236\204\345\273\272\344\273\243\347\240\201\357\274\214\347\216\260\346\234\211\346\226\207\344\273\266\346\234\252\344\277\256\346\224\271\343\200\202",3);pause_exit();return 1;}
-            screen(4,"\350\276\223\345\207\272\344\273\243\347\240\201\357\274\214\347\204\266\345\220\216\351\230\205\350\257\273\344\275\277\347\224\250\350\257\264\346\230\216");
-            int delivered=0;
-            if(choice==1) {
-                if(clipboard_copy(source,length)) {delivered=1;emphasis(stdout,"\345\244\215\345\210\266\346\210\220\345\212\237","\344\273\243\347\240\201\345\267\262\345\244\215\345\210\266\345\210\260\345\211\252\350\264\264\346\235\277\357\274\214\345\217\257\347\233\264\346\216\245\347\262\230\350\264\264\345\210\260\347\274\226\350\276\221\345\231\250\343\200\202",2);}
+            for(;;) {
+                screen(3,UI_CONFIRM_TITLE);
+                printf("\347\250\213\345\272\217\357\274\232%s\n",io_names[c.io]);
+                if(c.reader)printf("\350\257\273\345\205\245\357\274\232%s\n",fragments[c.reader==1?SN_READ_ARRAY:SN_READ_MATRIX].name);
+                int count=0;
+                for(int i=0;i<COUNT;i++)if(c.selected[i]){printf("\345\207\275\346\225\260\357\274\232%d %s\n",i+1,components[i].name);count++;}
+                if(!count)puts("\345\207\275\346\225\260\357\274\232\346\234\252\351\200\211\346\213\251");
+                for(int i=0;i<FRAGMENTS;i++)if(c.snippet[i]&&fragments[i].phase>0)printf("\350\241\245\345\205\205\357\274\232%s\n",fragments[i].name);
+                printf("\346\263\250\351\207\212\357\274\232%s\n",c.comments==0?"\346\227\240\346\263\250\351\207\212":c.comments==1?"\347\262\276\347\256\200\357\274\210\347\275\262\345\220\215\343\200\201\345\211\215\346\217\220\343\200\201TODO\357\274\211":"\345\256\214\346\225\264");
+                if(io_options[c.io].incomplete)puts("\346\263\250\346\204\217\357\274\232\346\234\254\351\252\250\346\236\266\350\257\273\345\205\245\350\241\250\350\276\276\345\274\217\351\234\200\350\207\252\350\241\214\350\241\245\351\275\220\343\200\202");
+                fputs(UI_CONFIRM_PROMPT,stdout);fflush(stdout);
+                char line[64];int ok=read_line(line,sizeof line);
+                if(!ok||(ok>0&&!strcmp(line,"q"))){pause_exit();return 0;}
+                if(ok<0)continue;
+                if(!strcmp(line,"2")) {
+                    int target=ask(UI_MODIFY_PROMPT,0,0,3);
+                    if(target<0){pause_exit();return 0;}
+                    if(target){stage=target;break;}
+                    continue;
+                }
+                if(!strcmp(line,"o")) {
+                    if(io_options[c.io].functions_only){puts("\344\273\205\345\207\275\346\225\260\346\250\241\345\274\217\344\270\215\346\267\273\345\212\240\344\270\273\344\275\223\344\273\243\347\240\201\343\200\202");continue;}
+                    Config next=c;if(choose_extras(&next))c=next;
+                    if(!configure(&c)){pause_exit();return 0;}continue;
+                }
+                if(!strcmp(line,"m")) {int mode=ask(UI_COMMENT_PROMPT,c.comments,0,2);if(mode>=0)c.comments=mode;continue;}
+                if(*line&&strcmp(line,"1")){puts("\350\257\267\350\276\223\345\205\245\344\270\212\351\235\242\345\210\227\345\207\272\347\232\204\346\223\215\344\275\234\343\200\202");continue;}
+                int save=*line=='1';size_t length;char *source=generate(&c,&length);
+                if(!source){emphasis(stdout,"\347\224\237\346\210\220\345\244\261\350\264\245","\345\206\205\345\255\230\344\270\215\350\266\263\346\210\226\346\227\240\346\263\225\346\236\204\345\273\272\344\273\243\347\240\201\343\200\202",3);pause_exit();return 1;}
+                screen(4,UI_COMPLETE_TITLE);int delivered=0;
+                if(save)delivered=save_text(source,length);
+                else if(clipboard_copy(source,length)){delivered=1;emphasis(stdout,"\345\244\215\345\210\266\346\210\220\345\212\237",UI_COPY_OK,2);}
                 else {
-                    emphasis(stdout,"\346\234\252\345\244\215\345\210\266\346\210\220\345\212\237","\345\244\215\345\210\266\345\210\260\345\211\252\350\264\264\346\235\277\345\244\261\350\264\245\357\274\233\344\270\213\346\226\271\345\217\257\347\233\264\346\216\245\344\277\235\345\255\230\346\210\226\346\237\245\347\234\213\345\220\214\344\270\200\344\273\275\344\273\243\347\240\201\343\200\202",3);
-                    int fallback=ask("\350\257\267\351\200\211\346\213\251\350\241\245\346\225\221\346\226\271\345\274\217\357\274\2321\344\277\235\345\255\230\346\226\207\344\273\266\357\274\2142\346\230\276\347\244\272\346\272\220\347\240\201\357\274\2140\345\217\252\347\234\213\344\275\277\347\224\250\350\257\264\346\230\216",1,0,2);
+                    emphasis(stdout,"\346\234\252\345\244\215\345\210\266\346\210\220\345\212\237",UI_COPY_FAILED,3);
+                    int fallback=ask("\350\241\245\346\225\221\357\274\2321\344\277\235\345\255\230\346\226\207\344\273\266\357\274\2142\346\230\276\347\244\272\344\273\243\347\240\201\357\274\2140\345\217\252\347\234\213\350\257\264\346\230\216",1,0,2);
                     if(fallback==1)delivered=save_text(source,length);
                     if(fallback==2){delivered=1;puts("===== \346\272\220\347\240\201\345\274\200\345\247\213 =====");fwrite(source,1,length,stdout);puts("===== \346\272\220\347\240\201\347\273\223\346\235\237 =====");}
                 }
-            } else delivered=save_text(source,length);
-            after_output(source,length,&c,delivered);free(source);return 0;
+                after_output(source,length,&c,delivered);free(source);return 0;
+            }
         }
     }
 }

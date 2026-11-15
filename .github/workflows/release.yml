@@ -2,7 +2,7 @@ name: Check, build and release
 
 on:
   push:
-    branches: [main, 'feat/handbook-topic-templates']
+    branches: [main, 'feat/handbook-topic-templates', 'feat/interaction-layout-preview']
   workflow_dispatch:
   pull_request:
     branches: [main]

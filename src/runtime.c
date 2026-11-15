@@ -10,7 +10,7 @@
 #define IO_GROUPS ((int)(sizeof io_group_names/sizeof io_group_names[0]))
 #define FRAGMENT_GROUPS ((int)(sizeof fragment_group_names/sizeof fragment_group_names[0]))
 /* @CONFIG@ */
-static int interactive, clear_enabled;
+static int interactive, clear_enabled, banner_shown;
 
 /* Color is optional; readable headings remain in plain/redirected output. */
 static void emphasis(FILE *f,const char *tag,const char *message,int level) {
@@ -20,12 +20,6 @@ static void emphasis(FILE *f,const char *tag,const char *message,int level) {
     fprintf(f,"【%s】 %s\n",tag,message);
     if(color)fputs("\033[0m",f);
 }
-static void section_heading(FILE *f,const char *title) {
-    fputs("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",f);
-    emphasis(f,title,"",0);
-    fputs("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",f);
-}
-
 static int *setting_value(Config *c,const Setting *s) {
     return (int *)((char *)c+s->offset);
 }
@@ -34,7 +28,7 @@ static int setting_read(const Config *c,const Setting *s) {
 }
 static Config defaults(void) {
     Config c; memset(&c,0,sizeof c); c.io=DEFAULT_IO;
-    strcpy(c.separator," ");
+    strcpy(c.separator," ");c.comments=1;c.flow=1;
     for(int i=0;i<SETTINGS;i++)*setting_value(&c,&settings[i])=settings[i].def;
     return c;
 }
@@ -46,10 +40,11 @@ static int read_line(char *s, size_t cap) {
 static int ask(const char *label, int def, int low, int high) {
     char s[128],*end;
     for(;;) {
-        printf("%s [%d]（-1取消）：",label,def); fflush(stdout);
+        printf("%s [%d]（回车采用；q取消）：",label,def); fflush(stdout);
         int ok=read_line(s,sizeof s);
         if(!ok) return -1;
         if(ok<0) continue;
+        if(!strcmp(s,"q"))return -1;
         if(!*s) return def;
         errno=0; long n=strtol(s,&end,10);
         while(*end==' ' || *end=='\t') end++;
@@ -101,8 +96,10 @@ static int display_width(const char *s) {
 }
 static void screen(int step,const char *title) {
     if(clear_enabled) fputs("\033[2J\033[H",stdout);
-    printf("C语言脚手架 v%s | 设计者：%s\n",APP_VERSION,APP_DESIGNER);
-    puts("选择组件生成代码，粘贴到编辑器后按题意修改。");
+    if(clear_enabled || !banner_shown) {
+        printf("C语言脚手架 v%s | 设计者：%s\n",APP_VERSION,APP_DESIGNER);
+        banner_shown=1;
+    }
     printf("[");
     for(int i=1;i<=4;i++) fputs(i<=step?"##":"--",stdout);
     printf("] %d/4 %s\n",step,title);
@@ -168,14 +165,14 @@ static int choose_components(Config *c) {
     char s[1024];
     const char *message=NULL;
     for(;;) {
-        screen(2,"选择要加入的组件函数");
+        screen(2,io_options[c->io].functions_only?"选择函数组件（至少选一个）":UI_COMPONENT_TITLE);
         printf("已选输入输出：%s\n",io_names[c->io]);
         menu_components();
-        puts("编号可跨类，用空格/逗号分隔；回车保留；0清空；?关键词查找；-1取消。");
+        puts(UI_COMPONENT_PROMPT);
         if(message) emphasis(stdout,"请重新选择",message,1);
         printf("组件：");fflush(stdout);
         int ok=read_line(s,sizeof s);
-        if(!ok || (ok>0&&!strcmp(s,"-1"))) return 0;
+        if(!ok || (ok>0&&!strcmp(s,"q"))) return 0;
         if(ok<0) continue;
         if(s[0]=='?') {
             for(int i=0;i<COUNT;i++) if(!s[1] || strstr(components[i].name,s+1) || strstr(components[i].help,s+1))
@@ -185,7 +182,7 @@ static int choose_components(Config *c) {
             continue;
         }
         if(!*s) {
-            if(io_options[c->io].functions_only&&!any_selected(c)) {message="仅函数模式至少选择一个组件。";continue;}
+            if(io_options[c->io].functions_only&&!any_selected(c)) {message=UI_FUNCTIONS_REQUIRED;continue;}
             return 1;
         }
         int selected[COUNT]={0},valid=1,zero=0,count=0;
@@ -203,72 +200,66 @@ static int choose_components(Config *c) {
         memcpy(c->selected,selected,sizeof selected);return 1;
     }
 }
-static void pair_row(const char *left,const char *right) {
-    int width=terminal_width();
-    int col=(width-4)/2;
-    if(width<64 || display_width(left)>col || (right&&display_width(right)>col)) {
-        puts(left);if(right&&*right)puts(right);return;
+static int choose_flow(Config *c) {
+    screen(1,UI_FLOW_TITLE);
+    for(int i=0;i<FLOWS;i++) {
+        if(i==0)puts("\n【自己写主体】");
+        if(i==2)puts("\n【重复处理数据】");
+        if(i==5)puts("\n【分阶段与操作指令】");
+        if(i==8)puts("\n【文本文件】");
+        printf("%2d %s\n",i+1,flows[i].name);
     }
-    fputs(left,stdout);
-    if(right&&*right) {
-        for(int k=display_width(left);k<col+4;k++)putchar(' ');
-        fputs(right,stdout);
+    printf("\n%d %s\n",FLOWS+1,UI_FLOW_OTHER);
+    int pick=ask(UI_FLOW_PROMPT,c->flow+1,1,FLOWS+1);
+    if(pick<0)return 0;
+    if(pick==FLOWS+1)return 2;
+    const Flow *flow=&flows[pick-1];
+    int io=flow->io,reader=0;
+    if(flow->count) {
+        for(int i=0;i<flow->count;i++)printf("%d %s\n",i+1,io_names[flow->choices[i]]);
+        int def=1;
+        if(c->flow==pick-1)for(int i=0;i<flow->count;i++)if(flow->choices[i]==c->io)def=i+1;
+        int chosen=ask(UI_READER_CHOICE,def,1,flow->count);
+        if(chosen<0)return 0;
+        io=flow->choices[chosen-1];
     }
+    if(flow->readers) {
+        reader=ask(UI_READER,c->flow==pick-1?c->reader:0,0,2);
+        if(reader<0)return 0;
+    }
+    if(c->flow!=pick-1||c->io!=io||c->reader!=reader)memset(c->snippet,0,sizeof c->snippet);
+    c->flow=pick-1;c->io=io;c->reader=reader;
+    if(reader)c->snippet[reader==1?SN_READ_ARRAY:SN_READ_MATRIX]=1;
+    printf("已选：%s",io_names[io]);
+    if(reader)printf("；%s",fragments[reader==1?SN_READ_ARRAY:SN_READ_MATRIX].name);
     putchar('\n');
+    return 1;
 }
-
-static void menu_io(void) {
-    for(int group=0;group<IO_GROUPS;group++) {
-        putchar('\n');emphasis(stdout,io_group_names[group],"",0);
-        int pending=-1;
-        for(int i=0;i<IO_COUNT;i++) if(io_group[i]==group) {
-            if(pending<0) {pending=i;continue;}
-            char a[160],b[160];
-            snprintf(a,sizeof a,"%2d %s",pending+1,io_names[pending]);
-            snprintf(b,sizeof b,"%2d %s",i+1,io_names[i]);
-            pair_row(a,b);pending=-1;
-        }
-        if(pending>=0)printf("%2d %s\n",pending+1,io_names[pending]);
+static int choose_extras(Config *c) {
+    screen(3,UI_EXTRAS_TITLE);puts(UI_EXTRAS_NOTE);
+    int map[FRAGMENTS],count=0;
+    for(int i=0;i<FRAGMENTS;i++)if(fragments[i].phase>0) {
+        map[count++]=i;printf("%d %s\n",count,fragments[i].name);
     }
-    printf("\n【其他】\n%d 导出全量脚手架手册（导出后退出）\n",IO_COUNT+1);
-}
-static void menu_fragments(void) {
-    for(int group=0;group<FRAGMENT_GROUPS;group++) {
-        putchar('\n');emphasis(stdout,fragment_group_names[group],"",0);
-        int pending=-1;
-        for(int i=0;i<FRAGMENTS;i++) if(fragments[i].group==group) {
-            if(pending<0) {pending=i;continue;}
-            char a[160],b[160];
-            snprintf(a,sizeof a,"%d %s",pending+1,fragments[pending].name);
-            snprintf(b,sizeof b,"%d %s",i+1,fragments[i].name);
-            pair_row(a,b);pending=-1;
-        }
-        if(pending>=0)printf("%d %s\n",pending+1,fragments[pending].name);
-    }
-}
-static int choose_fragments(Config *c) {
-    if(io_options[c->io].functions_only) {memset(c->snippet,0,sizeof c->snippet);return 1;}
-    screen(2,"选择main里的代码片段（可跳过）");
-    emphasis(stdout,"片段用途","把常见的读入、处理或输出循环放进main；仍需按题意修改。",0);
-    menu_fragments();
-    puts("\n回车保留（初次为不选）；0清空；输入编号列表；-1取消。");
-    char s[256];
+    puts(UI_EXTRAS_PROMPT);char line[256];
     for(;;) {
-        printf("片段：");fflush(stdout);
-        int ok=read_line(s,sizeof s);
-        if(!ok||(ok>0&&!strcmp(s,"-1"))) return 0;
-        if(ok<0) continue;
-        if(!*s) return 1;
-        int selected[FRAGMENTS]={0},bad=0,zero=0,count=0;char *p=s;
+        fputs("片段：",stdout);fflush(stdout);
+        int ok=read_line(line,sizeof line);
+        if(!ok || (ok>0&&!strcmp(line,"q")))return 0;
+        if(ok<0)continue;
+        if(!*line)return 1;
+        int values[FRAGMENTS]={0},zero=0,chosen=0,bad=0;char *p=line;
         while(*p) {
-            while(*p==' '||*p==','||*p=='\t') p++;
-            if(!*p) break;
+            while(*p==' '||*p=='\t'||*p==',')p++;
+            if(!*p)break;
             char *end;errno=0;long n=strtol(p,&end,10);
-            if(errno||p==end||n<0||n>FRAGMENTS||(*end&&*end!=' '&&*end!=','&&*end!='\t')) {bad=1;break;}
-            if(!n)zero=1;else {selected[n-1]=1;count++;}p=end;
+            if(errno||p==end||n<0||n>count||(*end&&*end!=' '&&*end!='\t'&&*end!=',')){bad=1;break;}
+            if(n) {values[map[n-1]]=1;chosen++;}else zero=1;
+            p=end;
         }
-        if(bad||(zero&&count)) {emphasis(stdout,"编号有误","片段编号无效，请重新输入；原选择保留。",1);continue;}
-        memcpy(c->snippet,selected,sizeof selected);return 1;
+        if(bad||(zero&&chosen)){puts("编号无效，原选择保留。");continue;}
+        for(int i=0;i<FRAGMENTS;i++)if(fragments[i].phase>0)c->snippet[i]=values[i];
+        return 1;
     }
 }
 static int contains_cap(const char *list,const char *name) {
@@ -305,9 +296,9 @@ static int configure_separator(Config *c) {
     if(n==4) {
         char text[sizeof c->separator];
         for(;;) {
-            printf("输入分隔字符串（按原样使用；回车保留；-1取消）[%s]：",c->separator);fflush(stdout);
+            printf("输入分隔字符串（按原样使用；回车保留；q取消）[%s]：",c->separator);fflush(stdout);
             int ok=read_line(text,sizeof text);
-            if(!ok||(ok>0&&!strcmp(text,"-1")))return 0;
+            if(!ok||(ok>0&&!strcmp(text,"q")))return 0;
             if(ok<0)continue;
             if(*text)strcpy(c->separator,text);
             break;
@@ -318,7 +309,10 @@ static int configure_separator(Config *c) {
     return 1;
 }
 static int configure(Config *c) {
-    screen(3,"按需配置");
+    int needed=needs_value_type(c)||has_cap(c,"SEPARATOR");
+    for(int i=0;i<SETTINGS;i++)if(has_cap(c,settings[i].macro))needed=1;
+    if(!needed)return 1;
+    screen(3,UI_CONFIG_TITLE);
     if(needs_value_type(c)) {int n=ask("选中代码的整数类型：1 int（约±21亿），2 long long（更大）",c->wide+1,1,2);if(n<0)return 0;c->wide=n-1;}
     for(int i=0;i<SETTINGS;i++) {
         const Setting *s=&settings[i];
@@ -328,9 +322,6 @@ static int configure(Config *c) {
         *setting_value(c,s)=n+s->extra;
     }
     if(has_cap(c,"SEPARATOR")&&!configure_separator(c))return 0;
-    emphasis(stdout,"使用前确认","生成的是待修改代码；多组数据每组按题意清空状态。",1);
-    if(io_options[c->io].incomplete)
-        emphasis(stdout,"补齐后才能编译","请填写读入格式、变量地址和成功读取的字段数。",1);
     return 1;
 }
 /* Produce a safe C string literal; percent signs stay data, never printf formats. */
@@ -395,6 +386,9 @@ static void buf_printf(CodeBuffer *b,const char *fmt,...) {
     va_end(args);
 }
 
+static const char *fragment_code(const Config *c,int i) {
+    return c->comments==0?plain_fragment_codes[i]:c->comments==1?brief_fragment_codes[i]:fragment_codes[i];
+}
 static void expand(CodeBuffer *f,const char *s,const Config *c,int indent) {
     int start=1;
     char literal[1024];string_literal(c->separator,literal);
@@ -415,30 +409,24 @@ static void expand(CodeBuffer *f,const char *s,const Config *c,int indent) {
 
 static void emit_inputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0)
-        expand(f,fragments[i].code,c,indent);
+        expand(f,fragment_code(c,i),c,indent);
 }
 static void emit_outputs(CodeBuffer *f,const Config *c,int indent) {
     for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0)
-        expand(f,fragments[i].code,c,indent);
+        expand(f,fragment_code(c,i),c,indent);
 }
 static void emit_body(CodeBuffer *f,const Config *c,int indent) {
-    for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase==0) {
-        expand(f,"/* 可选片段：",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
-        expand(f,fragments[i].code,c,indent);
-    }
-    expand(f,"\n/* TODO: 按题目计算，按需调用上面的函数 */\n\n",c,indent);
-    for(int i=0;i<FRAGMENTS;i++) if(c->snippet[i] && fragments[i].phase>0) {
-        expand(f,"/* 可选片段：",c,indent);buf_puts(fragments[i].name,f);buf_puts(" */\n",f);
-        expand(f,fragments[i].code,c,indent);
-    }
+    emit_inputs(f,c,indent);
+    if(c->comments)expand(f,UI_TODO,c,indent);
+    emit_outputs(f,c,indent);
 }
 static void emit_main(CodeBuffer *f,const Config *c) {
-    const char *p=io_codes[c->io];
+    const char *p=c->comments==0?plain_io_codes[c->io]:c->comments==1?brief_io_codes[c->io]:io_codes[c->io];
     while(*p) {
-        if(!strncmp(p,"@BODY@",6)) {emit_body(f,c,4);p+=6;}
-        else if(!strncmp(p,"@LOOP@",6)) {emit_body(f,c,8);p+=6;}
-        else if(!strncmp(p,"@INPUT@",7)) {emit_inputs(f,c,4);p+=7;}
-        else if(!strncmp(p,"@OUTPUT@",8)) {emit_outputs(f,c,4);p+=8;}
+        if(!strncmp(p,"@BODY@",6)) {emit_body(f,c,4);p+=6;if(*p=='\n')p++;}
+        else if(!strncmp(p,"@LOOP@",6)) {emit_body(f,c,8);p+=6;if(*p=='\n')p++;}
+        else if(!strncmp(p,"@INPUT@",7)) {emit_inputs(f,c,4);p+=7;if(*p=='\n')p++;}
+        else if(!strncmp(p,"@OUTPUT@",8)) {emit_outputs(f,c,4);p+=8;if(*p=='\n')p++;}
         else {
             const char *end=strchr(p,'\n');size_t n=end?(size_t)(end-p)+1:strlen(p);
             char line[1024];
@@ -448,7 +436,9 @@ static void emit_main(CodeBuffer *f,const Config *c) {
     }
 }
 static void emit_piece(CodeBuffer *f,int id,const Config *c) {
-    const char *s=c->wide&&wide_pieces[id]?wide_pieces[id]:pieces[id];
+    const char *s=c->comments==0?plain_pieces[id]:c->comments==1?brief_pieces[id]:pieces[id];
+    const char *wide=c->comments==0?plain_wide_pieces[id]:c->comments==1?brief_wide_pieces[id]:wide_pieces[id];
+    if(c->wide&&wide)s=wide;
     while(*s) {
         const char *e=strchr(s,'\n');size_t n=e?(size_t)(e-s)+1:strlen(s);
         if(strncmp(s,"#define ",8)) buf_write(f,s,n);
@@ -456,8 +446,15 @@ static void emit_piece(CodeBuffer *f,int id,const Config *c) {
     }
 }
 static void emit(CodeBuffer *f,const Config *c) {
-    buf_puts("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n",f);
-    if(io_options[c->io].functions_only)buf_puts("/* 仅函数模式：接入已有程序前检查同名函数、宏、结构体与全局变量。 */\n",f);
+    if(c->comments)buf_puts(code_credit,f);
+    int mask=io_options[c->io].headers;
+    for(int i=0;i<COUNT;i++)if(c->selected[i])
+        for(int j=0;components[i].ids[j]>=0;j++)mask|=piece_headers[components[i].ids[j]];
+    for(int i=0;i<FRAGMENTS;i++)if(c->snippet[i])mask|=fragments[i].headers;
+    for(int i=0;i<(int)(sizeof header_names/sizeof header_names[0]);i++)
+        if(mask&(1<<i))buf_printf(f,"#include <%s>\n",header_names[i]);
+    if(mask)buf_putc('\n',f);
+    if(c->comments&&io_options[c->io].functions_only)buf_puts(UI_FUNCTION_WARNING,f);
     for(int i=0;i<SETTINGS;i++) {
         const Setting *s=&settings[i];
         if(!has_cap(c,s->macro))continue;
@@ -468,19 +465,19 @@ static void emit(CodeBuffer *f,const Config *c) {
             buf_printf(f,"#define %s %d\n",s->log_macro,levels);
         }
     }
-    buf_putc('\n',f);
+    if(f->length&&f->text[f->length-1]=='\n'&&(f->length<2||f->text[f->length-2]!='\n'))buf_putc('\n',f);
     int emitted[PIECES]={0};
     for(int i=0;i<COUNT;i++)if(c->selected[i]) {
-        buf_printf(f,"/* ===== %d %s =====\n * %s\n */\n",i+1,components[i].name,components[i].note);
+        if(c->comments)buf_printf(f,UI_CODE_COMPONENT,components[i].name,components[i].note);
         for(int j=0;components[i].ids[j]>=0;j++) {
             int id=components[i].ids[j];
             if(emitted[id])continue;
             /* Each source function carries a short usage note; full details stay in console/manual. */
-            if(piece_hints[id][0])buf_printf(f,"/* %s */\n",piece_hints[id]);
+            if(c->comments==2&&piece_hints[id][0])buf_printf(f,UI_CODE_HINT,piece_hints[id]);
             emit_piece(f,id,c);buf_putc('\n',f);emitted[id]=1;
         }
     }
-    if(!io_options[c->io].functions_only) {buf_puts("/* ===== 输入输出骨架 ===== */\n",f);emit_main(f,c);}
+    if(!io_options[c->io].functions_only) {if(c->comments==2)buf_puts(UI_CODE_MAIN,f);emit_main(f,c);}
 }
 static char *generate(const Config *c,size_t *size) {
     CodeBuffer output={0};
@@ -489,6 +486,8 @@ static char *generate(const Config *c,size_t *size) {
         free(output.text);
         return NULL;
     }
+    while(output.length>1 && output.text[output.length-1]=='\n' && output.text[output.length-2]=='\n')output.length--;
+    output.text[output.length]=0;
     *size=output.length;
     return output.text;
 }
@@ -569,7 +568,7 @@ static FILE *open_file(const char *path,const char *mode) {
 }
 static FILE *open_output(const char *def,char path[1024]) {
     for(;;) {
-        printf("保存路径 [回车=%s；-1取消]：",def);fflush(stdout);
+        printf("保存路径 [回车=%s；q取消]：",def);fflush(stdout);
         int ok=read_line(path,1024);
         if(!ok||(ok>0&&!strcmp(path,"-1")))return NULL;
         if(ok<0)continue;
@@ -588,50 +587,29 @@ static int save_text(const char *s,size_t n) {
     emphasis(stdout,"代码已保存",path,2);return 1;
 }
 static void explain(FILE *f,const Config *c) {
-    section_heading(f,"本次使用说明 · 请先阅读");
-    emphasis(f,"输入输出方式",io_names[c->io],0);
-    fprintf(f,"%s\n",io_help[c->io]);
-    if(io_options[c->io].functions_only)
-        emphasis(f,"粘贴前检查","接到已有程序时，检查同名函数、宏、结构体和全局数组；保留OJ指定签名。",1);
-    else
-        emphasis(f,"必须修改","在TODO处补齐题目输入、计算和输出；组件函数不会自动调用。",1);
-    if(io_options[c->io].incomplete)
-        emphasis(f,"补齐后才能编译","读入格式、变量地址、成功读取字段数目前仍是待填写内容。",1);
-    if(io_options[c->io].file_write)emphasis(f,"写入前确认","文件写入使用w模式，会覆盖同名文件；先按题目修改文件名。",1);
-    int used[PIECES]={0},count=0;
-    for(int i=0;i<COUNT;i++) if(c->selected[i]) {
-        char title[200];snprintf(title,sizeof title,"%d. %s",i+1,components[i].name);
-        fputc('\n',f);emphasis(f,title,"",0);
-        emphasis(f,"使用前提",components[i].note,1);count++;
-        int fresh=0;
-        for(int j=0;components[i].ids[j]>=0;j++) {
-            int id=components[i].ids[j];
-            if(!used[id] && piece_details[id][0]) {
-                const char *details=c->wide&&wide_piece_details[id]?wide_piece_details[id]:piece_details[id];
-                fprintf(f,"%s\n",details);fresh=1;
+    if(!any_selected(c)) {
+        if(c->io==IO_BLANK&&!c->reader)fprintf(f,"\n%s\n",UI_BLANK_HELP);
+        else fprintf(f,"\n%s\n",io_help[c->io]);
+    } else {
+        fprintf(f,"\n本次函数用法\n");int used[PIECES]={0};
+        for(int i=0;i<COUNT;i++)if(c->selected[i]) {
+            fprintf(f,"\n%d. %s\n使用前提：%s\n",i+1,components[i].name,components[i].note);
+            for(int j=0;components[i].ids[j]>=0;j++) {
+                int id=components[i].ids[j];
+                if(!used[id])fprintf(f,"%s\n",c->wide&&wide_piece_details[id]?wide_piece_details[id]:piece_details[id]);
+                used[id]=1;
             }
-            used[id]=1;
         }
-        if(!fresh)fputs("共用函数已在前面说明，不重复列出。\n",f);
+        fprintf(f,"\n%s\n",io_options[c->io].functions_only?UI_ONLY_FUNCTION_HELP:UI_GENERAL_HELP);
     }
-    if(!count)
-        emphasis(f,"本次未选组件函数","只生成了程序外框和所选main片段；计算步骤需要自己编写。",0);
-    for(int i=0;i<FRAGMENTS;i++)if(c->snippet[i]) {
-        char title[160];snprintf(title,sizeof title,"片段%d：%s",i+1,fragments[i].name);
-        fputc('\n',f);emphasis(f,title,"",0);
-        fprintf(f,"%s\n",fragments[i].help);
-        emphasis(f,"需要衔接","检查变量名、下标、作用域与执行顺序；这些片段不会自动适配题目。",1);
-    }
-    if(needs_value_type(c))
-        emphasis(f,"本次数值类型",c->wide?"选中的整数数组/整数读入使用long long，读入格式为%lld。":"选中的整数数组/整数读入使用int，读入格式为%d。",0);
-    section_heading(f,"接下来怎么做");
-    emphasis(f,"下一步","在编辑器中补齐TODO → 核对题目格式 → 编译并试样例。",1);
-    if(count)fputs("代码旁已保留简短调用注释，完整用法可对照上面的函数说明。\n",f);
+    for(int i=0;i<FRAGMENTS;i++)if(c->snippet[i])fprintf(f,"%s：%s\n",fragments[i].name,fragments[i].help);
+    if(io_options[c->io].incomplete)emphasis(f,"须补齐读法","填写格式、变量地址和成功读取字段数后才能编译。",1);
+    if(io_options[c->io].file_write)emphasis(f,"注意","w模式会覆盖同名文件，请先修改文件名。",1);
 }
 static void handbook(FILE *f) {
     fprintf(f,"# C语言全量脚手架手册 v%s\n\n设计者：%s\n\n先选骨架与组件，再配置。默认复制源码；输入c查看源码、s另存、回车退出。代码需自行完成题意和函数调用。\n\n## 输入输出骨架\n\n",APP_VERSION,APP_DESIGNER);
     for(int i=0;i<IO_COUNT;i++) {
-        Config c=defaults();c.io=i;
+        Config c=defaults();c.io=i;c.comments=2;
         if(i==0 || io_group[i]!=io_group[i-1])fprintf(f,"### %s\n\n",io_group_names[io_group[i]]);
         fprintf(f,"#### %d. %s\n\n%s\n\n",i+1,io_names[i],io_help[i]);
         if(io_options[i].functions_only){fputs("只输出函数、结构体、宏和依赖，接入已有程序前检查重名。\n\n",f);continue;}
@@ -649,7 +627,7 @@ static void handbook(FILE *f) {
     for(int g=0;g<GROUPS;g++) {
         fprintf(f,"### %s\n\n",group_names[g]);
         for(int i=0;i<COUNT;i++)if(components[i].group==g) {
-            Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;
+            Config c=defaults();c.io=IO_FUNCTIONS;c.selected[i]=1;c.comments=2;
             fprintf(f,"#### %d. %s\n\n",i+1,components[i].name);explain(f,&c);
             fputs("\n```c\n",f);emit_to_file(f,&c,1,NULL);fputs("```\n\n",f);
         }
@@ -665,12 +643,11 @@ static void handbook(FILE *f) {
 }
 static void after_output(const char *source,size_t length,const Config *c,int delivered) {
     explain(stdout,c);
-    if(!delivered)emphasis(stdout,"代码尚未取出","本次没有成功复制或保存。请用s保存文件，或用c显示后手动复制。",1);
+    if(!delivered)emphasis(stdout,"代码尚未取出",UI_NO_DELIVERY,1);
     if(!interactive||io_input_ended||feof(stdin))return;
     char s[64];
     for(;;) {
-        emphasis(stdout,"可选操作","直接回车退出；输入c查看源码；输入s另存为文件。",0);
-        fputs("你的选择：",stdout);fflush(stdout);
+        fputs(UI_AFTER_PROMPT,stdout);fflush(stdout);
         int ok=read_line(s,sizeof s);
         if(!ok || (ok>0&&!*s))return;
         if(ok<0)continue;
@@ -710,46 +687,61 @@ int main(int argc,char **argv) {
     Config c=defaults();int stage=1;
     while(1) {
         if(stage==1) {
-            screen(1,"选择程序的输入输出方式");
-            menu_io();
-            int n=ask("输入上面的序号",c.io+1,1,IO_COUNT+1);
-            if(n<0){pause_exit();return 0;}
-            if(n==IO_COUNT+1) {
+            int n=choose_flow(&c);
+            if(!n){pause_exit();return 0;}
+            if(n==2) {
                 char path[1024];FILE *f=open_output("C_templates_manual.md",path);
-                if(f){handbook(f);if(close_output(f))emphasis(stdout,"保存失败","手册写入失败，请重试。",3);else emphasis(stdout,"手册已保存",path,2);}
+                if(f){handbook(f);if(close_output(f))emphasis(stdout,"保存失败","手册写入失败。",3);else emphasis(stdout,"手册已保存",path,2);}
                 pause_exit();return 0;
             }
-            c.io=n-1;stage=2;
+            stage=2;
         }
         if(stage==2) {
-            if(!choose_components(&c)||!choose_fragments(&c)){pause_exit();return 0;}
+            if(!choose_components(&c)){pause_exit();return 0;}
             stage=3;
         }
         if(stage==3) {
             if(!configure(&c)){pause_exit();return 0;}
-            section_heading(stdout,"生成前确认");emphasis(stdout,"输入输出方式",io_names[c.io],0);
-            for(int i=0;i<COUNT;i++)if(c.selected[i])printf("%d %s\n",i+1,components[i].name);
-            for(int i=0;i<FRAGMENTS;i++)if(c.snippet[i])printf("片段%d %s\n",i+1,fragments[i].name);
-            if(io_options[c.io].functions_only)emphasis(stdout,"只输出函数","不会创建main；接入已有代码前检查同名定义。",1);
-            int choice=ask("回车/1复制到剪贴板，2保存文件，3改骨架，4改组件，5改容量，0取消",1,0,5);
-            if(choice<1){pause_exit();return 0;}
-            if(choice==3){stage=1;continue;}
-            if(choice==4){stage=2;continue;}
-            if(choice==5){stage=3;continue;}
-            size_t length;char *source=generate(&c,&length);
-            if(!source){emphasis(stdout,"生成失败","无法构建代码，现有文件未修改。",3);pause_exit();return 1;}
-            screen(4,"输出代码，然后阅读使用说明");
-            int delivered=0;
-            if(choice==1) {
-                if(clipboard_copy(source,length)) {delivered=1;emphasis(stdout,"复制成功","代码已复制到剪贴板，可直接粘贴到编辑器。",2);}
+            for(;;) {
+                screen(3,UI_CONFIRM_TITLE);
+                printf("程序：%s\n",io_names[c.io]);
+                if(c.reader)printf("读入：%s\n",fragments[c.reader==1?SN_READ_ARRAY:SN_READ_MATRIX].name);
+                int count=0;
+                for(int i=0;i<COUNT;i++)if(c.selected[i]){printf("函数：%d %s\n",i+1,components[i].name);count++;}
+                if(!count)puts("函数：未选择");
+                for(int i=0;i<FRAGMENTS;i++)if(c.snippet[i]&&fragments[i].phase>0)printf("补充：%s\n",fragments[i].name);
+                printf("注释：%s\n",c.comments==0?"无注释":c.comments==1?"精简（署名、前提、TODO）":"完整");
+                if(io_options[c.io].incomplete)puts("注意：本骨架读入表达式需自行补齐。");
+                fputs(UI_CONFIRM_PROMPT,stdout);fflush(stdout);
+                char line[64];int ok=read_line(line,sizeof line);
+                if(!ok||(ok>0&&!strcmp(line,"q"))){pause_exit();return 0;}
+                if(ok<0)continue;
+                if(!strcmp(line,"2")) {
+                    int target=ask(UI_MODIFY_PROMPT,0,0,3);
+                    if(target<0){pause_exit();return 0;}
+                    if(target){stage=target;break;}
+                    continue;
+                }
+                if(!strcmp(line,"o")) {
+                    if(io_options[c.io].functions_only){puts("仅函数模式不添加主体代码。");continue;}
+                    Config next=c;if(choose_extras(&next))c=next;
+                    if(!configure(&c)){pause_exit();return 0;}continue;
+                }
+                if(!strcmp(line,"m")) {int mode=ask(UI_COMMENT_PROMPT,c.comments,0,2);if(mode>=0)c.comments=mode;continue;}
+                if(*line&&strcmp(line,"1")){puts("请输入上面列出的操作。");continue;}
+                int save=*line=='1';size_t length;char *source=generate(&c,&length);
+                if(!source){emphasis(stdout,"生成失败","内存不足或无法构建代码。",3);pause_exit();return 1;}
+                screen(4,UI_COMPLETE_TITLE);int delivered=0;
+                if(save)delivered=save_text(source,length);
+                else if(clipboard_copy(source,length)){delivered=1;emphasis(stdout,"复制成功",UI_COPY_OK,2);}
                 else {
-                    emphasis(stdout,"未复制成功","复制到剪贴板失败；下方可直接保存或查看同一份代码。",3);
-                    int fallback=ask("请选择补救方式：1保存文件，2显示源码，0只看使用说明",1,0,2);
+                    emphasis(stdout,"未复制成功",UI_COPY_FAILED,3);
+                    int fallback=ask("补救：1保存文件，2显示代码，0只看说明",1,0,2);
                     if(fallback==1)delivered=save_text(source,length);
                     if(fallback==2){delivered=1;puts("===== 源码开始 =====");fwrite(source,1,length,stdout);puts("===== 源码结束 =====");}
                 }
-            } else delivered=save_text(source,length);
-            after_output(source,length,&c,delivered);free(source);return 0;
+                after_output(source,length,&c,delivered);free(source);return 0;
+            }
         }
     }
 }

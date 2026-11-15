@@ -1,5 +1,5 @@
 {
-  "version": "0.6.1",
+  "version": "0.6.2",
   "designer": "Annouimo",
   "groups": [
     "整数与数位",
@@ -31,121 +31,147 @@
       "id": "digit_value",
       "source": "templates/pieces/digit_value.c",
       "details": "函数：int digit_value(char c)\ndigit_value：合法数字字符0–9/a–f/A–F；如 digit_value('F') 返回15。",
-      "hint": "字符转数值；合法数字字符0–9/a–f/A–F；如 digit_value('F') 返回15。"
+      "hint": "字符转数值；合法数字字符0–9/a–f/A–F；如 digit_value('F') 返回15。",
+      "headers": []
     },
     {
       "id": "base_to_dec",
       "source": "templates/pieces/base_to_dec.c",
       "details": "函数：long long base_to_dec(char s[], int base)\nbase_to_dec：base为2/8/10/16；允许前导负号，无0x前缀；返回long long。",
-      "hint": "进制串转整数；base为2/8/10/16；允许前导负号，无0x前缀；返回long long。"
+      "hint": "进制串转整数；base为2/8/10/16；允许前导负号，无0x前缀；返回long long。",
+      "headers": []
     },
     {
       "id": "dec_to_base",
       "source": "templates/pieces/dec_to_base.c",
       "details": "函数：void dec_to_base(long long n, int base, char out[])\ndec_to_base：n>=0；结果写入out，不返回字符串；out足够大，如char out[65]。",
-      "hint": "整数转进制串；n>=0；结果写入out，不返回字符串；out足够大，如char out[65]。"
+      "hint": "整数转进制串；n>=0；结果写入out，不返回字符串；out足够大，如char out[65]。",
+      "headers": []
     },
     {
       "id": "int_to_digits",
       "source": "templates/pieces/int_to_digits.c",
       "details": "函数：int int_to_digits(long long n, int base, int a[])\nint_to_digits：n>=0；高位在前写入a，返回位数；0拆成一位0。",
-      "hint": "拆数位；n>=0；高位在前写入a，返回位数；0拆成一位0。"
+      "hint": "拆数位；n>=0；高位在前写入a，返回位数；0拆成一位0。",
+      "headers": []
     },
     {
       "id": "digits_to_int",
       "source": "templates/pieces/digits_to_int.c",
       "details": "函数：long long digits_to_int(int a[], int len, int base)\ndigits_to_int：a为高位在前的len位数位，各位小于base；返回整数。",
-      "hint": "数位拼整数；a为高位在前的len位数位，各位小于base；返回整数。"
+      "hint": "数位拼整数；a为高位在前的len位数位，各位小于base；返回整数。",
+      "headers": []
     },
     {
       "id": "ipow",
       "source": "templates/pieces/ipow.c",
       "details": "函数：long long ipow(long long base, int exp)\nipow：exp>=0；返回base的exp次幂，约定0^0=1；不允许溢出。",
-      "hint": "整数幂；exp>=0；返回base的exp次幂，约定0^0=1；不允许溢出。"
+      "hint": "整数幂；exp>=0；返回base的exp次幂，约定0^0=1；不允许溢出。",
+      "headers": [
+        "math.h"
+      ]
     },
     {
       "id": "feq",
       "source": "templates/pieces/feq.c",
       "details": "函数：int feq(double a, double b, double eps)\nfeq：有限数且eps>0；绝对误差不超过eps返回1，否则0。",
-      "hint": "浮点判等；有限数且eps>0；绝对误差不超过eps返回1，否则0。"
+      "hint": "浮点判等；有限数且eps>0；绝对误差不超过eps返回1，否则0。",
+      "headers": [
+        "math.h"
+      ]
     },
     {
       "id": "get_bit",
       "source": "templates/pieces/get_bit.c",
       "details": "函数：int get_bit(unsigned long long x, int pos)\nget_bit：unsigned long long输入；pos从0开始，返回0或1。",
-      "hint": "取某一位；unsigned long long输入；pos从0开始，返回0或1。"
+      "hint": "取某一位；unsigned long long输入；pos从0开始，返回0或1。",
+      "headers": []
     },
     {
       "id": "set_bit",
       "source": "templates/pieces/set_bit.c",
       "details": "函数：unsigned long long set_bit(unsigned long long x, int pos)\nset_bit：返回修改后的unsigned long long值；使用x=set_bit(x,pos)。",
-      "hint": "某位置1；返回修改后的unsigned long long值；使用x=set_bit(x,pos)。"
+      "hint": "某位置1；返回修改后的unsigned long long值；使用x=set_bit(x,pos)。",
+      "headers": []
     },
     {
       "id": "clear_bit",
       "source": "templates/pieces/clear_bit.c",
       "details": "函数：unsigned long long clear_bit(unsigned long long x, int pos)\nclear_bit：返回修改后的unsigned long long值；使用x=clear_bit(x,pos)。",
-      "hint": "某位置0；返回修改后的unsigned long long值；使用x=clear_bit(x,pos)。"
+      "hint": "某位置0；返回修改后的unsigned long long值；使用x=clear_bit(x,pos)。",
+      "headers": []
     },
     {
       "id": "toggle_bit",
       "source": "templates/pieces/toggle_bit.c",
       "details": "函数：unsigned long long toggle_bit(unsigned long long x, int pos)\ntoggle_bit：返回修改后的unsigned long long值；使用x=toggle_bit(x,pos)。",
-      "hint": "翻转某位；返回修改后的unsigned long long值；使用x=toggle_bit(x,pos)。"
+      "hint": "翻转某位；返回修改后的unsigned long long值；使用x=toggle_bit(x,pos)。",
+      "headers": []
     },
     {
       "id": "pow2u",
       "source": "templates/pieces/pow2u.c",
       "details": "函数：unsigned long long pow2u(int n)\npow2u：返回1ULL<<n；n小于64。",
-      "hint": "2的幂；返回1ULL<<n；n小于64。"
+      "hint": "2的幂；返回1ULL<<n；n小于64。",
+      "headers": []
     },
     {
       "id": "is_power_of_two",
       "source": "templates/pieces/is_power_of_two.c",
       "details": "函数：int is_power_of_two(unsigned long long x)\nis_power_of_two：是返回1，否则0；0返回0。",
-      "hint": "判断2的幂；是返回1，否则0；0返回0。"
+      "hint": "判断2的幂；是返回1，否则0；0返回0。",
+      "headers": []
     },
     {
       "id": "count_ones",
       "source": "templates/pieces/count_ones.c",
       "details": "函数：int count_ones(unsigned long long x)\ncount_ones：如count_ones(13U)返回3。",
-      "hint": "二进制1的个数；如count_ones(13U)返回3。"
+      "hint": "二进制1的个数；如count_ones(13U)返回3。",
+      "headers": []
     },
     {
       "id": "gcd",
       "source": "templates/pieces/gcd.c",
       "details": "函数：long long gcd(long long a, long long b)\ngcd：结果非负；gcd(0,0)=0；不输入LLONG_MIN。",
-      "hint": "最大公约数；结果非负；gcd(0,0)=0；不输入LLONG_MIN。"
+      "hint": "最大公约数；结果非负；gcd(0,0)=0；不输入LLONG_MIN。",
+      "headers": []
     },
     {
       "id": "lcm",
       "source": "templates/pieces/lcm.c",
       "details": "函数：long long lcm(long long a, long long b)\nlcm：有一个输入为0则返回0；输入不为LLONG_MIN，结果不溢出。",
-      "hint": "最小公倍数；有一个输入为0则返回0；输入不为LLONG_MIN，结果不溢出。"
+      "hint": "最小公倍数；有一个输入为0则返回0；输入不为LLONG_MIN，结果不溢出。",
+      "headers": []
     },
     {
       "id": "is_prime_basic",
       "source": "templates/pieces/is_prime_basic.c",
       "details": "函数：int is_prime_basic(int n)\nis_prime_basic：int范围，素数返回1，n<2返回0；少量查询用试除。",
-      "hint": "单数素性判断；int范围，素数返回1，n<2返回0；少量查询用试除。"
+      "hint": "单数素性判断；int范围，素数返回1，n<2返回0；少量查询用试除。",
+      "headers": []
     },
     {
       "id": "state_is_prime",
       "source": "templates/pieces/state_is_prime.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "state_primes",
       "source": "templates/pieces/state_primes.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "build_primes_sieve",
       "source": "templates/pieces/build_primes_sieve.c",
       "details": "函数：void build_primes_sieve(int n)\nbuild_primes_sieve：0<=n<=SIEVE_MAX；调用后查is_prime[x]，素数表为primes[0..pc-1]；x不超过n。",
-      "hint": "批量筛表；0<=n<=SIEVE_MAX；调用后查is_prime[x]，素数表为primes[0..pc-1]；x不超过n。"
+      "hint": "批量筛表；0<=n<=SIEVE_MAX；调用后查is_prime[x]，素数表为primes[0..pc-1]；x不超过n。",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "cmp_int",
@@ -153,19 +179,22 @@
       "details": "函数：int cmp_int(const void *a, const void *b)\ncmp_int：传给qsort/bsearch：升序，返回负/0/正；qsort(a,n,sizeof a[0],cmp_int)。",
       "hint": "整数比较器；传给qsort/bsearch：升序，返回负/0/正；qsort(a,n,sizeof a[0],cmp_int)。",
       "wide_source": "templates/pieces/cmp_int_wide.c",
-      "wide_details": "函数：int cmp_int(const void *a, const void *b)\ncmp_int：传给qsort/bsearch：升序，返回负/0/正；qsort(a,n,sizeof a[0],cmp_int)。"
+      "wide_details": "函数：int cmp_int(const void *a, const void *b)\ncmp_int：传给qsort/bsearch：升序，返回负/0/正；qsort(a,n,sizeof a[0],cmp_int)。",
+      "headers": []
     },
     {
       "id": "type_Record",
       "source": "templates/pieces/type_Record.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "cmp_record",
       "source": "templates/pieces/cmp_record.c",
       "details": "函数：int cmp_record(const void *a, const void *b)\ncmp_record：Record含id、score；先score降序，再id升序；qsort时传此函数。",
-      "hint": "多关键字比较器；Record含id、score；先score降序，再id升序；qsort时传此函数。"
+      "hint": "多关键字比较器；Record含id、score；先score降序，再id升序；qsort时传此函数。",
+      "headers": []
     },
     {
       "id": "swap_int",
@@ -173,7 +202,8 @@
       "details": "函数：void swap_int(int *a, int *b)\nswap_int：传地址：swap_int(&a,&b)。",
       "hint": "交换整数；传地址：swap_int(&a,&b)。",
       "wide_source": "templates/pieces/swap_int_wide.c",
-      "wide_details": "函数：void swap_int(long long *a, long long *b)\nswap_int：传地址：swap_int(&a,&b)。"
+      "wide_details": "函数：void swap_int(long long *a, long long *b)\nswap_int：传地址：swap_int(&a,&b)。",
+      "headers": []
     },
     {
       "id": "bubble_sort",
@@ -181,7 +211,8 @@
       "details": "函数：void bubble_sort(int a[], int n)\nbubble_sort：把a[0..n-1]原地升序排序。",
       "hint": "冒泡排序；把a[0..n-1]原地升序排序。",
       "wide_source": "templates/pieces/bubble_sort_wide.c",
-      "wide_details": "函数：void bubble_sort(long long a[], int n)\nbubble_sort：把a[0..n-1]原地升序排序。"
+      "wide_details": "函数：void bubble_sort(long long a[], int n)\nbubble_sort：把a[0..n-1]原地升序排序。",
+      "headers": []
     },
     {
       "id": "linear_search",
@@ -189,7 +220,8 @@
       "details": "函数：int linear_search(int a[], int n, int key)\nlinear_search：返回首次匹配的0下标，失败-1。",
       "hint": "线性查找；返回首次匹配的0下标，失败-1。",
       "wide_source": "templates/pieces/linear_search_wide.c",
-      "wide_details": "函数：int linear_search(long long a[], int n, long long key)\nlinear_search：返回首次匹配的0下标，失败-1。"
+      "wide_details": "函数：int linear_search(long long a[], int n, long long key)\nlinear_search：返回首次匹配的0下标，失败-1。",
+      "headers": []
     },
     {
       "id": "binary_search",
@@ -197,25 +229,29 @@
       "details": "函数：int binary_search(int a[], int n, int key)\nbinary_search：a必须升序；返回任意匹配的0下标，失败-1。",
       "hint": "二分查找；a必须升序；返回任意匹配的0下标，失败-1。",
       "wide_source": "templates/pieces/binary_search_wide.c",
-      "wide_details": "函数：int binary_search(long long a[], int n, long long key)\nbinary_search：a必须升序；返回任意匹配的0下标，失败-1。"
+      "wide_details": "函数：int binary_search(long long a[], int n, long long key)\nbinary_search：a必须升序；返回任意匹配的0下标，失败-1。",
+      "headers": []
     },
     {
       "id": "type_Entry",
       "source": "templates/pieces/type_Entry.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "cmp_entry",
       "source": "templates/pieces/cmp_entry.c",
       "details": "函数：int cmp_entry(const void *a, const void *b)\ncmp_entry：Entry含value/index；按值升序，再原下标升序。",
-      "hint": "保留原位置排序；Entry含value/index；按值升序，再原下标升序。"
+      "hint": "保留原位置排序；Entry含value/index；按值升序，再原下标升序。",
+      "headers": []
     },
     {
       "id": "first_original",
       "source": "templates/pieces/first_original.c",
       "details": "函数：int first_original(Entry a[],int n,int key)\nfirst_original：先填Entry.index为原1下标，并用cmp_entry排序；返回最小原下标，失败-1。",
-      "hint": "查原数组首次位置；先填Entry.index为原1下标，并用cmp_entry排序；返回最小原下标，失败-1。"
+      "hint": "查原数组首次位置；先填Entry.index为原1下标，并用cmp_entry排序；返回最小原下标，失败-1。",
+      "headers": []
     },
     {
       "id": "build_prefix",
@@ -223,19 +259,22 @@
       "details": "函数：void build_prefix(int a[], int n, long long prefix[])\nbuild_prefix：a[1..n]；prefix至少n+1个long long；设置prefix[0]=0。",
       "hint": "建立前缀和；a[1..n]；prefix至少n+1个long long；设置prefix[0]=0。",
       "wide_source": "templates/pieces/build_prefix_wide.c",
-      "wide_details": "函数：void build_prefix(long long a[], int n, long long prefix[])\nbuild_prefix：a[1..n]；prefix至少n+1个long long；设置prefix[0]=0。"
+      "wide_details": "函数：void build_prefix(long long a[], int n, long long prefix[])\nbuild_prefix：a[1..n]；prefix至少n+1个long long；设置prefix[0]=0。",
+      "headers": []
     },
     {
       "id": "range_sum",
       "source": "templates/pieces/range_sum.c",
       "details": "函数：long long range_sum(long long prefix[], int left, int right)\nrange_sum：返回prefix[right]-prefix[left-1]；1<=left<=right<=n。",
-      "hint": "区间求和；返回prefix[right]-prefix[left-1]；1<=left<=right<=n。"
+      "hint": "区间求和；返回prefix[right]-prefix[left-1]；1<=left<=right<=n。",
+      "headers": []
     },
     {
       "id": "poly_eval",
       "source": "templates/pieces/poly_eval.c",
       "details": "函数：long long poly_eval(long long a[], int degree, long long x)\npoly_eval：a[i]是x的i次方系数，共degree+1项；返回整数结果，不溢出。",
-      "hint": "多项式求值；a[i]是x的i次方系数，共degree+1项；返回整数结果，不溢出。"
+      "hint": "多项式求值；a[i]是x的i次方系数，共degree+1项；返回整数结果，不溢出。",
+      "headers": []
     },
     {
       "id": "max_subarray_sum",
@@ -243,7 +282,8 @@
       "details": "函数：long long max_subarray_sum(int a[], int n)\nmax_subarray_sum：n>=1、非空子段；全负数返回最大元素；返回long long。",
       "hint": "最大连续和；n>=1、非空子段；全负数返回最大元素；返回long long。",
       "wide_source": "templates/pieces/max_subarray_sum_wide.c",
-      "wide_details": "函数：long long max_subarray_sum(long long a[], int n)\nmax_subarray_sum：n>=1、非空子段；全负数返回最大元素；返回long long。"
+      "wide_details": "函数：long long max_subarray_sum(long long a[], int n)\nmax_subarray_sum：n>=1、非空子段；全负数返回最大元素；返回long long。",
+      "headers": []
     },
     {
       "id": "max_forward_diff",
@@ -251,307 +291,374 @@
       "details": "函数：long long max_forward_diff(int a[], int n)\nmax_forward_diff：n>=2；求max(a[i]-a[j])且i<j，保留负答案。",
       "hint": "前后最大差；n>=2；求max(a[i]-a[j])且i<j，保留负答案。",
       "wide_source": "templates/pieces/max_forward_diff_wide.c",
-      "wide_details": "函数：long long max_forward_diff(long long a[], int n)\nmax_forward_diff：n>=2；求max(a[i]-a[j])且i<j，保留负答案。"
+      "wide_details": "函数：long long max_forward_diff(long long a[], int n)\nmax_forward_diff：n>=2；求max(a[i]-a[j])且i<j，保留负答案。",
+      "headers": []
     },
     {
       "id": "type_Date",
       "source": "templates/pieces/type_Date.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "is_leap",
       "source": "templates/pieces/is_leap.c",
       "details": "函数：int is_leap(int y)\nis_leap：闰年返回1，否则0。",
-      "hint": "判断闰年；闰年返回1，否则0。"
+      "hint": "判断闰年；闰年返回1，否则0。",
+      "headers": []
     },
     {
       "id": "days_in_month",
       "source": "templates/pieces/days_in_month.c",
       "details": "函数：int days_in_month(int y, int m)\ndays_in_month：返回y年m月天数；月份不合法返回0。",
-      "hint": "每月天数；返回y年m月天数；月份不合法返回0。"
+      "hint": "每月天数；返回y年m月天数；月份不合法返回0。",
+      "headers": []
     },
     {
       "id": "is_valid_date",
       "source": "templates/pieces/is_valid_date.c",
       "details": "函数：int is_valid_date(Date x)\nis_valid_date：Date含y/m/d；合法公历日期且年份1..9999返回1，否则0。",
-      "hint": "日期合法性；Date含y/m/d；合法公历日期且年份1..9999返回1，否则0。"
+      "hint": "日期合法性；Date含y/m/d；合法公历日期且年份1..9999返回1，否则0。",
+      "headers": []
     },
     {
       "id": "day_of_year",
       "source": "templates/pieces/day_of_year.c",
       "details": "函数：int day_of_year(Date x)\nday_of_year：输入合法Date；1月1日返回1。",
-      "hint": "年内序号；输入合法Date；1月1日返回1。"
+      "hint": "年内序号；输入合法Date；1月1日返回1。",
+      "headers": []
     },
     {
       "id": "next_day",
       "source": "templates/pieces/next_day.c",
       "details": "函数：Date next_day(Date x)\nnext_day：输入合法Date，返回新日期；不跨越9999年上限；x=next_day(x)。",
-      "hint": "下一天；输入合法Date，返回新日期；不跨越9999年上限；x=next_day(x)。"
+      "hint": "下一天；输入合法Date，返回新日期；不跨越9999年上限；x=next_day(x)。",
+      "headers": []
     },
     {
       "id": "date_to_days",
       "source": "templates/pieces/date_to_days.c",
       "details": "函数：int date_to_days(Date x)\ndate_to_days：合法日期；以公元1年1月1日为0。",
-      "hint": "日期转天数序号；合法日期；以公元1年1月1日为0。"
+      "hint": "日期转天数序号；合法日期；以公元1年1月1日为0。",
+      "headers": []
     },
     {
       "id": "date_diff",
       "source": "templates/pieces/date_diff.c",
       "details": "函数：int date_diff(Date a, Date b)\ndate_diff：返回两合法日期的绝对天数差；不含首尾双计数。",
-      "hint": "日期差；返回两合法日期的绝对天数差；不含首尾双计数。"
+      "hint": "日期差；返回两合法日期的绝对天数差；不含首尾双计数。",
+      "headers": [
+        "stdlib.h"
+      ]
     },
     {
       "id": "type_Time",
       "source": "templates/pieces/type_Time.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "time_to_sec",
       "source": "templates/pieces/time_to_sec.c",
       "details": "函数：int time_to_sec(Time t)\ntime_to_sec：Time含h/m/s；一天内合法时间，返回从0点起的秒数。",
-      "hint": "时间转秒；Time含h/m/s；一天内合法时间，返回从0点起的秒数。"
+      "hint": "时间转秒；Time含h/m/s；一天内合法时间，返回从0点起的秒数。",
+      "headers": []
     },
     {
       "id": "time_diff",
       "source": "templates/pieces/time_diff.c",
       "details": "函数：int time_diff(Time a, Time b)\ntime_diff：返回两时间的绝对秒差，不自动跨天。",
-      "hint": "时间差；返回两时间的绝对秒差，不自动跨天。"
+      "hint": "时间差；返回两时间的绝对秒差，不自动跨天。",
+      "headers": [
+        "stdlib.h"
+      ]
     },
     {
       "id": "next_second",
       "source": "templates/pieces/next_second.c",
       "details": "函数：Time next_second(Time t)\nnext_second：返回新Time；午夜回到0点，不更新日期。",
-      "hint": "下一秒；返回新Time；午夜回到0点，不更新日期。"
+      "hint": "下一秒；返回新Time；午夜回到0点，不更新日期。",
+      "headers": []
     },
     {
       "id": "next_minute",
       "source": "templates/pieces/next_minute.c",
       "details": "函数：Time next_minute(Time t)\nnext_minute：分钟加1、秒保持；午夜回到0点，不更新日期。",
-      "hint": "下一分钟；分钟加1、秒保持；午夜回到0点，不更新日期。"
+      "hint": "下一分钟；分钟加1、秒保持；午夜回到0点，不更新日期。",
+      "headers": []
     },
     {
       "id": "state_memo",
       "source": "templates/pieces/state_memo.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "state_has",
       "source": "templates/pieces/state_has.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "init_memo",
       "source": "templates/pieces/init_memo.c",
       "details": "函数：void init_memo(void)\ninit_memo：首次或状态含义改变时调用，再使用fib_memo。",
-      "hint": "清空缓存；首次或状态含义改变时调用，再使用fib_memo。"
+      "hint": "清空缓存；首次或状态含义改变时调用，再使用fib_memo。",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "fib_memo",
       "source": "templates/pieces/fib_memo.c",
       "details": "函数：long long fib_memo(int n)\nfib_memo：F(0)=0,F(1)=1；n为0..92；换题须改状态与转移。",
-      "hint": "记忆化斐波那契；F(0)=0,F(1)=1；n为0..92；换题须改状态与转移。"
+      "hint": "记忆化斐波那契；F(0)=0,F(1)=1；n为0..92；换题须改状态与转移。",
+      "headers": []
     },
     {
       "id": "root_f",
       "source": "templates/pieces/root_f.c",
       "details": "函数：double root_f(double x)\nroot_f：TODO：按题目改函数体；当前示例x*x-2。",
-      "hint": "求根目标函数；TODO：按题目改函数体；当前示例x*x-2。"
+      "hint": "求根目标函数；TODO：按题目改函数体；当前示例x*x-2。",
+      "headers": []
     },
     {
       "id": "bisect_root",
       "source": "templates/pieces/bisect_root.c",
       "details": "函数：double bisect_root(double left, double right, double eps)\nbisect_root：left<right，连续，端点为根或异号；eps>0是区间宽度容差；返回一个近似根。",
-      "hint": "区间二分求根；left<right，连续，端点为根或异号；eps>0是区间宽度容差；返回一个近似根。"
+      "hint": "区间二分求根；left<right，连续，端点为根或异号；eps>0是区间宽度容差；返回一个近似根。",
+      "headers": []
     },
     {
       "id": "type_Complex",
       "source": "templates/pieces/type_Complex.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "complex_add",
       "source": "templates/pieces/complex_add.c",
       "details": "函数：Complex complex_add(Complex a, Complex b)\ncomplex_add：Complex含re/im；返回a+b。",
-      "hint": "复数加法；Complex含re/im；返回a+b。"
+      "hint": "复数加法；Complex含re/im；返回a+b。",
+      "headers": []
     },
     {
       "id": "complex_sub",
       "source": "templates/pieces/complex_sub.c",
       "details": "函数：Complex complex_sub(Complex a, Complex b)\ncomplex_sub：返回a-b。",
-      "hint": "复数减法；返回a-b。"
+      "hint": "复数减法；返回a-b。",
+      "headers": []
     },
     {
       "id": "complex_mul",
       "source": "templates/pieces/complex_mul.c",
       "details": "函数：Complex complex_mul(Complex a, Complex b)\ncomplex_mul：返回a*b；数据适中，乘法中间值不溢出。",
-      "hint": "复数乘法；返回a*b；数据适中，乘法中间值不溢出。"
+      "hint": "复数乘法；返回a*b；数据适中，乘法中间值不溢出。",
+      "headers": []
     },
     {
       "id": "complex_div",
       "source": "templates/pieces/complex_div.c",
       "details": "函数：Complex complex_div(Complex a, Complex b)\ncomplex_div：返回a/b；b不为0+0i，平方中间值不溢出/下溢。",
-      "hint": "复数除法；返回a/b；b不为0+0i，平方中间值不溢出/下溢。"
+      "hint": "复数除法；返回a/b；b不为0+0i，平方中间值不溢出/下溢。",
+      "headers": []
     },
     {
       "id": "type_QuadraticResult",
       "source": "templates/pieces/type_QuadraticResult.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "solve_quadratic",
       "source": "templates/pieces/solve_quadratic.c",
       "details": "函数：QuadraticResult solve_quadratic(double a, double b, double c, double eps)\nsolve_quadratic：r=solve_quadratic(a,b,c,eps)；kind=-1非二次，0复根(re±im*i)，1重根，2异实根(x1<x2)。",
-      "hint": "二次方程求根；r=solve_quadratic(a,b,c,eps)；kind=-1非二次，0复根(re±im*i)，1重根，2异实根(x1<x2)。"
+      "hint": "二次方程求根；r=solve_quadratic(a,b,c,eps)；kind=-1非二次，0复根(re±im*i)，1重根，2异实根(x1<x2)。",
+      "headers": [
+        "math.h"
+      ]
     },
     {
       "id": "type_BigInt",
       "source": "templates/pieces/type_BigInt.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "big_zero",
       "source": "templates/pieces/big_zero.c",
       "details": "函数：BigInt big_zero(void)\nbig_zero：返回BigInt零值；数位低位在前。",
-      "hint": "构造大整数0；返回BigInt零值；数位低位在前。"
+      "hint": "构造大整数0；返回BigInt零值；数位低位在前。",
+      "headers": []
     },
     {
       "id": "big_from_string",
       "source": "templates/pieces/big_from_string.c",
       "details": "函数：BigInt big_from_string(char s[])\nbig_from_string：只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。",
-      "hint": "十进制串读入；只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。"
+      "hint": "十进制串读入；只接受非负数字串，允许前导零；返回BigInt，不接受正负号、小数点。",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "big_print",
       "source": "templates/pieces/big_print.c",
       "details": "函数：void big_print(BigInt a)\nbig_print：输出十进制数，不自动换行；之后可putchar('\\n')。",
-      "hint": "输出大整数；输出十进制数，不自动换行；之后可putchar('\\n')。"
+      "hint": "输出大整数；输出十进制数，不自动换行；之后可putchar('\\n')。",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "big_cmp",
       "source": "templates/pieces/big_cmp.c",
       "details": "函数：int big_cmp(BigInt a, BigInt b)\nbig_cmp：a<b返回-1，相等0，a>b返回1。",
-      "hint": "大整数比较；a<b返回-1，相等0，a>b返回1。"
+      "hint": "大整数比较；a<b返回-1，相等0，a>b返回1。",
+      "headers": []
     },
     {
       "id": "big_add",
       "source": "templates/pieces/big_add.c",
       "details": "函数：BigInt big_add(BigInt a, BigInt b)\nbig_add：返回a+b。",
-      "hint": "大整数加法；返回a+b。"
+      "hint": "大整数加法；返回a+b。",
+      "headers": []
     },
     {
       "id": "big_sub_abs",
       "source": "templates/pieces/big_sub_abs.c",
       "details": "函数：BigInt big_sub_abs(BigInt a, BigInt b)\nbig_sub_abs：要求a>=b；返回a-b；通常由big_sub或big_divmod内部使用。",
-      "hint": "绝对值减法辅助；要求a>=b；返回a-b；通常由big_sub或big_divmod内部使用。"
+      "hint": "绝对值减法辅助；要求a>=b；返回a-b；通常由big_sub或big_divmod内部使用。",
+      "headers": []
     },
     {
       "id": "big_sub",
       "source": "templates/pieces/big_sub.c",
       "details": "函数：int big_sub(BigInt a, BigInt b, BigInt *out)\nbig_sub：BigInt c; int sign=big_sub(a,b,&c)；c为绝对值，sign为-1/0/1；负号自行输出。",
-      "hint": "带符号减法；BigInt c; int sign=big_sub(a,b,&c)；c为绝对值，sign为-1/0/1；负号自行输出。"
+      "hint": "带符号减法；BigInt c; int sign=big_sub(a,b,&c)；c为绝对值，sign为-1/0/1；负号自行输出。",
+      "headers": []
     },
     {
       "id": "big_mul",
       "source": "templates/pieces/big_mul.c",
       "details": "函数：BigInt big_mul(BigInt a, BigInt b)\nbig_mul：返回a*b；容量须容纳两输入位数之和。",
-      "hint": "大整数乘法；返回a*b；容量须容纳两输入位数之和。"
+      "hint": "大整数乘法；返回a*b；容量须容纳两输入位数之和。",
+      "headers": []
     },
     {
       "id": "big_divmod",
       "source": "templates/pieces/big_divmod.c",
       "details": "函数：void big_divmod(BigInt a, BigInt b, BigInt *q, BigInt *rem)\nbig_divmod：BigInt q,rem; big_divmod(a,b,&q,&rem)；b>0，q/rem使用不同变量。",
-      "hint": "除大整数；BigInt q,rem; big_divmod(a,b,&q,&rem)；b>0，q/rem使用不同变量。"
+      "hint": "除大整数；BigInt q,rem; big_divmod(a,b,&q,&rem)；b>0，q/rem使用不同变量。",
+      "headers": []
     },
     {
       "id": "big_div_small",
       "source": "templates/pieces/big_div_small.c",
       "details": "函数：BigInt big_div_small(BigInt a, int b, int *remainder)\nbig_div_small：int rem; BigInt q=big_div_small(a,b,&rem)；1<=b<=10^9；返回商并写余数。",
-      "hint": "除小整数；int rem; BigInt q=big_div_small(a,b,&rem)；1<=b<=10^9；返回商并写余数。"
+      "hint": "除小整数；int rem; BigInt q=big_div_small(a,b,&rem)；1<=b<=10^9；返回商并写余数。",
+      "headers": []
     },
     {
       "id": "big_mul_small",
       "source": "templates/pieces/big_mul_small.c",
       "details": "函数：BigInt big_mul_small(BigInt a, int b)\nbig_mul_small：返回a*b；0<=b<=10^9，阶乘复用此函数。",
-      "hint": "乘小整数；返回a*b；0<=b<=10^9，阶乘复用此函数。"
+      "hint": "乘小整数；返回a*b；0<=b<=10^9，阶乘复用此函数。",
+      "headers": []
     },
     {
       "id": "big_factorial",
       "source": "templates/pieces/big_factorial.c",
       "details": "函数：BigInt big_factorial(int n)\nbig_factorial：n>=0且n<=10^9；返回n!，0!=1；容量按结果位数配置，朴素循环适用于课程规模。",
-      "hint": "高精度阶乘；n>=0且n<=10^9；返回n!，0!=1；容量按结果位数配置，朴素循环适用于课程规模。"
+      "hint": "高精度阶乘；n>=0且n<=10^9；返回n!，0!=1；容量按结果位数配置，朴素循环适用于课程规模。",
+      "headers": []
     },
     {
       "id": "state_grid",
       "source": "templates/pieces/state_grid.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "state_rows",
       "source": "templates/pieces/state_rows.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "state_dr",
       "source": "templates/pieces/state_dr.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "state_dc",
       "source": "templates/pieces/state_dc.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "dfs_grid",
       "source": "templates/pieces/dfs_grid.c",
       "details": "函数：int dfs_grid(int r, int c)\ndfs_grid：先填rows/cols、0/1网格并清visited；返回本次新访问格数，访问标记不撤销；不是最短路。",
-      "hint": "遍历连通区域；先填rows/cols、0/1网格并清visited；返回本次新访问格数，访问标记不撤销；不是最短路。"
+      "hint": "遍历连通区域；先填rows/cols、0/1网格并清visited；返回本次新访问格数，访问标记不撤销；不是最短路。",
+      "headers": []
     },
     {
       "id": "state_st",
       "source": "templates/pieces/state_st.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "state_log2_floor",
       "source": "templates/pieces/state_log2_floor.c",
       "details": "",
-      "hint": ""
+      "hint": "",
+      "headers": []
     },
     {
       "id": "build_rmq",
       "source": "templates/pieces/build_rmq.c",
       "details": "函数：void build_rmq(int a[], int n)\nbuild_rmq：a[0..n-1]，1<=n<=RMQ_MAX；建表后数组不修改，每组重新建表。",
-      "hint": "建立ST表；a[0..n-1]，1<=n<=RMQ_MAX；建表后数组不修改，每组重新建表。"
+      "hint": "建立ST表；a[0..n-1]，1<=n<=RMQ_MAX；建表后数组不修改，每组重新建表。",
+      "headers": []
     },
     {
       "id": "range_max",
       "source": "templates/pieces/range_max.c",
       "details": "函数：int range_max(int left, int right)\nrange_max：建表后调用，0<=left<=right<n，闭区间查询；改最小值需同时修改建表与查询。",
-      "hint": "区间最大值；建表后调用，0<=left<=right<n，闭区间查询；改最小值需同时修改建表与查询。"
+      "hint": "区间最大值；建表后调用，0<=left<=right<n，闭区间查询；改最小值需同时修改建表与查询。",
+      "headers": []
     },
     {
       "id": "trim_newline",
       "source": "templates/pieces/trim_newline.c",
       "details": "函数：void trim_newline(char s[])；int is_palindrome(char s[])；int erase_first(char s[], char key[])；int count_substring(char s[], char key[], int overlap)\ntrim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)。去换行不会删掉没有换行的最后一个字符；erase_first一次删除，反复调用会重新匹配新串。",
-      "hint": "trim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)"
+      "hint": "trim_newline(s); is_palindrome(s); erase_first(s,key); count_substring(s,key,1)",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "build_frequency",
       "source": "templates/pieces/build_frequency.c",
       "details": "函数：void build_frequency(int a[], int n)\nbuild_frequency(a,n); frequency[x]就是x的出现次数。值域过大或有负数时改用排序分组，不能直接作下标。",
-      "hint": "build_frequency(a,n); frequency[x]就是x的出现次数"
+      "hint": "build_frequency(a,n); frequency[x]就是x的出现次数",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "longest_run",
@@ -559,7 +666,8 @@
       "details": "函数：int longest_run(int a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
       "hint": "longest_run(a,n,0)或longest_run(a,n,1)",
       "wide_source": "templates/pieces/longest_run_wide.c",
-      "wide_details": "函数：int longest_run(long long a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。"
+      "wide_details": "函数：int longest_run(long long a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "headers": []
     },
     {
       "id": "lower_bound_int",
@@ -567,25 +675,31 @@
       "details": "函数：int lower_bound_int(int a[], int n, int key)；int upper_bound_int(int a[], int n, int key)\nl=lower_bound_int(a,n,key); r=upper_bound_int(a,n,key); r-l为出现次数。访问a[l]前先确认l<n。",
       "hint": "l=lower_bound_int(a,n,key); r=upper_bound_int(a,n,key); r-l为出现次数",
       "wide_source": "templates/pieces/lower_bound_int_wide.c",
-      "wide_details": "函数：int lower_bound_int(long long a[], int n, long long key)；int upper_bound_int(long long a[], int n, long long key)\nl=lower_bound_int(a,n,key); r=upper_bound_int(a,n,key); r-l为出现次数。访问a[l]前先确认l<n。"
+      "wide_details": "函数：int lower_bound_int(long long a[], int n, long long key)；int upper_bound_int(long long a[], int n, long long key)\nl=lower_bound_int(a,n,key); r=upper_bound_int(a,n,key); r-l为出现次数。访问a[l]前先确认l<n。",
+      "headers": []
     },
     {
       "id": "answer_ok",
       "source": "templates/pieces/answer_ok.c",
       "details": "函数：int answer_ok(long long x)；long long first_true(long long left, long long right)\nfirst_true(l,r)求第一个满足条件的整数；与浮点求根、数组查找不同。示例x>=10必须替换。",
-      "hint": "first_true(l,r)求第一个满足条件的整数；与浮点求根、数组查找不同"
+      "hint": "first_true(l,r)求第一个满足条件的整数；与浮点求根、数组查找不同",
+      "headers": []
     },
     {
       "id": "stack_init",
       "source": "templates/pieces/stack_init.c",
       "details": "函数：void stack_init(CharStack *s)；int stack_empty(CharStack *s)；void stack_push(CharStack *s, char value)；char stack_top(CharStack *s)；void stack_pop(CharStack *s)；int brackets_match(char text[])\nstack_init(&s); stack_push(&s,ch); stack_top(&s); stack_pop(&s)。brackets_match(text)返回1/0，内部每次重置栈且不按值复制大对象。",
-      "hint": "stack_init(&s); stack_push(&s,ch); stack_top(&s); stack_pop(&s)"
+      "hint": "stack_init(&s); stack_push(&s,ch); stack_top(&s); stack_pop(&s)",
+      "headers": []
     },
     {
       "id": "count_grid_paths",
       "source": "templates/pieces/count_grid_paths.c",
       "details": "函数：long long count_grid_paths(int rows, int cols)\nmemset(blocked,0,sizeof blocked); 设置障碍后count_grid_paths(rows,cols)。每次清dp；起点或终点被阻挡返回0；改转移适配题意。",
-      "hint": "memset(blocked,0,sizeof blocked); 设置障碍后count_grid_paths(rows,cols)"
+      "hint": "memset(blocked,0,sizeof blocked); 设置障碍后count_grid_paths(rows,cols)",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "cmp_rank_item",
@@ -593,49 +707,63 @@
       "details": "函数：int cmp_rank_item(const void *p, const void *q)；void make_rank(RankItem a[], int n, int rank[])；int unique_sorted(int a[], int n)\n填a[i].original=i后make_rank(a,n,rank)。同值按原顺序确定位置，不自动处理并列名次。unique_sorted(a,n)原地去重并返回新长度；分组扫描可用片段。",
       "hint": "填a[i].original=i后make_rank(a,n,rank)",
       "wide_source": "templates/pieces/cmp_rank_item_wide.c",
-      "wide_details": "函数：int cmp_rank_item(const void *p, const void *q)；void make_rank(RankItem a[], int n, int rank[])；int unique_sorted(long long a[], int n)\n填a[i].original=i后make_rank(a,n,rank)。同值按原顺序确定位置，不自动处理并列名次。unique_sorted(a,n)原地去重并返回新长度；分组扫描可用片段。"
+      "wide_details": "函数：int cmp_rank_item(const void *p, const void *q)；void make_rank(RankItem a[], int n, int rank[])；int unique_sorted(long long a[], int n)\n填a[i].original=i后make_rank(a,n,rank)。同值按原顺序确定位置，不自动处理并列名次。unique_sorted(a,n)原地去重并返回新长度；分组扫描可用片段。",
+      "headers": [
+        "stdlib.h"
+      ]
     },
     {
       "id": "cmp_word",
       "source": "templates/pieces/cmp_word.c",
       "details": "函数：int cmp_word(const void *p, const void *q)\nqsort(a,n,sizeof a[0],cmp_word)。只按字典序时删去长度比较。比较器必须有负/0/正三种结果，不仅返回真假。",
-      "hint": "qsort(a,n,sizeof a[0],cmp_word)"
+      "hint": "qsort(a,n,sizeof a[0],cmp_word)",
+      "headers": [
+        "string.h"
+      ]
     },
     {
       "id": "matrix_multiply",
       "source": "templates/pieces/matrix_multiply.c",
       "details": "函数：void matrix_multiply(long long a[][MATRIX_MAX], long long b[][MATRIX_MAX],\n                     long long result[][MATRIX_MAX], int n, int m, int p)\nmatrix_multiply(a,b,c,n,m,p)。大矩阵放全局/static；复杂度O(nmp)。",
-      "hint": "matrix_multiply(a,b,c,n,m,p)"
+      "hint": "matrix_multiply(a,b,c,n,m,p)",
+      "headers": []
     },
     {
       "id": "days_to_date",
       "source": "templates/pieces/days_to_date.c",
       "details": "函数：Date days_to_date(int serial)；Date add_days(Date x,int delta)\nx=add_days(x,k)；k可负。days_to_date(serial)将以1-1-1为0的序号转回日期。",
-      "hint": "x=add_days(x,k)；k可负"
+      "hint": "x=add_days(x,k)；k可负",
+      "headers": []
     },
     {
       "id": "fixed_binary",
       "source": "templates/pieces/fixed_binary.c",
       "details": "函数：void fixed_binary(unsigned long long x, int width, char out[])；unsigned long long rotate_left64(unsigned long long x,int k)；unsigned long long rotate_right64(unsigned long long x,int k)\nfixed_binary(x,32,out)显示低32位；负数可先转unsigned long long。rotate_left64/right64按64位循环，k=0不移64位。",
-      "hint": "fixed_binary(x,32,out)显示低32位；负数可先转unsigned long long"
+      "hint": "fixed_binary(x,32,out)显示低32位；负数可先转unsigned long long",
+      "headers": []
     },
     {
       "id": "longest_char_run",
       "source": "templates/pieces/longest_char_run.c",
       "details": "函数：int longest_char_run(const char s[], char target)\nlongest_char_run(\"aaabbbaaaa\", 'a')返回4，传'b'返回3；空串或没有目标字符返回0。",
-      "hint": "longest_char_run(s,'a')；目标字符由调用者指定。"
+      "hint": "longest_char_run(s,'a')；目标字符由调用者指定。",
+      "headers": []
     },
     {
       "id": "factorial_basic",
       "source": "templates/pieces/factorial_basic.c",
       "details": "函数：long long factorial_basic(int n)\nfactorial_basic(0)返回1，factorial_basic(5)返回120；只用于0<=n<=20，更大的阶乘选择大整数阶乘。",
-      "hint": "factorial_basic(n)返回n!；0<=n<=20。"
+      "hint": "factorial_basic(n)返回n!；0<=n<=20。",
+      "headers": []
     },
     {
       "id": "rounding",
       "source": "templates/pieces/rounding.c",
       "details": "函数：long long round_to_integer(double x)；double round_decimal(double x, int digits)\nround_to_integer(2.5)返回3，round_to_integer(-2.5)返回-3（恰好一半时远离0）。\nround_decimal(1.234,2)约为1.23；digits建议0..9。若只需控制显示位数，使用printf(\"%.2f\",x)。\n二进制浮点不能精确表示所有十进制小数；严格十进制金额题宜用整数或字符串。含math.h，GCC/Clang在需要时链接-lm。",
-      "hint": "取整数round_to_integer(x)；保留小数round_decimal(x,digits)，需要math.h/-lm。"
+      "hint": "取整数round_to_integer(x)；保留小数round_decimal(x,digits)，需要math.h/-lm。",
+      "headers": [
+        "math.h"
+      ]
     },
     {
       "id": "sort_int_array",
@@ -646,6 +774,9 @@
       "hint": "sort_int_array(a,n)按数值升序原地排序；内部调用qsort。",
       "requires": [
         "cmp_int"
+      ],
+      "headers": [
+        "stdlib.h"
       ]
     },
     {
@@ -657,6 +788,9 @@
       "hint": "bsearch_sorted_int(a,n,key)在已升序数组中查找，返回排序后下标，找不到返回-1；重复值不保证首次位置。",
       "requires": [
         "cmp_int"
+      ],
+      "headers": [
+        "stdlib.h"
       ]
     },
     {
@@ -665,19 +799,29 @@
       "wide_source": "templates/pieces/array_statistics_wide.c",
       "details": "函数：double array_mean(const int a[],int n)；double array_variance(const int a[],int n,double mean)。\n先求mean，再求variance；标准差为sqrt(variance)，标准化为((double)a[i]-mean)/sd。\n总体方差除以n，不是n-1；结果均为double，内部以double累加，避免整数求和/平方溢出。n必须大于0；sd为0时不能标准化。\n数组由调用者提供；按题目上限配置容量，大数组宜用static或全局存储。",
       "wide_details": "函数：double array_mean(const long long a[],int n)；double array_variance(const long long a[],int n,double mean)。\n先求mean，再求variance；标准差为sqrt(variance)，标准化为((double)a[i]-mean)/sd。\n总体方差除以n，不是n-1；结果均为double，内部以double累加，避免整数求和/平方溢出。n必须大于0；sd为0时不能标准化。\n数组由调用者提供；按题目上限配置容量，大数组宜用static或全局存储。\nlong long转换为double可能丢失低位精度，适用于一般浮点计算题。",
-      "hint": "mean=array_mean(a,n); variance=array_variance(a,n,mean); sd=sqrt(variance)。n>0，sd>0才可标准化。"
+      "hint": "mean=array_mean(a,n); variance=array_variance(a,n,mean); sd=sqrt(variance)。n>0，sd>0才可标准化。",
+      "headers": [
+        "math.h"
+      ]
     },
     {
       "id": "print_fixed",
       "source": "templates/pieces/print_fixed.c",
       "details": "函数：int print_fixed(double x,int digits)。\nprint_fixed(x,4)输出四位小数，不附加换行；调用后可用putchar('\\n')。digits支持0..15。\n先按printf规则格式化；仅当格式化结果表示零时去除负号，不改变计算用的x。\n返回1表示输出成功，0表示位数无效、分配或输出失败。可与数组输出循环组合调用；不要先把计算结果截断或改为0。",
-      "hint": "print_fixed(x,4); putchar('\\n'); 不输出负零；digits为0..15，返回1成功、0失败。"
+      "hint": "print_fixed(x,4); putchar('\\n'); 不输出负零；digits为0..15，返回1成功、0失败。",
+      "headers": [
+        "stdio.h",
+        "stdlib.h"
+      ]
     },
     {
       "id": "string_edit",
       "source": "templates/pieces/string_edit.c",
       "details": "函数：int str_insert_char(char s[],size_t capacity,size_t pos,char ch)；int str_erase(char s[],size_t pos,size_t count)；int str_run_bounds(const char s[],int n,int pos,int *left,int *right)。\n下标从0开始。插入位置允许等于strlen(s)，capacity是整个数组容量（含终止符）；ch不能是\\0。插入成功返回1，空间不足/位置无效返回0且原串不变。\nstr_erase(s,pos,count)删除[pos,pos+count)，越界返回0且原串不变，成功返回1；count为0允许不删除。\nstr_run_bounds(s,n,pos,&l,&r)求包含pos的同字符连续段[l,r)，长度为r-l；n为真实字符串长度，pos无效返回0且输出参数不变。均按字节处理，s须已正确终止。",
-      "hint": "str_insert_char(s,sizeof s,pos,ch); str_erase(s,pos,count); str_run_bounds(s,n,pos,&l,&r)，区间[l,r)。"
+      "hint": "str_insert_char(s,sizeof s,pos,ch); str_erase(s,pos,count); str_run_bounds(s,n,pos,&l,&r)，区间[l,r)。",
+      "headers": [
+        "string.h"
+      ]
     }
   ],
   "components": [
@@ -1455,7 +1599,8 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": []
     },
     {
       "id": "blank",
@@ -1469,7 +1614,10 @@
       "default": true,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "tests",
@@ -1483,7 +1631,10 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "eof_one",
@@ -1497,7 +1648,10 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": true
+      "value_type": true,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "eof_two",
@@ -1511,7 +1665,10 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": true
+      "value_type": true,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "eof_custom",
@@ -1525,7 +1682,10 @@
       "default": false,
       "incomplete": true,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "lines",
@@ -1541,7 +1701,10 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "chars",
@@ -1555,7 +1718,28 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
+    },
+    {
+      "id": "eof_array",
+      "symbol": "IO_EOF_ARRAY",
+      "name": "每组先读n和n个整数，直到EOF",
+      "help": "每组成功读入n后，再读n个整数；在本组循环内处理。容量须覆盖n，每组自行清空其他状态。",
+      "group": 2,
+      "source": "templates/io/eof_array.c",
+      "caps": [
+        "ARRAY_MAX"
+      ],
+      "functions_only": false,
+      "incomplete": false,
+      "file_write": false,
+      "value_type": true,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "sentinel",
@@ -1569,7 +1753,26 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": true
+      "value_type": true,
+      "headers": [
+        "stdio.h"
+      ]
+    },
+    {
+      "id": "sentinel_two",
+      "symbol": "IO_SENTINEL_TWO",
+      "name": "每次读两个整数，均为0时停止（可修改）",
+      "help": "示例以两个数均为0作为停止条件，不处理停止数据；按题目修改条件。",
+      "group": 3,
+      "source": "templates/io/sentinel_two.c",
+      "caps": [],
+      "functions_only": false,
+      "incomplete": false,
+      "file_write": false,
+      "value_type": true,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "op_number",
@@ -1583,7 +1786,10 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "op_letter",
@@ -1597,7 +1803,26 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
+    },
+    {
+      "id": "phased",
+      "symbol": "IO_PHASED",
+      "name": "初始化信息，再处理记录，最后回答查询",
+      "help": "单个任务的多个阶段，不是多组测试。示例读n、m、q；按题目补充参数与字段，并在事件后、查询前排序或建表。",
+      "group": 4,
+      "source": "templates/io/phased.c",
+      "caps": [],
+      "functions_only": false,
+      "incomplete": false,
+      "file_write": false,
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "file_lines",
@@ -1613,7 +1838,10 @@
       "default": false,
       "incomplete": false,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "file_records",
@@ -1627,7 +1855,10 @@
       "default": false,
       "incomplete": true,
       "file_write": false,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "file_write",
@@ -1641,7 +1872,10 @@
       "default": false,
       "incomplete": false,
       "file_write": true,
-      "value_type": false
+      "value_type": false,
+      "headers": [
+        "stdio.h"
+      ]
     }
   ],
   "fragments": [
@@ -1657,7 +1891,10 @@
         "ARRAY_MAX"
       ],
       "value_type": true,
-      "default_separator": ""
+      "default_separator": "",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "read_matrix",
@@ -1671,7 +1908,10 @@
         "MATRIX_MAX"
       ],
       "value_type": true,
-      "default_separator": ""
+      "default_separator": "",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "records",
@@ -1685,7 +1925,10 @@
         "ARRAY_MAX"
       ],
       "value_type": false,
-      "default_separator": ""
+      "default_separator": "",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "line_after_scan",
@@ -1699,7 +1942,10 @@
         "LINE_CAP"
       ],
       "value_type": false,
-      "default_separator": ""
+      "default_separator": "",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "group_scan",
@@ -1711,7 +1957,8 @@
       "source": "templates/fragments/group_scan.c",
       "caps": [],
       "value_type": false,
-      "default_separator": ""
+      "default_separator": "",
+      "headers": []
     },
     {
       "id": "output_array",
@@ -1726,7 +1973,10 @@
         "SEPARATOR"
       ],
       "value_type": true,
-      "default_separator": " "
+      "default_separator": " ",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "output_matrix",
@@ -1738,7 +1988,10 @@
       "source": "templates/fragments/output_matrix.c",
       "caps": [],
       "value_type": true,
-      "default_separator": ""
+      "default_separator": "",
+      "headers": [
+        "stdio.h"
+      ]
     },
     {
       "id": "output_items",
@@ -1752,7 +2005,10 @@
         "SEPARATOR"
       ],
       "value_type": false,
-      "default_separator": "+"
+      "default_separator": "+",
+      "headers": [
+        "stdio.h"
+      ]
     }
   ],
   "capacities": [
@@ -1867,7 +2123,7 @@
       "log_macro": ""
     }
   ],
-  "handbook_version": "1.6.1",
+  "handbook_version": "1.6.2",
   "group_ids": [
     "integers",
     "bits",
@@ -1878,5 +2134,87 @@
     "strings",
     "dates",
     "recursion"
+  ],
+  "product_name": "C语言脚手架",
+  "repository_url": "https://github.com/Annouimo/c-exam-kit",
+  "code_header": "templates/code_header.c",
+  "header_order": [
+    "stdio.h",
+    "stdlib.h",
+    "string.h",
+    "math.h",
+    "stdint.h",
+    "limits.h",
+    "stdbool.h",
+    "stddef.h"
+  ],
+  "flows": [
+    {
+      "id": "functions",
+      "name": "只生成函数，不生成main",
+      "io": "functions"
+    },
+    {
+      "id": "blank",
+      "name": "空白main／单组数据，自己写主体",
+      "io": "blank",
+      "readers": true
+    },
+    {
+      "id": "tests",
+      "name": "先读T，再处理T组",
+      "io": "tests",
+      "readers": true
+    },
+    {
+      "id": "eof",
+      "name": "一直读到输入结束（EOF）",
+      "choices": [
+        "eof_one",
+        "eof_two",
+        "lines",
+        "chars",
+        "eof_array",
+        "eof_custom"
+      ]
+    },
+    {
+      "id": "sentinel",
+      "name": "遇到指定值停止",
+      "choices": [
+        "sentinel",
+        "sentinel_two"
+      ]
+    },
+    {
+      "id": "phased",
+      "name": "初始化信息 → 处理记录 → 回答查询",
+      "io": "phased"
+    },
+    {
+      "id": "op_number",
+      "name": "按数字操作指令处理",
+      "io": "op_number"
+    },
+    {
+      "id": "op_letter",
+      "name": "按字符操作指令处理",
+      "io": "op_letter"
+    },
+    {
+      "id": "file_lines",
+      "name": "逐行读取文本文件",
+      "io": "file_lines"
+    },
+    {
+      "id": "file_records",
+      "name": "按字段读取文本文件（自己补读法）",
+      "io": "file_records"
+    },
+    {
+      "id": "file_write",
+      "name": "写入文本文件",
+      "io": "file_write"
+    }
   ]
 }
