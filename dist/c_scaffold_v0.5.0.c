@@ -36,6 +36,10 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
+/* Compatibility with older MinGW Windows SDK headers. */
+#ifndef WC_ERR_INVALID_CHARS
+#define WC_ERR_INVALID_CHARS 0x00000080
+#endif
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>
