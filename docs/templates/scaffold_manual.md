@@ -4,6 +4,8 @@
 
 开源仓库：[{{ repository_name }}]({{ repository_url }}) · [版本下载]({{ releases_url }})
 
+说明文字：[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)；可复制代码：[MIT-0](https://opensource.org/license/mit-0)，可删除署名和注释。转载说明文字请署名并注明来源及修改情况。
+
 离线固定模板装配工具。选择骨架、组件、可选 main 片段并配置，生成后自行补齐题意、函数调用和输入输出。默认使用 int，需要时在程序中选择 long long。生成代码使用数学函数时，GCC环境通常需要链接 `-lm`。
 
 ## 输入输出骨架

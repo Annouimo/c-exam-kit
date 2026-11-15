@@ -1,0 +1,27 @@
+name: 问题反馈
+description: 编译、运行、生成代码或手册问题
+body:
+  - type: input
+    id: version
+    attributes:
+      label: 工具或手册版本
+      placeholder: 例如：脚手架 v0.6.2
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 系统、IDE、编译器及版本；手册问题可填写 PDF 阅读器。
+      placeholder: 例如：Windows 11、Dev-C++、GCC 9.x、IDE 输出窗口
+  - type: textarea
+    id: steps
+    attributes:
+      label: 操作步骤与实际结果
+      description: 附菜单选择、编译命令、完整报错或最小示例；手册问题注明页码和段落。请勿上传个人信息。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
