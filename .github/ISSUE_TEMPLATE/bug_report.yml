@@ -5,7 +5,7 @@ body:
     id: version
     attributes:
       label: 工具或手册版本
-      placeholder: 例如：脚手架 v0.6.2
+      placeholder: 例如：脚手架 v0.6.3
     validations:
       required: true
   - type: textarea

@@ -2,21 +2,21 @@
 
 面向 C 语言课程考试的精简速查手册与离线代码脚手架。
 
-设计者：**Annouimo** · 手册 **v1.6.2** · 脚手架 **v0.6.2**
+设计者：**Annouimo** · 手册 **v1.6.3** · 脚手架 **v0.6.3**
 
 ## 从这里开始
 
 | 你想做什么 | 下载或操作 |
 | --- | --- |
-| 阅读考试速查资料 | [下载 PDF 手册](https://github.com/Annouimo/c-exam-kit/releases/latest/download/c-exam-handbook-v1.6.2.pdf) |
-| 使用离线脚手架 | [下载单文件 C 源码](https://github.com/Annouimo/c-exam-kit/releases/latest/download/c_scaffold_v0.6.2.c)，**先编译运行，再按菜单选择** |
-| 像传统板子一样搜索、复制函数 | [下载全量脚手架手册](https://github.com/Annouimo/c-exam-kit/releases/latest/download/scaffold-manual-v0.6.2.md) |
+| 阅读考试速查资料 | [下载 PDF 手册](https://github.com/Annouimo/c-exam-kit/releases/latest/download/c-exam-handbook-v1.6.3.pdf) |
+| 使用离线脚手架 | [下载单文件 C 源码](https://github.com/Annouimo/c-exam-kit/releases/latest/download/c_scaffold_v0.6.3.c)，**先编译运行，再按菜单选择** |
+| 像传统板子一样搜索、复制函数 | [下载全量脚手架手册](https://github.com/Annouimo/c-exam-kit/releases/latest/download/scaffold-manual-v0.6.3.md) |
 
 - [考试手册模板](docs/templates/exam_handbook.md)：按做题主题组织，说明文字可直接修改。
 - [下载发布版](https://github.com/Annouimo/c-exam-kit/releases)：PDF与Markdown手册、带版本号的单文件源码和工程包。
 - [手册维护说明](docs/开发与发布.md)：模板、表格数据、组件目录和PDF配置。
 
-**阅读资料优先下载PDF；使用生成器优先下载 `c_scaffold_v0.6.2.c`，编译运行后按菜单选择。新版Release不再分发编译好的二进制。**
+**阅读资料优先下载PDF；使用生成器优先下载 `c_scaffold_v0.6.3.c`，编译运行后按菜单选择。新版Release不再分发编译好的二进制。**
 
 这个 `.c` 是交互式脚手架生成程序，不是传统的代码片段集合。需要直接搜索、复制函数时，请看《全量脚手架手册》。文件开头也有英文编译运行提示，旧IDE能直接阅读。
 
@@ -40,14 +40,14 @@ macOS / Linux：
 
 ```sh
 cd dist
-cc -std=c99 -O2 -Wall -Wextra c_scaffold_v0.6.2.c -o c_scaffold
+cc -std=c99 -O2 -Wall -Wextra c_scaffold_v0.6.3.c -o c_scaffold
 ./c_scaffold
 ```
 
 Windows（GCC / MinGW，或双击 `dist/build_windows.bat`）：
 
 ```sh
-gcc -std=c99 -O2 -Wall -Wextra dist/c_scaffold_v0.6.2.c -o c_scaffold.exe -luser32
+gcc -std=c99 -O2 -Wall -Wextra dist/c_scaffold_v0.6.3.c -o c_scaffold.exe -luser32
 ```
 
 `--plain` 禁用清屏和颜色，适合IDE输出窗口；`--stdio-encoding=gbk` 适配按GBK解释输入输出的旧Windows IDE；`--version` 显示版本；`--manual manual.md` 导出详细手册，已有文件不覆盖。
@@ -92,7 +92,7 @@ python3 -m pip install -r tools/pdf-requirements.txt
 python3 tools/build_pdf.py
 ```
 
-输出为 `release/c-exam-handbook-v1.6.2.pdf`，支持中文字体、可点击目录/链接、可搜索文本、C代码高亮（含表格签名）、代码换行和跨页表头。PDF与Markdown共用同一份模板和数据；字体、页边距、表格列宽及页眉页脚在 `catalog/handbook/pdf.json` 中配置。执行时加 `--preview` 可标记为未发布预览。
+输出为 `release/c-exam-handbook-v1.6.3.pdf`，支持中文字体、可点击目录/链接、可搜索文本、C代码高亮（含表格签名）、代码换行和跨页表头。PDF与Markdown共用同一份模板和数据；字体、页边距、表格列宽及页眉页脚在 `catalog/handbook/pdf.json` 中配置。执行时加 `--preview` 可标记为未发布预览。
 
 ## 发布
 

@@ -3,16 +3,16 @@
  *                 COMPILE AND RUN THIS PROGRAM FIRST
  *          DO NOT SEARCH THIS FILE AS A CODE SNIPPET COLLECTION.
  ******************************************************************************
- * C SCAFFOLD GENERATOR v0.6.2
+ * C SCAFFOLD GENERATOR v0.6.3
  * This file is an INTERACTIVE PROGRAM. Compile it, then RUN the executable.
  * DO NOT just open this file and search for ready-to-copy functions.
  * Compile -> Run -> Select components -> Copy/save the generated C code.
  * Want to SEARCH / COPY functions directly? Open the FULL SCAFFOLD MANUAL.
  *
  * Windows GCC / Dev-C++ (compile as C):
- *   gcc -std=c99 c_scaffold_v0.6.2.c -o c_scaffold.exe -luser32
+ *   gcc -std=c99 c_scaffold_v0.6.3.c -o c_scaffold.exe -luser32
  * macOS / Linux:
- *   cc -std=c99 c_scaffold_v0.6.2.c -o c_scaffold
+ *   cc -std=c99 c_scaffold_v0.6.3.c -o c_scaffold
  * Run: c_scaffold.exe on Windows, or ./c_scaffold on macOS/Linux.
  * Old IDE output pane: try --plain --stdio-encoding=gbk on Windows,
  * or run the compiled program in a separate console window.
@@ -86,6 +86,10 @@
 #ifdef _WIN32
 #include <io.h>
 #include <windows.h>
+/* Compatibility with older MinGW Windows SDK headers. */
+#ifndef WC_ERR_INVALID_CHARS
+#define WC_ERR_INVALID_CHARS 0x00000080
+#endif
 #else
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -94,9 +98,9 @@
 #endif
 #include <stddef.h>
 
-#define APP_VERSION "0.6.2"
+#define APP_VERSION "0.6.3"
 #define APP_DESIGNER "Annouimo"
-static const char code_credit[]="/*\n * C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v0.6.2\n * \350\256\276\350\256\241\350\200\205\357\274\232Annouimo\n * \345\274\200\346\272\220\344\273\223\345\272\223\357\274\232https://github.com/Annouimo/c-exam-kit\n */\n";
+static const char code_credit[]="/*\n * C\350\257\255\350\250\200\350\204\232\346\211\213\346\236\266 v0.6.3\n * \350\256\276\350\256\241\350\200\205\357\274\232Annouimo\n * \345\274\200\346\272\220\344\273\223\345\272\223\357\274\232https://github.com/Annouimo/c-exam-kit\n */\n";
 static const char *piece_details[]={
 "\345\207\275\346\225\260\357\274\232int digit_value(char c)\ndigit_value\357\274\232\345\220\210\346\263\225\346\225\260\345\255\227\345\255\227\347\254\2460\342\200\2239/a\342\200\223f/A\342\200\223F\357\274\233\345\246\202 digit_value('F') \350\277\224\345\233\23615\343\200\202",
 "\345\207\275\346\225\260\357\274\232long long base_to_dec(char s[], int base)\nbase_to_dec\357\274\232base\344\270\2722/8/10/16\357\274\233\345\205\201\350\256\270\345\211\215\345\257\274\350\264\237\345\217\267\357\274\214\346\227\2400x\345\211\215\347\274\200\357\274\233\350\277\224\345\233\236long long\343\200\202",

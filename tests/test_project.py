@@ -290,6 +290,23 @@ int main(void) {
         self.assertEqual(len(paths),3*(2*len(DATA['components'])+2*(len(DATA['io'])-2)+4))
         print(f'  Strict C99: {len(paths)} generated combinations compiled')
 
+    def test_legacy_windows_sdk_conversion_flag(self):
+        # Compile the platform header against SDK stubs, with and without the flag.
+        # This catches the missing-macro regression even on non-Windows runners.
+        folder=self.d/'legacy-sdk';folder.mkdir()
+        (folder/'io.h').write_text('',encoding='utf-8')
+        for existing,expected in [(None,'0x00000080'),('0x40','0x40')]:
+            (folder/'windows.h').write_text(
+                '' if existing is None else '#define WC_ERR_INVALID_CHARS '+existing+'\n',encoding='utf-8')
+            source=folder/'probe.c'
+            source.write_text('#ifndef _WIN32\n#define _WIN32 1\n#endif\n#include '+
+                json.dumps((ROOT/'src/platform_headers.h').as_posix())+
+                '\n#if WC_ERR_INVALID_CHARS != '+expected+
+                '\n#error Incorrect Unicode conversion flag\n#endif\nint main(void) { return 0; }\n',encoding='utf-8')
+            target=folder/'probe.exe'
+            run([CC,'-std=c99','-Wall','-Wextra','-Werror','-I',folder,source,'-o',target])
+            run([target])
+
     def test_generate_without_tempfile_permission(self):
         exe=self.harness('''int main(void) {
     Config c=defaults();c.io=IO_FUNCTIONS;c.selected[0]=1;
