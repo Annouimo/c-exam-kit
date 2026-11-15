@@ -173,7 +173,7 @@ int main(void) {{
     @unittest.skipUnless(os.name=='nt','Windows redirected legacy-IDE encoding')
     def test_windows_gbk_stdio_and_utf8_saved_source(self):
         out=self.d/'中文脚手架.c'
-        data=f'2\n0\n\n1\n{out}\n'.encode('gbk')
+        data=f'2\n0\n\ns\n\n{out}\n'.encode('gbk')
         p=subprocess.run([str(self.exe),'--plain','--stdio-encoding=gbk'],input=data,capture_output=True,timeout=15)
         self.assertEqual(p.returncode,0,p.stderr)
         text=p.stdout.decode('gbk')
@@ -434,20 +434,20 @@ int main(void) {
 
     def test_interactive_configuration(self):
         out=self.d/'operations.c'
-        text=run([self.exe,'--plain'],input=f'7\n\n1\n{out}\n',timeout=10)
+        text=run([self.exe,'--plain'],input=f'7\n\ns\n\n{out}\n',timeout=10)
         self.assertIn('case 1:',out.read_text(encoding='utf-8'))
         self.assertNotIn('default:',out.read_text(encoding='utf-8'))
         self.assertNotIn('源码开始',text)
         self.assertEqual(text.count('设计者：'),1)
         self.assertNotIn('按需配置',text)
         out=self.d/'expression.c'
-        text=run([self.exe,'--plain'],input=f'2\n0\n\no\n4\n\n1\n{out}\n',timeout=10)
+        text=run([self.exe,'--plain'],input=f'2\n0\n\no\n4\n\ns\n\n{out}\n',timeout=10)
         self.assertIn('分隔输出',text)
         target=self.d/'expression.exe';compile_c(out,target)
         self.assertEqual(run([target]),'1+1+1+1\n')
         comp=next(i+1 for i,x in enumerate(DATA['components']) if x['id']=='longest_char_run')
         out=self.d/'char.c'
-        text=run([self.exe,'--plain'],input=f'1\n{comp}\n1\n{out}\n',timeout=10)
+        text=run([self.exe,'--plain'],input=f'1\n{comp}\ns\n\n{out}\n',timeout=10)
         self.assertIn('longest_char_run',out.read_text(encoding='utf-8'))
         self.assertNotIn('int main(',out.read_text(encoding='utf-8'))
         self.assertIn('target由调用者传入',text)
@@ -455,14 +455,14 @@ int main(void) {
         run([self.exe,'--plain'],input=f'{len(DATA["flows"])+1}\n{out}\n',timeout=10)
         self.assertIn(DATA['version'],out.read_text(encoding='utf-8'))
         out=self.d/'plain.c'
-        run([self.exe,'--plain'],input=f'2\n0\n\nm\n0\n1\n{out}\n',timeout=10)
+        run([self.exe,'--plain'],input=f'2\n0\n\ns\n0\n{out}\n',timeout=10)
         plain=out.read_text(encoding='utf-8')
         self.assertTrue(plain.startswith('#include <stdio.h>'))
         self.assertNotIn('/*',plain)
         self.assertNotIn('math.h',plain)
         self.assertNotIn('stdlib.h',plain)
         out=self.d/'eof_array.c'
-        run([self.exe,'--plain'],input=f'4\n5\n\n\n\n1\n{out}\n',timeout=10)
+        run([self.exe,'--plain'],input=f'4\n5\n\n\n\ns\n\n{out}\n',timeout=10)
         source=out.read_text(encoding='utf-8')
         self.assertIn('while (scanf("%d", &n) == 1)',source)
         self.assertIn('static int a[ARRAY_MAX]',source)
@@ -525,6 +525,13 @@ int main(void) {
         self.assertTrue(copied.startswith('/*'))
         self.assertIn('设计者',copied)
         self.assertIn('int main(',copied);self.assertNotIn('本次使用说明',copied)
+        for choice,comments in [('1',False),('2',True)]:
+            text=run([exe,'--plain'],input='2\n0\n\n'+choice+'\n',env=env,timeout=10)
+            self.assertIn('【复制成功】',text)
+            code=Path(env['MOCK_CLIPBOARD']).read_text(encoding='utf-8')
+            self.assertEqual(code.startswith('/*'),comments)
+            self.assertEqual('TODO' in code,comments)
+            self.assertNotIn('保存时的注释：回车精简',text)
         env['MOCK_FAIL']='1'
         text=run([exe,'--plain'],input='2\n0\n\n\n0\n',env=env,timeout=10)
         self.assertIn('【未复制成功】',text);self.assertIn('【代码尚未取出】',text)

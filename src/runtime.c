@@ -710,13 +710,12 @@ int main(int argc,char **argv) {
                 for(int i=0;i<COUNT;i++)if(c.selected[i]){printf("函数：%d %s\n",i+1,components[i].name);count++;}
                 if(!count)puts("函数：未选择");
                 for(int i=0;i<FRAGMENTS;i++)if(c.snippet[i]&&fragments[i].phase>0)printf("补充：%s\n",fragments[i].name);
-                printf("注释：%s\n",c.comments==0?"无注释":c.comments==1?"精简（署名、前提、TODO）":"完整");
                 if(io_options[c.io].incomplete)puts("注意：本骨架读入表达式需自行补齐。");
                 fputs(UI_CONFIRM_PROMPT,stdout);fflush(stdout);
                 char line[64];int ok=read_line(line,sizeof line);
                 if(!ok||(ok>0&&!strcmp(line,"q"))){pause_exit();return 0;}
                 if(ok<0)continue;
-                if(!strcmp(line,"2")) {
+                if(!strcmp(line,"r")) {
                     int target=ask(UI_MODIFY_PROMPT,0,0,3);
                     if(target<0){pause_exit();return 0;}
                     if(target){stage=target;break;}
@@ -727,9 +726,14 @@ int main(int argc,char **argv) {
                     Config next=c;if(choose_extras(&next))c=next;
                     if(!configure(&c)){pause_exit();return 0;}continue;
                 }
-                if(!strcmp(line,"m")) {int mode=ask(UI_COMMENT_PROMPT,c.comments,0,2);if(mode>=0)c.comments=mode;continue;}
-                if(*line&&strcmp(line,"1")){puts("请输入上面列出的操作。");continue;}
-                int save=*line=='1';size_t length;char *source=generate(&c,&length);
+                if(*line && strcmp(line,"1") && strcmp(line,"2") && strcmp(line,"s")){puts("请输入上面列出的操作。");continue;}
+                int save=!strcmp(line,"s");
+                if(save) {
+                    int mode=ask(UI_COMMENT_PROMPT,1,0,2);
+                    if(mode<0)continue;
+                    c.comments=mode;
+                } else c.comments=!*line?1:!strcmp(line,"1")?0:2;
+                size_t length;char *source=generate(&c,&length);
                 if(!source){emphasis(stdout,"生成失败","内存不足或无法构建代码。",3);pause_exit();return 1;}
                 screen(4,UI_COMPLETE_TITLE);int delivered=0;
                 if(save)delivered=save_text(source,length);
