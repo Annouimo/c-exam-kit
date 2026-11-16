@@ -324,6 +324,9 @@ int main(void) {
         run([exe],env=env)
         self.assertNotIn('tmpfile(', (ROOT/'src/runtime.c').read_text(encoding='utf-8'))
 
+    def test_enumeration_iterators(self):
+        run([sys.executable, ROOT/'tests/test_enumeration.py'])
+
     def test_algorithm_boundaries(self):
         pieces={p['id']:p for p in DATA['pieces']}
         code='\n'.join(pieces[k]['code'] for k in ['longest_char_run','factorial_basic','rounding'])

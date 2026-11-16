@@ -1,5 +1,5 @@
 {
-  "version": "0.6.3",
+  "version": "0.6.4",
   "designer": "Annouimo",
   "groups": [
     "整数与数位",
@@ -10,7 +10,7 @@
     "排序与查找",
     "字符串处理",
     "日期与时间",
-    "递归、栈与网格"
+    "枚举、递归、栈与网格"
   ],
   "io_groups": [
     "接到已有程序，或自己写输入输出",
@@ -822,6 +822,24 @@
       "headers": [
         "string.h"
       ]
+    },
+    {
+      "id": "arrangement_iterator",
+      "source": "templates/pieces/arrangement_iterator.c",
+      "details": "类型：Arrangement；结果字段：int index[ENUM_MAX]；状态字段：int valid\n函数：Arrangement arrangement(int n, int r)\n函数：int arrangement_next(Arrangement *it)\nArrangement it = arrangement(n, r); 检查it.valid后，while (arrangement_next(&it)) { 使用objects[it.index[i]]; }。第一次next取得第一种方案；结束后持续返回0，重新构造可重启。index仅在next返回1时有效，下次next更新结果，需保存时复制下标。\n枚举A(n,r)，r=n即全排列；返回0下标，按下标字典序；按位置区分对象，不按值去重。0<=r<=n<=ENUM_MAX；r=0产生一次空方案。无动态内存，独立实例和结构体副本互不影响；不要手工修改内部状态。方案数可能很大，请先判断能否枚举。",
+      "hint": "Arrangement it = arrangement(n, r); 检查it.valid后，while (arrangement_next(&it)) { 使用objects[it.index[i]]; }。第一次next取得第一种方案；结束后持续返回0，重新构造可重启。index仅在next返回1时有效，下次next更新结果，需保存时复制下标。",
+      "headers": [
+        "stddef.h"
+      ]
+    },
+    {
+      "id": "combination_iterator",
+      "source": "templates/pieces/combination_iterator.c",
+      "details": "类型：Combination；结果字段：int index[ENUM_MAX]；状态字段：int valid\n函数：Combination combination(int n, int r)\n函数：int combination_next(Combination *it)\nCombination it = combination(n, r); 检查it.valid后，while (combination_next(&it)) { 使用objects[it.index[i]]; }。第一次next取得第一种方案；结束后持续返回0，重新构造可重启。index仅在next返回1时有效，下次next更新结果，需保存时复制下标。\n枚举C(n,r)，每组下标严格递增；返回0下标，按下标字典序；按位置区分对象，不按值去重。0<=r<=n<=ENUM_MAX；r=0产生一次空方案。无动态内存，独立实例和结构体副本互不影响；不要手工修改内部状态。方案数可能很大，请先判断能否枚举。",
+      "hint": "Combination it = combination(n, r); 检查it.valid后，while (combination_next(&it)) { 使用objects[it.index[i]]; }。第一次next取得第一种方案；结束后持续返回0，重新构造可重启。index仅在next返回1时有效，下次next更新结果，需保存时复制下标。",
+      "headers": [
+        "stddef.h"
+      ]
     }
   ],
   "components": [
@@ -1517,6 +1535,38 @@
       "value_type": false
     },
     {
+      "id": "arrangement_iterator",
+      "name": "排列：从n个对象中选r个并安排顺序",
+      "short_name": "排列迭代器",
+      "note": "枚举A(n,r)，r=n即全排列；返回0下标，按下标字典序；按位置区分对象，不按值去重。0<=r<=n<=ENUM_MAX；r=0产生一次空方案。无动态内存，独立实例和结构体副本互不影响；不要手工修改内部状态。方案数可能很大，请先判断能否枚举。",
+      "help": "Arrangement it = arrangement(n, r); 检查it.valid后，while (arrangement_next(&it)) { 使用objects[it.index[i]]; }。第一次next取得第一种方案；结束后持续返回0，重新构造可重启。index仅在next返回1时有效，下次next更新结果，需保存时复制下标。",
+      "group": 8,
+      "summary": "枚举A(n,r)，r=n即全排列；通过下标访问任意类型对象。",
+      "pieces": [
+        "arrangement_iterator"
+      ],
+      "caps": [
+        "ENUM_MAX"
+      ],
+      "value_type": false
+    },
+    {
+      "id": "combination_iterator",
+      "name": "组合：从n个对象中选r个（不计顺序）",
+      "short_name": "组合迭代器",
+      "note": "枚举C(n,r)，每组下标严格递增；返回0下标，按下标字典序；按位置区分对象，不按值去重。0<=r<=n<=ENUM_MAX；r=0产生一次空方案。无动态内存，独立实例和结构体副本互不影响；不要手工修改内部状态。方案数可能很大，请先判断能否枚举。",
+      "help": "Combination it = combination(n, r); 检查it.valid后，while (combination_next(&it)) { 使用objects[it.index[i]]; }。第一次next取得第一种方案；结束后持续返回0，重新构造可重启。index仅在next返回1时有效，下次next更新结果，需保存时复制下标。",
+      "group": 8,
+      "summary": "枚举C(n,r)，每组下标严格递增；通过下标访问任意类型对象。",
+      "pieces": [
+        "combination_iterator"
+      ],
+      "caps": [
+        "ENUM_MAX"
+      ],
+      "value_type": false
+    },
+    {
       "name": "缓存递归计算结果（斐波那契示例）",
       "short_name": "缓存递归计算结果",
       "note": "把算过的结果存下来，后续直接使用；示例为F(0)=0、F(1)=1，n为0..92；换题需改初值和递推关系。",
@@ -2121,9 +2171,19 @@
       "high": 2000000,
       "extra": 1,
       "log_macro": ""
+    },
+    {
+      "field": "enumeration",
+      "macro": "ENUM_MAX",
+      "label": "排列组合对象个数上限",
+      "default": 64,
+      "low": 1,
+      "high": 4096,
+      "extra": 0,
+      "log_macro": ""
     }
   ],
-  "handbook_version": "1.6.3",
+  "handbook_version": "1.6.4",
   "group_ids": [
     "integers",
     "bits",

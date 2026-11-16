@@ -218,5 +218,13 @@
   "solve_quadratic_0": {
     "text": "/* 稳定的等价公式，减少 -b 与 sqrt(delta) 相减时的消去误差 */",
     "level": 2
+  },
+  "arrangement_usage": {
+    "text": "/* Arrangement it = arrangement(n, r); if (!it.valid) return 0;\n   while (arrangement_next(&it)) { 使用对象数组[it.index[i]]；不要修改it的字段。 }\n   下标从0开始；按位置区分对象；下次next覆盖当前结果；保存方案须复制下标。 */",
+    "level": 1
+  },
+  "combination_usage": {
+    "text": "/* Combination it = combination(n, r); if (!it.valid) return 0;\n   while (combination_next(&it)) { 使用对象数组[it.index[i]]；不要修改it的字段。 }\n   下标从0开始；按位置区分对象；下次next覆盖当前结果；保存方案须复制下标。 */",
+    "level": 1
   }
 }
