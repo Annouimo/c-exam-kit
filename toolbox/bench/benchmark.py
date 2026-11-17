@@ -121,7 +121,7 @@ int main(int argc,char**argv) {
  size_t len=@LEN@;
  unsigned long long check=(unsigned long long)len*13ull+(unsigned char)(@LAST@);
  @DROP@
- printf("%llu\n",check);return 0;
+ printf("%llu\\n",check);return 0;
 }
 """
     def string_case(name,start,append,length,last,drop,headers=(),paths=(),extra=()):
