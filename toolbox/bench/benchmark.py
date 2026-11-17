@@ -11,6 +11,7 @@ N = int(os.environ.get("BENCH_N", "120000"))
 CC = os.environ.get("CC", "gcc")
 FLAGS = ["-O2", "-std=c99", "-DNDEBUG", "-Wno-unused-function"]
 REPS = 7
+PINNED = {"STC": "7928d53440aa2df51d434d5fed8d314df1fb371f", "stb": "9600522de53973336fa033a289858a4354cbb04c", "klib": "97a0fcb790b43b9e5da8994f4671021fec036f19", "sds": "5347739b1581fcba74fd5cab1fc21d2aef317d71"}
 
 def cmd(args, **kwargs):
     return subprocess.run(list(map(str,args)), check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
@@ -19,6 +20,11 @@ def repo(name, url):
     where=OUT/name
     if not where.exists():
         cmd(["git","clone","-q","--depth","1",url,where])
+    pinned=PINNED.get(name)
+    if pinned:
+        if cmd(["git","-C",where,"rev-parse","HEAD"]).stdout.strip() != pinned:
+            cmd(["git","-C",where,"fetch","-q","--depth","1","origin",pinned])
+            cmd(["git","-C",where,"checkout","-q","--detach",pinned])
     sha=cmd(["git","-C",where,"rev-parse","HEAD"]).stdout.strip()
     return where,sha
 
@@ -33,14 +39,19 @@ def do_bench(name, body, includes=(), defs=(), incpaths=(), extra=()):
     if p.returncode: return {"name":name,"error":p.stderr[-3500:],"compile_command":command}
     times=[]
     checks=[]
+    peaks=[]
     for _ in range(REPS):
         t0=time.perf_counter()
-        p=subprocess.run([str(executable),str(N * 10 if name.startswith('vector_') else N * 5 if name.startswith('string_') else N)],capture_output=True,text=True)
+        n_case = N * 10 if name.startswith("vector_") else N * 5 if name.startswith("string_") else N
+        memfile=OUT/(name+".rss")
+        runner=["/usr/bin/time","-f","%M","-o",str(memfile)] if Path("/usr/bin/time").is_file() else []
+        p=subprocess.run(runner+[str(executable),str(n_case)],capture_output=True,text=True)
         elapsed=time.perf_counter()-t0
         if p.returncode: return {"name":name,"error":"run failed: "+p.stderr[-1000:]}
         times.append(elapsed);checks.append(p.stdout.strip())
+        if runner: peaks.append(int(memfile.read_text().strip()))
     if len(set(checks)) != 1: return {"name":name,"error":"inconsistent checksums"}
-    return {"name":name,"compile_sec":round(comp,4),"run_median_sec":round(statistics.median(times),4),"run_range_sec":[round(min(times),4),round(max(times),4)],"check":checks[0],"own_source_bytes":source.stat().st_size,"binary_bytes":executable.stat().st_size}
+    return {"name":name,"compile_sec":round(comp,4),"run_median_sec":round(statistics.median(times),4),"run_range_sec":[round(min(times),4),round(max(times),4)],"check":checks[0],"own_source_bytes":source.stat().st_size,"binary_bytes":executable.stat().st_size,"peak_rss_kb_median":statistics.median(peaks) if peaks else None}
 
 PRELUDE=String = """
 #include <stdio.h>
