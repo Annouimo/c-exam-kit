@@ -663,10 +663,10 @@
     {
       "id": "longest_run",
       "source": "templates/pieces/longest_run.c",
-      "details": "函数：int longest_run(int a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
-      "hint": "longest_run(a,n,0)或longest_run(a,n,1)",
+      "details": "函数：int longest_run(int a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。\nlongest_value_run(a,n,target)：返回指定值最长连续段长度；无匹配返回0。",
+      "hint": "longest_run(a,n,0)或longest_run(a,n,1)；longest_value_run(a,n,target)找指定值连续段",
       "wide_source": "templates/pieces/longest_run_wide.c",
-      "wide_details": "函数：int longest_run(long long a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "wide_details": "函数：int longest_run(long long a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。\nlongest_value_run(a,n,target)：返回指定值最长连续段长度；无匹配返回0。",
       "headers": []
     },
     {
@@ -1221,13 +1221,13 @@
       "value_type": false
     },
     {
-      "name": "找最长相等段或逐项加1的连续段",
-      "short_name": "最长相等段/逐项加1段",
-      "note": "consecutive=0找相等元素连续段，=1找后一项比前一项大1的连续段；0下标。",
-      "help": "longest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "name": "找最长相等段、逐项加1段或指定值连续段",
+      "short_name": "最长连续段",
+      "note": "consecutive=0找相等元素连续段，=1找后一项比前一项大1的连续段；0下标。 longest_value_run(a,n,target)查指定值连续段，无匹配返回0。",
+      "help": "longest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。 或 longest_value_run(a,n,target)。",
       "group": 4,
       "id": "longest_run",
-      "summary": "相等段或逐项加1的最长连续段。",
+      "summary": "相等段、逐项加1段、指定值连续段。",
       "pieces": [
         "longest_run"
       ],
