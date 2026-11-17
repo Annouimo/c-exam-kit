@@ -1,0 +1,35 @@
+name: Compare C Toolbox backends
+on:
+  push:
+    branches: [feat/c-toolbox-prototype]
+    paths: ['toolbox/bench/**', '.github/workflows/toolbox-bench.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  microbench:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Toolchain
+        run: |
+          gcc --version
+          clang --version
+          python3 --version
+      - name: Run benchmark, capture raw reports
+        run: |
+          python3 toolbox/bench/benchmark.py 2>&1 | tee benchmark.log
+          exit ${PIPESTATUS[0]}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: c-toolbox-backend-benchmark
+          path: |
+            benchmark.log
+            toolbox/bench/_build/results.json
+            toolbox/bench/_build/*.c
+          if-no-files-found: warn
