@@ -8,3 +8,13 @@ int longest_run(long long a[], int n, int consecutive) {
     }
     return best;
 }
+
+/* 指定值最长连续段；没有匹配元素时返回 0。 */
+int longest_value_run(const long long a[], int n, long long target) {
+    int best = 0, length = 0;
+    for (int i = 0; i < n; ++i) {
+        length = (a[i] == target) ? length + 1 : 0;
+        if (length > best) best = length;
+    }
+    return best;
+}
