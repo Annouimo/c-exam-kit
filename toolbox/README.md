@@ -1,184 +1,112 @@
-# C Toolbox · v0.4.0 原型
+# C Toolbox · v0.5.0 预览版
 
-面向熟悉 Python / JS / C++ 的 C 语言考生。Python 3.9+ 装配器离线生成独立 C99 代码；生成结果不依赖 Python、第三方库或运行时外部文件。此项目与课程脚手架的接口、版本、发布流程独立，当前同仓库开发。
+为熟悉高级语言的使用者提供可装入 C99 答案的容器、字符串和数据处理操作。下载一个 Python 脚本，离线初始化题目目录；无需安装第三方 Python 包。
 
-当前提供 String、类型化 Vector / Deque / Heap、字符串键 Map / Set / Counter。尚未实现通用键值类型、Matrix 或完整高级语言标准库；普通数学算法仍可从原脚手架生成后组合使用。
+## 日常使用
 
-## 对象操作（v0.4.0）
+运行发布脚本：
 
-本轮补齐常见操作的组合：拥有字符串的 StringList 支持深复制、增删、排序、去重；数值 Vector 提供默认排序、查找、统计；String 支持格式化和直接对象传参，Map/Set/Counter 可直接接收 String 并返回字符串列表。
+~~~sh
+python c_toolbox_v0.5.0.py
+~~~
 
-[对象接口说明](docs/objects.md) · [纯对象词频统计](examples/word_report.c) · [数列统计与去重](examples/number_report.c)
+只问一次：
 
-数值 Vector 包含标准差计算，GCC/Clang 编译生成结果时加 -lm。普通通用容器继续浅复制元素；需要自动管理字符串内容时，优先使用 StringList。
+~~~text
+题目文件夹（留空导出根目录 Markdown 手册）：
+~~~
 
-## 输入输出（v0.3.0）
+输入如“练习/C5/A”，在脚本所在目录下创建多层目录，里面只有：
 
-新增 io 模块：默认跳过空白，精确读取用 raw 接口。read_line 跳过空行、去掉行首尾空白并保留内部空格；read_line_raw 保留空行与首尾空白。数字后要精确读取下一行，用 read_next_line_raw。单值、动态文本、Vector 批量读写、数值验证和 EOF 状态使用同一套规则。
+- main.c：已引入同目录 c_toolbox.h 的空模板。
+- c_toolbox.h：该题固定使用的完整工具箱。
+- prepare.py：该题固定使用的提交准备工具。
 
-[完整输入输出说明](docs/io.md) · [保留空行示例](examples/io_lines.c) · [新版删词题](examples/io_remove_words.c)
+相对路径以入口脚本所在目录为基准，也支持绝对路径。已存在的目标目录不会覆盖，也不会自动做提交准备；若目录里已有 prepare.py，会显示它的运行命令。换一个目录名可创建新题目。更新入口脚本只影响新建题目，不改变旧题。
 
-## 使用
+输入留空，只在入口脚本旁导出“工具箱速查_v0.5.0.md”；不在每道题里重复生成手册。手册正文约 10KB，按任务列常用接口、短例子和易错规则，不提供 PDF。
 
-开发工程中先构建单文件装配器：
+## 写题、运行、提交
+
+编辑 main.c：
+
+~~~c
+#include "c_toolbox.h"
+
+int main(void) {
+    IntVector values = read_ints(5);
+    IntVector_sort_asc(&values);
+    print_ints(&values, " ", "\n");
+    IntVector_free(&values);
+    return 0;
+}
+~~~
+
+提交前运行题目目录里的 prepare.py：
+
+~~~sh
+python prepare.py
+~~~
+
+扫描该目录顶层的 C 文件，只有一个就直接处理；多个时按编号选择。展开本地头文件，保留系统头文件引用，编译检查通过后复制完整源码到剪贴板。另存 .toolbox/submit.c，原文件不变，导出结果不参与下次扫描。脚本可从其他工作目录调用。
+
+~~~sh
+python prepare.py --run               # 编译运行，不复制
+python prepare.py --no-copy           # 编译检查并保存
+python prepare.py other.c             # 直接指定文件
+python prepare.py --cc "编译器路径"    # 编译器未加入 PATH 时
+~~~
+
+支持 GCC/Clang，自动带 C99 与 -lm。也可手动编译：cc -std=c99 -O2 main.c -o main -lm。编译检查只验证可编译链接，不验证题意或答案。
+
+Windows 使用 Unicode 剪贴板；macOS 使用 pbcopy；Linux 使用可用的 wl-copy/xclip/xsel。没有编译器或编译失败不复制；剪贴板不可用会明确提示，检查过的源码仍保存在 .toolbox/submit.c。剪贴板分支有自动化测试，实际桌面的可用性仍取决于系统会话和工具。
+
+展开支持普通双引号本地 include、子目录、带保护宏的重复引用和续行，并保留 #line 来源定位。会去掉源文件注释，不展开注释或字符串里的伪 include。所有条件分支引用的本地文件都须存在；不支持宏形式 include 与本地循环引用。系统头文件不展开。一次处理一个翻译单元，不自动链接多个独立 .c 文件。
+
+## 功能
+
+- String 与拥有字符串的 StringList：增删、切片、分词、排序去重、格式化、对象间直接传参。
+- 类型化 Vector：常用数值排序、查找、统计；同类型 map/filter/reduce、any/all、回调计数和查询、便捷构造、整数 range。
+- Deque / Heap：队列、栈、双端队列和优先队列，支持用户类型。
+- 字符串键 Map / Set / Counter：映射、集合运算、频次统计，可直接接收 String 并返回独立字符串列表。
+- io：默认跳过空白，raw 精确保留空行和首尾空白，支持严格数值验证与批量读写。
+
+切片目前仍为起点加数量，不支持 Python 式负下标或步长；map/filter/reduce 使用普通 C 回调，不提供 lambda。通用 Vector 浅复制元素，字符串序列默认用 StringList。整数键映射、矩阵、日期、大整数和旧板子的其他算法尚未全部迁入。
+
+[精简速查源稿](docs/quick_reference.md) · [详细对象约定](docs/objects.md) · [输入输出规则](docs/io.md)
+
+## 开发与高级装配
+
+开发时逻辑、C 模板与手册内容分离；发布时组装成一个单文件脚本。
 
 ~~~sh
 python toolbox/build.py
-python toolbox/dist/c_toolbox_v0.4.0.py --list
-python toolbox/dist/c_toolbox_v0.4.0.py --modules string counter -o answer.c
+python toolbox/build.py --check
+python toolbox/tests/test_toolbox.py
+python toolbox/tests/test_workflow.py
 ~~~
-
-分发时只需要 c_toolbox_v0.4.0.py，无第三方 Python 依赖。无参数在终端显示简单的组件选择提示；非交互输入时默认生成全部组件。--modules 明确选择组件，自动加入依赖，不会加入未选中的其他对象。生成结果默认是组件函数，没有 main；粘贴至答案或用 --main 追加自己的完整程序。
-
-可运行的单词计数例子（顺序不保证，按字面空格分割，不是通用分词器）：
-
-~~~sh
-python toolbox/dist/c_toolbox_v0.4.0.py --modules string counter --main toolbox/examples/word_count.c -o answer.c
-cc -std=c99 -O2 answer.c -o answer -lm
-~~~
-
-用户结构体与类型化容器：
-
-~~~sh
-python toolbox/dist/c_toolbox_v0.4.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o students.c
-cc -std=c99 -O2 students.c -o students -lm
-~~~
-
---vector 可重复使用；名字须以大写字母开头。不指定时生成 IntVector=int。复杂类型先写 typedef，通过 --preamble 在库类型之后、类型化容器之前插入。普通数组直接使用 .data 与 .len。排序沿用 C 的 qsort 比较器。
-
-## 统一约定
-
-- 动态对象支持 {0} 初始化；String、Vector、Deque、Map、Set、Counter 也有 _new() 构造函数。String 还可用 string_from("abc")。Heap 必须用 Name_new(compare) 或 Name_from(items, count, compare) 设置比较器后再插入；free 后重新使用也要重新构造。
-- 拥有内存的对象不能通过普通结构体赋值获得独立副本；使用对应 clone。返回新对象可以按值接收，接收者负责释放。
-- String、Map 的键、StringList 中的字符串拥有独立存储。Map 当前只支持字符串键和 long long 值，不保留插入顺序。Set / Counter 共用 Map 底层。
-- Vector / Deque / Heap 只浅复制元素，不负责元素内部资源。存 String 或指针时自行逐项释放；这些容器的 clone 也仅复制元素值。避免误以为嵌套容器会自动深复制。
-- _free(&object) 释放并清零，可重复调用。clear 保留分配的容量。
-- 字符串位置与长度按字节计算，保持普通 C 字符串的零终止规则，不支持内嵌 NUL，不按 Unicode 字符索引。不要直接改写 data 却遗漏更新长度或终止符。
-- 编辑使用“0 下标起点 + 数量”，不混用闭区间。插入允许在末尾；erase 不截断越界范围，越界返回 false 且不修改对象。
-- 无结果的查询用 bool 或 SIZE_MAX 表示。分配失败与容量计算溢出统一向 stderr 报错并退出；不静默截断。非法 slice、空 split 分隔符也报错退出。
-- 扩容可能使 data 指针失效；Map 遍历期间不得修改 Map，遍历得到的键是借用指针。
-- 所有函数是 static，便于直接粘贴到单个答案。编译时若开启未使用函数警告，可按需裁剪或使用 -Wno-unused-function。
-
-## 接口速查
-
-| 对象 | 操作 |
-| --- | --- |
-| String | new / from / clone / cstr / reserve / assign / clear / append / push / pop / insert / erase / slice / find / contains / starts_with / ends_with / count / replace_all / remove_first / remove_all / remove_repeated / trim / lower / upper / readline / read_token / split / join / free |
-| StringList | 拥有字符串的列表；深复制、增删、查找、排序、去重、切片、转移所有权 |
-| Name 类型 Vector | Name_new / reserve / push / pop / insert / erase / get / set / front / back / extend / resize / reverse / clone / clear / sort / free |
-| Map | new / set / get / get_or / contains / size / clear / remove / next / clone / free |
-| Set | new / add / contains / remove / size / clear / next / clone / union / intersection / difference / is_subset / free |
-| Counter | new / add / get / remove / size / clear / next / most_common / clone / free |
-| Name 类型 Deque | Name_new / reserve / push_front / push_back / pop_front / pop_back / front / back / get / clear / clone / free |
-| Name 类型 Heap | Name_new(compare) / from / reserve / push / peek / pop / clear / clone / free |
-| io | read_int / ll / double / word / line / char、raw 精确读法、try_read 状态、批量读写 |
-
-String 的 find 接收起始下标，未找到返回 SIZE_MAX；空目标匹配起点。replace_all 使用不重叠替换，空目标不修改；支持旧串、替换串引用原字符串。split 接收非空字面分隔串并保留空字段，join 返回新 String。readline 去掉 LF 和末尾 CR，即使空行也返回 true，立即 EOF 返回 false。
-
-Map_get 接收可选输出指针，用 bool 区分缺失与值为零。Map_set / Set_add 返回是否新增，替换已有值返回 false，不表示失败。Map_next / Set_next / Counter_next 的游标用 size_t 初始化为 0。Counter 缺失项读为零，允许零和负计数；add 溢出返回 false，原值保留。
-
-~~~c
-String text = string_from("a,b,a");
-StringList words = string_split(&text, ",");
-Counter counts = counter_new();
-
-for (size_t i = 0; i < words.len; ++i)
-    if (!counter_add(&counts, string_cstr(&words.data[i]), 1))
-        tb_fail("counter overflow");
-
-printf("%lld\n", counter_get(&counts, "a")); /* 2 */
-string_list_free(&words);
-string_free(&text);
-counter_free(&counts);
-~~~
-
-String 编辑和 Vector 中间插入/删除为 O(n)，Vector push 均摊 O(1)；Map / Set / Counter 查询和更新平均 O(1)，哈希碰撞严重时可能 O(n)。String 的查找和替换使用朴素字符串匹配，不承诺线性时间。
-
-## 开发与验证
-
-### v0.2.0 新增用法
-
-构造空字符串优先写 String text = string_new()，不要只写未初始化的 String text。string_read_token 动态读取一个非空白串，不需猜测字符数组容量；会消费结束处的一个空白字符，混用 readline 时需考虑剩余行内容。读取失败会清空原内容，返回 false。
-
-三种删除行为明确区分（空目标均不删除）：
-
-| 接口 | 对 aabb 删除 ab 的结果 |
-| --- | --- |
-| string_remove_first | ab，返回 true |
-| string_remove_all | ab，单轮删除原有的不重叠匹配 |
-| string_remove_repeated | 空串，返回删除次数 2 |
-
-remove_repeated 每次从头查找，可能为 O(n²)。替换、插入、赋值、反复删除均允许输入文本引用原 String。count 计数不重叠匹配，空目标返回 0。trim 按 C 的 isspace 去两端空白；lower / upper 是当前 C locale 下的字节转换，不是 Unicode 大小写处理。
-
-删词题可直接写：
-
-~~~c
-String text = string_new(), word = string_new();
-string_readline(&text, stdin);
-int n;
-scanf("%d", &n);
-for (int i = 0; i < n && string_read_token(&word, stdin); ++i)
-    string_remove_repeated(&text, string_cstr(&word));
-puts(string_cstr(&text));
-string_free(&word);
-string_free(&text);
-~~~
-
-完整示例是 examples/remove_words.c，新推荐用法见对象接口说明。Vector 的 extend 支持把自身的元素区间追加至末尾；resize 扩大时填入传入的值，缩小时不会释放元素内部资源。get / set / front / back 越界或为空时返回 false，读取失败不修改输出变量。
-
-选择 deque 默认生成 IntDeque；--deque TaskQueue=Task 可生成用户类型。队列用 push_back / pop_front，栈用 push_back / pop_back，双端操作均摊 O(1)，get 按逻辑位置读取，不能把环形存储的 data 当成连续逻辑数组。
-
-~~~c
-IntDeque queue = IntDeque_new();
-IntDeque_push_back(&queue, 10);
-IntDeque_push_back(&queue, 20);
-int value;
-while (IntDeque_pop_front(&queue, &value)) printf("%d\n", value);
-IntDeque_free(&queue);
-~~~
-
-选择 heap 默认生成 IntHeap；--heap TaskHeap=Task 指定类型。比较器与 qsort 形状相同，返回负数表示第一个参数优先。push / pop 为 O(log n)，peek 为 O(1)，from 批量建堆为 O(n)。相等优先级的顺序不保证；需要稳定顺序时把序号纳入比较器。
-
-~~~c
-static int compare_int(const void *a, const void *b) {
-    int x = *(const int *)a, y = *(const int *)b;
-    return (x > y) - (x < y);
-}
-/* 在 main 中： */
-IntHeap pending = IntHeap_new(compare_int);
-IntHeap_push(&pending, 30);
-IntHeap_push(&pending, 10);
-int value;
-while (IntHeap_pop(&pending, &value)) printf("%d\n", value);
-IntHeap_free(&pending);
-~~~
-
-比较器反转即可变成最大堆。完整示例是 examples/priority_queue.c。
-
-Set 的 union / intersection / difference 返回独立新集合，不修改输入，调用者负责释放。is_subset(a,b) 表示 a 是否为 b 的子集。Counter_most_common 接收两个可选输出指针，只返回频次最高的一项，并列时选字典序最小的键；空计数器返回 false，返回的键是借用指针。
-
-类型化参数可重复使用。--modules vector --vector Words=String 自动带入 String，无须重复选择字符串组件；显式配置的嵌套容器按依赖顺序生成，循环依赖会报告错误。容器只浅复制元素，即使自动解析依赖也不会自动深复制或释放元素内部资源。
-
-### 工程检查
 
 | 路径 | 内容 |
 | --- | --- |
-| src/generator.py | 参数、依赖解析和源码装配逻辑 |
-| catalog.json | 组件元数据、依赖与版本 |
-| templates/*.c | 可直接阅读和修改的 C 实现 |
-| build.py | 将逻辑、配置、模板及许可组装为单文件 Python |
-| examples/ | 可执行示例及自定义类型 |
-| tests/test_toolbox.py | 脱离工程运行、边界与随机对照测试 |
-| dist/ | 本地构建产物，不手工修改 |
+| src/generator.py | 依赖解析、类型化 C 装配 |
+| src/installer.py | 单次提问、题目目录与 Markdown 导出 |
+| src/prepare.py | 独立提交准备工具，复制到每个题目 |
+| catalog.json、templates/ | 配置与独立 C 实现 |
+| docs/quick_reference.md | 人工维护的短手册，版本由构建替换 |
+| build.py | 合并逻辑、模板、手册与许可 |
+| tests/ | 算法、所有权、分发和提交流程测试 |
+| dist/ | 生成物，不手动修改 |
+
+旧参数接口保留，也可显式使用 generate/header。需要定制用户结构体容器时，可生成一份替代该题 c_toolbox.h 的完整头文件；不要同时引入两份不同配置的工具箱。
 
 ~~~sh
-python toolbox/tests/test_toolbox.py
-python toolbox/build.py --check
+python c_toolbox_v0.5.0.py --list
+python c_toolbox_v0.5.0.py header --vector StudentVector=Student --preamble types.h -o 练习/A/c_toolbox.h
+python c_toolbox_v0.5.0.py generate --modules string counter -o functions.c
 ~~~
 
-独立 Actions 工作流验证 Linux GCC / Clang、macOS Clang、Windows MinGW，并在 Linux Clang 下启用 AddressSanitizer / UndefinedBehaviorSanitizer。Actions 附件提供单文件装配器、全量组件头文件和示例。不会创建正式 Release。
+types.h 的类型定义会嵌入生成头文件，不必在 main.c 中再次定义。重新生成题目头文件是显式操作；日常初始化不会更新旧目录。
 
-原型代码由本项目独立实现，未引入第三方库。工程 Python / 测试 / 构建 / 工作流按 MIT；C 模板、生成的 C 代码及示例按 MIT-0；说明文字按 CC BY 4.0。单文件 Python 含 MIT 与 MIT-0 内容，须保留适用许可；生成的 C 答案可删除署名及注释。参见项目根目录 LICENSING.md。
+CI 验证 Linux GCC/Clang、macOS、Windows、Python 3.9，并执行地址/未定义行为/泄漏检查。预览附件只分发单文件 Python，不创建正式 Release。
 
-运行装配器与携带静态资料是不同的考试许可事项，沿用项目现有考试使用约定。
-
+工程与脚本 MIT；C 模板、生成源码和代码示例 MIT-0；说明和手册正文 CC BY 4.0。详见根目录 LICENSING.md。单文件发布脚本内保留适用许可和说明署名。沿用项目现有考试使用约定，是否允许离线装配工具须由课程组确认。

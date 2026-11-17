@@ -100,7 +100,9 @@ def generate(modules, specs=(), preamble="", main="", deques=(), heaps=()):
             recipes = BUNDLE["catalog"]["modules"][kind].get("numeric_templates", {})
             for path in recipes.get(" ".join(ctype.split()), []):
                 template += "\n" + BUNDLE["templates"][path]
-            parts.append(template.replace("@TYPE@", ctype).replace("@NAME@", typename))
+            bounds = ("LLONG_MIN", "LLONG_MAX") if " ".join(ctype.split()) == "long long" else ("INT_MIN", "INT_MAX")
+            parts.append(template.replace("@TYPE@", ctype).replace("@NAME@", typename)
+                         .replace("@MIN@", bounds[0]).replace("@MAX@", bounds[1]))
             emitted.add(typename)
             instances.remove((kind, typename, ctype))
     for name in ordered:
@@ -110,10 +112,11 @@ def generate(modules, specs=(), preamble="", main="", deques=(), heaps=()):
         parts.append("/* User program */\n" + main)
     return "\n\n".join(parts) + "\n"
 
-def cli(argv=None):
+def generate_cli(argv=None):
     parser = argparse.ArgumentParser(description="Offline C99 toolbox assembler")
     parser.add_argument("--version", action="version", version=BUNDLE["catalog"]["version"])
     parser.add_argument("--list", action="store_true", help="list modules")
+    parser.add_argument("--header", action="store_true", help="emit a guarded header")
     parser.add_argument("--modules", nargs="+", help="selected modules (dependencies automatic)")
     parser.add_argument("--vector", action="append", default=[], metavar="Name=CType")
     parser.add_argument("--deque", action="append", default=[], metavar="Name=CType")
@@ -129,15 +132,14 @@ def cli(argv=None):
         return 0
     modules = args.modules
     if modules is None:
-        if sys.stdin.isatty():
-            print("Modules: string vector map set counter deque heap io", file=sys.stderr)
-            modules = input("Select (space separated; Enter = all): ").split()
-        modules = modules or ["string", "vector", "map", "set", "counter", "deque", "heap", "io"]
+        modules = [name for name in BUNDLE["catalog"]["modules"] if name != "core"]
     try:
         code = generate(modules, args.vector,
                         args.preamble.read_text(encoding="utf-8") if args.preamble else "",
                         args.main.read_text(encoding="utf-8") if args.main else "",
                         args.deque, args.heap)
+        if args.header:
+            code = guarded_header(code)
         if args.output:
             args.output.parent.mkdir(parents=True, exist_ok=True)
             args.output.write_text(code, encoding="utf-8")
@@ -146,7 +148,4 @@ def cli(argv=None):
     except (ValueError, OSError) as error:
         parser.error(str(error))
     return 0
-
-if __name__ == "__main__":
-    raise SystemExit(cli())
 

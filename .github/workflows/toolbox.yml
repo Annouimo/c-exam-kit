@@ -35,6 +35,12 @@ jobs:
           TOOLBOX_CFLAGS: ${{ matrix.sanitize }}
           ASAN_OPTIONS: detect_leaks=1
         run: python toolbox/tests/test_toolbox.py
+      - name: Test installer, submission preparation and functional operations
+        env:
+          CC: ${{ matrix.cc }}
+          TOOLBOX_CFLAGS: ${{ matrix.sanitize }}
+          ASAN_OPTIONS: detect_leaks=1
+        run: python toolbox/tests/test_workflow.py
       - name: Verify package reproducibility
         run: python toolbox/build.py --check
   package:
@@ -46,27 +52,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python toolbox/build.py
-      - name: Generate preview sources
-        run: |
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules string vector map set counter deque heap io -o toolbox/dist/c_toolbox_all_v0.4.0.h
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules string counter --main toolbox/examples/word_count.c -o toolbox/dist/word_count.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o toolbox/dist/student_sort.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules string --main toolbox/examples/remove_words.c -o toolbox/dist/remove_words.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules heap --main toolbox/examples/priority_queue.c -o toolbox/dist/priority_queue.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules io --main toolbox/examples/io_lines.c -o toolbox/dist/io_lines.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules io --main toolbox/examples/io_remove_words.c -o toolbox/dist/io_remove_words.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules io counter --main toolbox/examples/word_report.c -o toolbox/dist/word_report.c
-          python toolbox/dist/c_toolbox_v0.4.0.py --modules io --main toolbox/examples/number_report.c -o toolbox/dist/number_report.c
       - uses: actions/upload-artifact@v4
         with:
-          name: c-toolbox-v0.4.0-preview
-          path: |
-            toolbox/dist/
-            toolbox/README.md
-            toolbox/docs/
-            LICENSING.md
-            LICENSE
-            LICENSES/MIT-0.txt
-            LICENSES/CC-BY-4.0.txt
+          name: c-toolbox-v0.5.0-preview
+          path: toolbox/dist/c_toolbox_v0.5.0.py
           if-no-files-found: error
 

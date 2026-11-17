@@ -2,6 +2,8 @@
 /* Ring buffer. Elements are shallow copied and never individually destroyed. */
 typedef struct { @TYPE@ *data; size_t len, cap, head; } @NAME@;
 static @NAME@ @NAME@_new(void) { return (@NAME@){0}; }
+static size_t @NAME@_size(const @NAME@ *q) { return q->len; }
+static bool @NAME@_empty(const @NAME@ *q) { return q->len == 0; }
 static size_t @NAME@_slot(const @NAME@ *q, size_t pos) {
     size_t tail = q->cap - q->head;
     return pos < tail ? q->head + pos : pos - tail;

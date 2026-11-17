@@ -1,5 +1,5 @@
 {
-  "version": "0.4.0",
+  "version": "0.5.0",
   "modules": {
     "core": {
       "template": "core.c",
@@ -26,16 +26,19 @@
       ],
       "description": "按实际 C 类型生成动态数组",
       "extra_templates": [
-        "vector_extra.c"
+        "vector_extra.c",
+        "vector_functional.c"
       ],
       "numeric_templates": {
         "int": [
           "vector_numeric.c",
-          "vector_sum_integer.c"
+          "vector_sum_integer.c",
+          "vector_range.c"
         ],
         "long long": [
           "vector_numeric.c",
-          "vector_sum_integer.c"
+          "vector_sum_integer.c",
+          "vector_range.c"
         ],
         "double": [
           "vector_numeric.c",

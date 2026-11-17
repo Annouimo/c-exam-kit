@@ -1,4 +1,4 @@
-# 输入输出 · v0.4.0
+# 输入输出 · v0.5.0
 
 默认忽略用于分隔数据的空白；题目把空格、空行当作数据时，显式选 raw 接口。
 
@@ -115,7 +115,7 @@ print_int(value,end)、print_ll(value,end)、print_double(value,precision,end)�
 ## 文件输入与装配
 
 ~~~sh
-python c_toolbox_v0.4.0.py --modules io --main your_main.c -o answer.c
+python c_toolbox_v0.5.0.py --modules io --main your_main.c -o answer.c
 cc -std=c99 -O2 answer.c -o answer -lm
 ~~~
 

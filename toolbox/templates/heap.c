@@ -69,3 +69,5 @@ static @NAME@ @NAME@_clone(const @NAME@ *h) {
 }
 static void @NAME@_clear(@NAME@ *h) { h->len = 0; }
 static void @NAME@_free(@NAME@ *h) { free(h->data); *h = (@NAME@){0}; }
+static size_t @NAME@_size(const @NAME@ *h) { return h->len; }
+static bool @NAME@_empty(const @NAME@ *h) { return h->len == 0; }
