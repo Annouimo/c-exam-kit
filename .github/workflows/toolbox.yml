@@ -14,16 +14,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {os: ubuntu-latest, cc: gcc, sanitize: ''}
-          - {os: ubuntu-latest, cc: clang, sanitize: '-fsanitize=address,undefined -fno-omit-frame-pointer -g'}
-          - {os: macos-latest, cc: clang, sanitize: ''}
-          - {os: windows-latest, cc: gcc, sanitize: ''}
+          - {os: ubuntu-24.04, cc: gcc, sanitize: '', python: '3.12'}
+          - {os: ubuntu-24.04, cc: clang, sanitize: '-fsanitize=address,undefined -fno-omit-frame-pointer -g', python: '3.12'}
+          - {os: macos-15, cc: clang, sanitize: '', python: '3.12'}
+          - {os: windows-2022, cc: gcc, sanitize: '', python: '3.12'}
+          - {os: ubuntu-22.04, cc: gcc, sanitize: '', python: '3.9'}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.python }}
       - name: Configure MinGW path
         if: runner.os == 'Windows'
         shell: pwsh
@@ -38,12 +39,12 @@ jobs:
         run: python toolbox/build.py --check
   package:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.12'
       - run: python toolbox/build.py
       - name: Generate preview sources
         run: |

@@ -27,7 +27,8 @@ class ToolboxTests(unittest.TestCase):
             cmd += ["-std=c99", "-Wall", "-Wextra", "-Werror", "-Wno-unused-function"]
             cmd += shlex.split(os.environ.get("TOOLBOX_CFLAGS", ""))
             cmd += list(flags) + [str(source), "-o", str(binary)]
-            subprocess.run(cmd, check=True, capture_output=True, text=True)
+            compiled = subprocess.run(cmd, capture_output=True, text=True)
+            self.assertEqual(compiled.returncode, 0, compiled.stderr)
             completed = subprocess.run([str(binary)], input=input_text, capture_output=True, text=True)
             self.assertEqual(completed.returncode, 0, completed.stderr)
             return completed.stdout
