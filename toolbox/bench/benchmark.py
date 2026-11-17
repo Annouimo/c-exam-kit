@@ -113,5 +113,6 @@ def main():
     result={"versions":versions,"cc":CC,"flags":FLAGS,"n":N,"reps":REPS,"results":output}
     (OUT/"results.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
     print("FULL_REPORT "+json.dumps(result,ensure_ascii=False),flush=True)
-    failed=[x for x in output if "error" in x]\n    if failed: raise SystemExit("Benchmark cases failed: "+", ".join(x["name"] for x in failed))
+    failed=[x for x in output if "error" in x]
+    if failed: raise SystemExit("Benchmark cases failed: "+", ".join(x["name"] for x in failed))
 if __name__=="__main__":main()
