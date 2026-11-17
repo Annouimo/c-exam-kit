@@ -1,0 +1,45 @@
+{
+  "version": "0.1.0",
+  "modules": {
+    "core": {
+      "template": "core.c",
+      "requires": [],
+      "description": "内存与容量检查（自动依赖）"
+    },
+    "string": {
+      "template": "string.c",
+      "requires": [
+        "core"
+      ],
+      "description": "动态字符串、编辑、分割与连接"
+    },
+    "vector": {
+      "template": "vector.c",
+      "requires": [
+        "core"
+      ],
+      "description": "按实际 C 类型生成动态数组"
+    },
+    "map": {
+      "template": "map.c",
+      "requires": [
+        "core"
+      ],
+      "description": "字符串键 → long long 哈希映射"
+    },
+    "set": {
+      "template": "set.c",
+      "requires": [
+        "map"
+      ],
+      "description": "字符串集合"
+    },
+    "counter": {
+      "template": "counter.c",
+      "requires": [
+        "map"
+      ],
+      "description": "字符串频次统计"
+    }
+  }
+}
