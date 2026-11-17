@@ -24,7 +24,7 @@ def repo(name, url):
 
 def do_bench(name, body, includes=(), defs=(), incpaths=(), extra=()):
     source=OUT/(name+".c")
-    source.write_text("\n".join(includes+defs+[body]),encoding="utf-8")
+    source.write_text("\n".join(list(includes)+list(defs)+[body]),encoding="utf-8")
     executable=OUT/name
     command=[CC,*FLAGS,*(f"-I{x}" for x in incpaths),str(source),"-o",str(executable),*extra]
     t0=time.perf_counter()
@@ -98,7 +98,7 @@ def main():
         output.append(result)
     ownvec=toolbox["generate"](["vector"],specs=["IntVector=int"])
     case("vector_toolbox",mk_vec("IntVector v=IntVector_new();","IntVector_push(&v,x);","v.data[i]","IntVector_pop(&v,NULL);","IntVector_free(&v);"),[ownvec])
-    case("vector_stb",mk_vec("int *v=NULL;","arrput(v,x);","v[i]","(void)arrpop(v);","arrfree(v);"),[PRELUDE+"#define STB_DS_IMPLEMENTATION\n#include \"stb_ds.h\"\n"],paths=[stb])
+    case("vector_stb",mk_vec("int *v=NULL;","arrput(v,x);","v[i]","(void)arrpop(v);","arrfree(v);"),["#define STB_DS_IMPLEMENTATION\n#include \"stb_ds.h\"\n"],paths=[stb])
     case("vector_stc",mk_vec("BenchVec v={0};","BenchVec_push(&v,x);","v.data[i]","(void)BenchVec_pop(&v);","BenchVec_drop(&v);"),
          ['#define T BenchVec, int\n#include "stc/vec.h"'],paths=[stc/"include",stc])
     case("vector_klib",mk_vec("kvec_t(int) v; kv_init(v);","kv_push(int,v,x);","kv_A(v,i)","kv_pop(v);","kv_destroy(v);"),['#include "kvec.h"'],paths=[klib])
@@ -106,8 +106,8 @@ def main():
     case("map_toolbox",mk_map("Map map=map_new();","map_set(&map,k,i);","map_get_or(&map,k,-1)","map_free(&map);"),[ownmap])
     case("map_stb",mk_map("struct {char *key; long long value;} *map=NULL; sh_new_strdup(map);","shput(map,k,i);","shget(map,k)","shfree(map);"),[PRELUDE+"#define STB_DS_IMPLEMENTATION\n#include \"stb_ds.h\"\n"],paths=[stb])
     # STC generic map, cstr manages keys, comparison, hash, and key ownership.
-    case("map_stc",mk_map("BenchMap map={0};","BenchMap_emplace(&map,k,i);","(BenchMap_get(&map,k) ? BenchMap_get(&map,k)->second : -1)","BenchMap_drop(&map);"),
-         ['#define T BenchMap, cstr, long long\n#include "stc/hmap.h"'],paths=[stc/"include",stc])
+    case("map_stc",mk_map("BenchMap map={0};","BenchMap_emplace_or_assign(&map,k,i);","(BenchMap_get(&map,k) ? BenchMap_get(&map,k)->second : -1)","BenchMap_drop(&map);"),
+         ['#define i_implement\n#include "stc/cstr.h"\n#define T BenchMap, cstr, long long\n#include "stc/hashmap.h"'],paths=[stc/"include",stc])
     case("map_klib",mk_map("khash_t(str) *map=kh_init(str);int ret;khiter_t it;","it=kh_put(str,map,k,&ret);kh_val(map,it)=i;","(kh_get(str,map,k)==kh_end(map) ? -1 : kh_val(map,kh_get(str,map,k)))","kh_destroy(str,map);"),
          [PRELUDE,'#include "khash.h"\nKHASH_MAP_INIT_STR(str,long long)'],paths=[klib])
     result={"versions":versions,"cc":CC,"flags":FLAGS,"n":N,"reps":REPS,"results":output}
