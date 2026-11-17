@@ -41,4 +41,15 @@ static Set set_difference(const Set *a, const Set *b) {
         if (!set_contains(b, key)) (void)set_add(&result, key);
     return result;
 }
+static bool set_add_s(Set *s, const String *key) { return set_add(s, string_cstr(key)); }
+static bool set_contains_s(const Set *s, const String *key) {
+    return set_contains(s, string_cstr(key));
+}
+static bool set_remove_s(Set *s, const String *key) { return set_remove(s, string_cstr(key)); }
+static StringList set_values(const Set *s) { return map_keys(&s->items); }
+static Set set_from_strings(const StringList *words) {
+    Set result = set_new();
+    for (size_t i = 0; i < words->len; ++i) (void)set_add_s(&result, string_list_get(words, i));
+    return result;
+}
 

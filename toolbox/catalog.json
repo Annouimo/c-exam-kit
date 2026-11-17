@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "modules": {
     "core": {
       "template": "core.c",
@@ -13,7 +13,10 @@
       ],
       "description": "动态字符串、编辑、分割与连接",
       "extra_templates": [
-        "string_extra.c"
+        "string_extra.c",
+        "string_format.c",
+        "string_list.c",
+        "string_objects.c"
       ]
     },
     "vector": {
@@ -24,12 +27,26 @@
       "description": "按实际 C 类型生成动态数组",
       "extra_templates": [
         "vector_extra.c"
-      ]
+      ],
+      "numeric_templates": {
+        "int": [
+          "vector_numeric.c",
+          "vector_sum_integer.c"
+        ],
+        "long long": [
+          "vector_numeric.c",
+          "vector_sum_integer.c"
+        ],
+        "double": [
+          "vector_numeric.c",
+          "vector_sum_real.c"
+        ]
+      }
     },
     "map": {
       "template": "map.c",
       "requires": [
-        "core"
+        "string"
       ],
       "description": "字符串键 → long long 哈希映射"
     },

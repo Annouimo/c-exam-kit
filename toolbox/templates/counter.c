@@ -38,4 +38,28 @@ static bool counter_most_common(const Counter *c, const char **out_key, long lon
     if (out_count) *out_count = best;
     return true;
 }
+static bool counter_add_s(Counter *c, const String *key, long long delta) {
+    return counter_add(c, string_cstr(key), delta);
+}
+static long long counter_get_s(const Counter *c, const String *key) {
+    return counter_get(c, string_cstr(key));
+}
+static bool counter_remove_s(Counter *c, const String *key) {
+    return counter_remove(c, string_cstr(key));
+}
+static StringList counter_keys(const Counter *c) { return map_keys(&c->items); }
+static Counter counter_from_strings(const StringList *words) {
+    Counter result = counter_new();
+    for (size_t i = 0; i < words->len; ++i)
+        if (!counter_add_s(&result, string_list_get(words, i), 1)) tb_fail("counter overflow");
+    return result;
+}
+static bool counter_most_common_string(const Counter *c, String *out_key, long long *out_count) {
+    const char *key;
+    long long count;
+    if (!counter_most_common(c, &key, &count)) return false;
+    if (out_key) string_assign(out_key, key);
+    if (out_count) *out_count = count;
+    return true;
+}
 

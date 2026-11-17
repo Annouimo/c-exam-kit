@@ -48,16 +48,18 @@ jobs:
       - run: python toolbox/build.py
       - name: Generate preview sources
         run: |
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules string vector map set counter deque heap io -o toolbox/dist/c_toolbox_all_v0.3.0.h
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules string counter --main toolbox/examples/word_count.c -o toolbox/dist/word_count.c
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o toolbox/dist/student_sort.c
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules string --main toolbox/examples/remove_words.c -o toolbox/dist/remove_words.c
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules heap --main toolbox/examples/priority_queue.c -o toolbox/dist/priority_queue.c
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules io --main toolbox/examples/io_lines.c -o toolbox/dist/io_lines.c
-          python toolbox/dist/c_toolbox_v0.3.0.py --modules io --main toolbox/examples/io_remove_words.c -o toolbox/dist/io_remove_words.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules string vector map set counter deque heap io -o toolbox/dist/c_toolbox_all_v0.4.0.h
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules string counter --main toolbox/examples/word_count.c -o toolbox/dist/word_count.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o toolbox/dist/student_sort.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules string --main toolbox/examples/remove_words.c -o toolbox/dist/remove_words.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules heap --main toolbox/examples/priority_queue.c -o toolbox/dist/priority_queue.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules io --main toolbox/examples/io_lines.c -o toolbox/dist/io_lines.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules io --main toolbox/examples/io_remove_words.c -o toolbox/dist/io_remove_words.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules io counter --main toolbox/examples/word_report.c -o toolbox/dist/word_report.c
+          python toolbox/dist/c_toolbox_v0.4.0.py --modules io --main toolbox/examples/number_report.c -o toolbox/dist/number_report.c
       - uses: actions/upload-artifact@v4
         with:
-          name: c-toolbox-v0.3.0-preview
+          name: c-toolbox-v0.4.0-preview
           path: |
             toolbox/dist/
             toolbox/README.md

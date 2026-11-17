@@ -117,4 +117,24 @@ static void map_clear(Map *m) {
     if (m->cap) memset(m->entries, 0, m->cap * sizeof *m->entries);
     m->len = m->used = 0;
 }
+static bool map_set_s(Map *m, const String *key, long long value) {
+    return map_set(m, string_cstr(key), value);
+}
+static bool map_get_s(const Map *m, const String *key, long long *out) {
+    return map_get(m, string_cstr(key), out);
+}
+static long long map_get_or_s(const Map *m, const String *key, long long fallback) {
+    return map_get_or(m, string_cstr(key), fallback);
+}
+static bool map_contains_s(const Map *m, const String *key) {
+    return map_contains(m, string_cstr(key));
+}
+static bool map_remove_s(Map *m, const String *key) { return map_remove(m, string_cstr(key)); }
+static StringList map_keys(const Map *m) {
+    StringList result = string_list_new();
+    size_t cursor = 0;
+    const char *key;
+    while (map_next(m, &cursor, &key, NULL)) string_list_push_text(&result, key);
+    return result;
+}
 

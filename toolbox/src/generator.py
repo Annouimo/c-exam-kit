@@ -96,7 +96,11 @@ def generate(modules, specs=(), preamble="", main="", deques=(), heaps=()):
         if not ready:
             raise ValueError("cyclic container element types")
         for kind, typename, ctype in ready:
-            parts.append(template_for(kind).replace("@TYPE@", ctype).replace("@NAME@", typename))
+            template = template_for(kind)
+            recipes = BUNDLE["catalog"]["modules"][kind].get("numeric_templates", {})
+            for path in recipes.get(" ".join(ctype.split()), []):
+                template += "\n" + BUNDLE["templates"][path]
+            parts.append(template.replace("@TYPE@", ctype).replace("@NAME@", typename))
             emitted.add(typename)
             instances.remove((kind, typename, ctype))
     for name in ordered:

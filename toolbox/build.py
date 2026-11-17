@@ -10,7 +10,8 @@ def build():
     catalog = json.loads((ROOT / "catalog.json").read_text(encoding="utf-8"))
     templates = {}
     for entry in catalog["modules"].values():
-        for name in [entry["template"]] + entry.get("extra_templates", []):
+        numeric = [path for recipe in entry.get("numeric_templates", {}).values() for path in recipe]
+        for name in [entry["template"]] + entry.get("extra_templates", []) + numeric:
             templates[name] = (ROOT / "templates" / name).read_text(encoding="utf-8")
     bundle = {"catalog": catalog, "templates": templates}
     notice = (ROOT.parent / "LICENSE").read_text(encoding="utf-8")

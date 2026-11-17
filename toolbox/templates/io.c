@@ -302,3 +302,17 @@ static void print_strings(const StringList *words, const char *sep, const char *
     }
     print_text("", end);
 }
+static IOStatus parse_int_s(const String *text, int *out) { return parse_int(string_cstr(text), out); }
+static IOStatus parse_ll_s(const String *text, long long *out) { return parse_ll(string_cstr(text), out); }
+static IOStatus parse_double_s(const String *text, double *out) {
+    return parse_double(string_cstr(text), out);
+}
+static int string_to_int(const String *text) {
+    int value; io_require(parse_int_s(text, &value)); return value;
+}
+static long long string_to_ll(const String *text) {
+    long long value; io_require(parse_ll_s(text, &value)); return value;
+}
+static double string_to_double(const String *text) {
+    double value; io_require(parse_double_s(text, &value)); return value;
+}

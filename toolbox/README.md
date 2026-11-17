@@ -1,8 +1,16 @@
-# C Toolbox · v0.3.0 原型
+# C Toolbox · v0.4.0 原型
 
 面向熟悉 Python / JS / C++ 的 C 语言考生。Python 3.9+ 装配器离线生成独立 C99 代码；生成结果不依赖 Python、第三方库或运行时外部文件。此项目与课程脚手架的接口、版本、发布流程独立，当前同仓库开发。
 
 当前提供 String、类型化 Vector / Deque / Heap、字符串键 Map / Set / Counter。尚未实现通用键值类型、Matrix 或完整高级语言标准库；普通数学算法仍可从原脚手架生成后组合使用。
+
+## 对象操作（v0.4.0）
+
+本轮补齐常见操作的组合：拥有字符串的 StringList 支持深复制、增删、排序、去重；数值 Vector 提供默认排序、查找、统计；String 支持格式化和直接对象传参，Map/Set/Counter 可直接接收 String 并返回字符串列表。
+
+[对象接口说明](docs/objects.md) · [纯对象词频统计](examples/word_report.c) · [数列统计与去重](examples/number_report.c)
+
+数值 Vector 包含标准差计算，GCC/Clang 编译生成结果时加 -lm。普通通用容器继续浅复制元素；需要自动管理字符串内容时，优先使用 StringList。
 
 ## 输入输出（v0.3.0）
 
@@ -16,24 +24,24 @@
 
 ~~~sh
 python toolbox/build.py
-python toolbox/dist/c_toolbox_v0.3.0.py --list
-python toolbox/dist/c_toolbox_v0.3.0.py --modules string counter -o answer.c
+python toolbox/dist/c_toolbox_v0.4.0.py --list
+python toolbox/dist/c_toolbox_v0.4.0.py --modules string counter -o answer.c
 ~~~
 
-分发时只需要 c_toolbox_v0.3.0.py，无第三方 Python 依赖。无参数在终端显示简单的组件选择提示；非交互输入时默认生成全部组件。--modules 明确选择组件，自动加入依赖，不会加入未选中的其他对象。生成结果默认是组件函数，没有 main；粘贴至答案或用 --main 追加自己的完整程序。
+分发时只需要 c_toolbox_v0.4.0.py，无第三方 Python 依赖。无参数在终端显示简单的组件选择提示；非交互输入时默认生成全部组件。--modules 明确选择组件，自动加入依赖，不会加入未选中的其他对象。生成结果默认是组件函数，没有 main；粘贴至答案或用 --main 追加自己的完整程序。
 
 可运行的单词计数例子（顺序不保证，按字面空格分割，不是通用分词器）：
 
 ~~~sh
-python toolbox/dist/c_toolbox_v0.3.0.py --modules string counter --main toolbox/examples/word_count.c -o answer.c
-cc -std=c99 -O2 answer.c -o answer
+python toolbox/dist/c_toolbox_v0.4.0.py --modules string counter --main toolbox/examples/word_count.c -o answer.c
+cc -std=c99 -O2 answer.c -o answer -lm
 ~~~
 
 用户结构体与类型化容器：
 
 ~~~sh
-python toolbox/dist/c_toolbox_v0.3.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o students.c
-cc -std=c99 -O2 students.c -o students
+python toolbox/dist/c_toolbox_v0.4.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o students.c
+cc -std=c99 -O2 students.c -o students -lm
 ~~~
 
 --vector 可重复使用；名字须以大写字母开头。不指定时生成 IntVector=int。复杂类型先写 typedef，通过 --preamble 在库类型之后、类型化容器之前插入。普通数组直接使用 .data 与 .len。排序沿用 C 的 qsort 比较器。
@@ -56,7 +64,7 @@ cc -std=c99 -O2 students.c -o students
 | 对象 | 操作 |
 | --- | --- |
 | String | new / from / clone / cstr / reserve / assign / clear / append / push / pop / insert / erase / slice / find / contains / starts_with / ends_with / count / replace_all / remove_first / remove_all / remove_repeated / trim / lower / upper / readline / read_token / split / join / free |
-| StringList | split 返回独立字符串列表；string_list_free 逐项释放 |
+| StringList | 拥有字符串的列表；深复制、增删、查找、排序、去重、切片、转移所有权 |
 | Name 类型 Vector | Name_new / reserve / push / pop / insert / erase / get / set / front / back / extend / resize / reverse / clone / clear / sort / free |
 | Map | new / set / get / get_or / contains / size / clear / remove / next / clone / free |
 | Set | new / add / contains / remove / size / clear / next / clone / union / intersection / difference / is_subset / free |
@@ -116,7 +124,7 @@ string_free(&word);
 string_free(&text);
 ~~~
 
-完整示例是 examples/remove_words.c。Vector 的 extend 支持把自身的元素区间追加至末尾；resize 扩大时填入传入的值，缩小时不会释放元素内部资源。get / set / front / back 越界或为空时返回 false，读取失败不修改输出变量。
+完整示例是 examples/remove_words.c，新推荐用法见对象接口说明。Vector 的 extend 支持把自身的元素区间追加至末尾；resize 扩大时填入传入的值，缩小时不会释放元素内部资源。get / set / front / back 越界或为空时返回 false，读取失败不修改输出变量。
 
 选择 deque 默认生成 IntDeque；--deque TaskQueue=Task 可生成用户类型。队列用 push_back / pop_front，栈用 push_back / pop_back，双端操作均摊 O(1)，get 按逻辑位置读取，不能把环形存储的 data 当成连续逻辑数组。
 

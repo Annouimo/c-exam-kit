@@ -5,7 +5,7 @@ int main(void) {
     if (n < 0) tb_fail("word count must be nonnegative");
     for (int i = 0; i < n; ++i) {
         String word = read_word();
-        (void)string_remove_repeated(&text, string_cstr(&word));
+        (void)string_remove_repeated_s(&text, &word);
         string_free(&word);
     }
     print_string(&text, "\n");

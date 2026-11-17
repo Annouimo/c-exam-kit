@@ -38,3 +38,21 @@ static void @NAME@_reverse(@NAME@ *v) {
         v->data[v->len - 1 - i] = value;
     }
 }
+static size_t @NAME@_size(const @NAME@ *v) { return v->len; }
+static bool @NAME@_empty(const @NAME@ *v) { return v->len == 0; }
+static @TYPE@ @NAME@_at(const @NAME@ *v, size_t pos) {
+    if (pos >= v->len) tb_fail("vector index out of range");
+    return v->data[pos];
+}
+static void @NAME@_fill(@NAME@ *v, @TYPE@ value) {
+    for (size_t i = 0; i < v->len; ++i) v->data[i] = value;
+}
+static @NAME@ @NAME@_slice(const @NAME@ *v, size_t pos, size_t count) {
+    if (pos > v->len || count > v->len - pos) tb_fail("invalid vector slice");
+    @NAME@ result = @NAME@_new();
+    if (count) @NAME@_extend(&result, v->data + pos, count);
+    return result;
+}
+static void @NAME@_extend_vector(@NAME@ *v, const @NAME@ *other) {
+    @NAME@_extend(v, other->data, other->len);
+}

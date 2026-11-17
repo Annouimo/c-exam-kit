@@ -1,4 +1,4 @@
-# 输入输出 · v0.3.0
+# 输入输出 · v0.4.0
 
 默认忽略用于分隔数据的空白；题目把空格、空行当作数据时，显式选 raw 接口。
 
@@ -115,8 +115,8 @@ print_int(value,end)、print_ll(value,end)、print_double(value,precision,end)�
 ## 文件输入与装配
 
 ~~~sh
-python c_toolbox_v0.3.0.py --modules io --main your_main.c -o answer.c
-cc -std=c99 -O2 answer.c -o answer
+python c_toolbox_v0.4.0.py --modules io --main your_main.c -o answer.c
+cc -std=c99 -O2 answer.c -o answer -lm
 ~~~
 
 io 自动带入 String、IntVector、LongLongVector、DoubleVector。用户额外配置的 Vector 可共存，但不能把这些内置类型改成其他元素类型。
@@ -128,3 +128,5 @@ io 自动带入 String、IntVector、LongLongVector、DoubleVector。用户额�
 文本以字节处理，空白依据 C 的 isspace，不提供 Unicode 空白识别。需要处理 NUL 或其他二进制内容时，使用原始字符/标准文件接口。输入结束或出错不回滚已经消费的字节，只有输出变量保持原值。
 
 说明正文：CC BY 4.0；代码示例：MIT-0。作者 Annouimo，来源 https://github.com/Annouimo/c-exam-kit 。
+
+数值 Vector 的默认排序和统计、StringList 的所有权管理、String 到数值的直接转换，见 [对象接口说明](objects.md)。

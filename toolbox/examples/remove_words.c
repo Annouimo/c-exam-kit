@@ -9,7 +9,7 @@ int main(void) {
     int n;
     if (scanf("%d", &n) == 1) {
         for (int i = 0; i < n && string_read_token(&word, stdin); ++i)
-            (void)string_remove_repeated(&text, string_cstr(&word));
+            (void)string_remove_repeated_s(&text, &word);
     }
     puts(string_cstr(&text));
     string_free(&word);

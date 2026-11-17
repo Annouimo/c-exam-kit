@@ -11,7 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable, str(ROOT / "build.py")], check=True)
-STANDALONE = ROOT / "dist/c_toolbox_v0.3.0.py"
+STANDALONE = ROOT / "dist/c_toolbox_v0.4.0.py"
 spec = importlib.util.spec_from_file_location("toolbox", STANDALONE)
 tb = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tb)
@@ -26,7 +26,7 @@ class ToolboxTests(unittest.TestCase):
             cmd = shlex.split(os.environ.get("CC", "cc"))
             cmd += ["-std=c99", "-Wall", "-Wextra", "-Werror", "-Wno-unused-function"]
             cmd += shlex.split(os.environ.get("TOOLBOX_CFLAGS", ""))
-            cmd += list(flags) + [str(source), "-o", str(binary)]
+            cmd += list(flags) + [str(source), "-o", str(binary), "-lm"]
             compiled = subprocess.run(cmd, capture_output=True, text=True)
             self.assertEqual(compiled.returncode, 0, compiled.stderr)
             completed = subprocess.run([str(binary)], input=input_text, capture_output=True, text=True)
@@ -44,7 +44,7 @@ class ToolboxTests(unittest.TestCase):
                             "-o", str(output)], cwd=directory, check=True)
             code = output.read_text(encoding="utf-8")
             self.assertIn("typedef struct", code)
-            self.assertNotIn("StringList", code)
+            self.assertNotIn("IntVector", code)
             self.run_c(code + "\nint main(void) { return 0; }\n")
         subprocess.run([sys.executable, str(ROOT / "build.py"), "--check"], check=True)
 
@@ -596,6 +596,188 @@ int main(void) {
                          "[]\n[  a  ]\n[ \t ]\n")
         main = (ROOT / "examples/io_remove_words.c").read_text(encoding="utf-8")
         self.assertEqual(self.run_c(tb.generate(["io"], main=main), "aabb hello\n2 ab hello\n"), " \n")
+
+
+    def test_owned_string_list(self):
+        self.run_c(tb.generate(["string"], main=r"""
+#include <assert.h>
+int main(void) {
+    StringList list = string_list_new();
+    String a = string_from("pear"), out = string_new();
+    string_list_push(&list, &a);
+    string_assign(&a, "apple");
+    string_list_push_take(&list, &a);
+    assert(string_empty(&a));
+    assert(string_equal_text(string_list_get(&list, 0), "pear"));
+    for (int i = 0; i < 20; ++i) string_list_push(&list, string_list_get(&list, 0));
+    assert(string_list_insert(&list, 0, string_list_get(&list, 1)));
+    assert(string_list_set(&list, 1, string_list_get(&list, 0)));
+    StringList copy = string_list_clone(&list);
+    StringList slice = string_list_slice(&copy, 0, 2);
+    string_list_free(&list);
+    assert(string_equal_text(string_list_get(&copy, 0), "apple"));
+    assert(!string_list_erase(&copy, 0, SIZE_MAX));
+    string_list_sort(&copy); string_list_unique_sorted(&copy);
+    assert(string_list_size(&copy) == 2);
+    assert(string_equal_text(string_list_get(&copy, 0), "apple"));
+    assert(string_equal_text(string_list_get(&copy, 1), "pear"));
+    string_list_reverse(&copy);
+    assert(string_list_pop(&copy, &out) && string_equal_text(&out, "apple"));
+    assert(string_list_pop(&copy, NULL) && string_list_empty(&copy));
+    assert(!string_list_pop(&copy, &out));
+    string_assign(&a, "apple");
+    assert(string_list_contains(&slice, &a) && string_list_find(&slice, &a) == 0);
+    string_assign(string_list_at(&slice, 0), "changed");
+    assert(!string_equal(string_list_get(&slice, 0), string_list_get(&slice, 1)));
+    string_list_clear(&slice); assert(string_list_empty(&slice));
+    string_list_free(&slice); string_list_free(&copy);
+    string_free(&a); string_free(&out);
+    String text = string_from("\t pear  apple\napple \r pear  ");
+    list = string_split_whitespace(&text); string_free(&text);
+    string_list_sort(&list); string_list_unique_sorted(&list);
+    String joined = string_join(&list, "|");
+    assert(string_equal_text(&joined, "apple|pear"));
+    string_free(&joined); string_list_free(&list);
+    return 0;
+}"""))
+
+    def test_string_object_operations_and_format(self):
+        self.run_c(tb.generate(["string"], main=r"""
+#include <assert.h>
+int main(void) {
+    String s = string_format("%04d-%02d %.2f", 2026, 1, 1.25);
+    assert(string_equal_text(&s, "2026-01 1.25"));
+    string_append_format(&s, " [%s]", "ok");
+    assert(string_equal_text(&s, "2026-01 1.25 [ok]"));
+    String copy = string_clone(&s);
+    assert(string_equal(&s, &copy) && string_compare(&s, &copy) == 0);
+    string_assign(&s, "%s");
+    string_append_format(&s, string_cstr(&s), "!");
+    assert(string_equal_text(&s, "%s!"));
+    string_assign(&s, "aba");
+    assert(string_is_palindrome(&s) && string_at(&s, 1) == 'b');
+    assert(!string_set(&s, 3, 'x') && !string_set(&s, 0, 0));
+    string_reverse(&s); assert(string_is_palindrome(&s));
+    string_assign(&s, "aaaa");
+    assert(string_count(&s, "aa") == 2 && string_count_overlapping(&s, "aa") == 3);
+    assert(string_count_overlapping(&s, "") == 0);
+    string_assign(&copy, "aa");
+    assert(string_count_s(&s, &copy) == 2 && string_find_s(&s, &copy, 1) == 1);
+    assert(string_contains_s(&s, &copy));
+    assert(string_remove_repeated_s(&s, &copy) == 2 && string_empty(&s));
+    string_append_s(&s, &copy); assert(string_insert_s(&s, 0, &copy));
+    string_remove_all_s(&s, &copy); assert(string_empty(&s));
+    string_assign_s(&s, &copy);
+    string_append_s(&s, &s); assert(string_equal_text(&s, "aaaa"));
+    String replacement = string_from("b");
+    string_replace_all_s(&s, &copy, &replacement);
+    assert(string_equal_text(&s, "bb"));
+    StringList parts = string_split_s(&s, &replacement);
+    String joined = string_join_s(&parts, &copy);
+    assert(string_equal_text(&joined, "aaaa"));
+    string_free(&joined); string_list_free(&parts);
+    string_free(&s); string_free(&copy); string_free(&replacement);
+    s = string_from_int(-12); assert(string_equal_text(&s, "-12")); string_free(&s);
+    s = string_from_ll(LLONG_MIN);
+    assert(!string_empty(&s)); string_free(&s);
+    s = string_from_double(1.25, 2); assert(string_equal_text(&s, "1.25")); string_free(&s);
+    s = string_format(""); assert(string_empty(&s)); string_free(&s);
+    return 0;
+}"""))
+        self.run_c(tb.generate(["string"], main="int main(void) { (void)string_format(\"%c\", 0); return 0; }"),
+                   exit_code=1, error_contains="NUL in formatted text")
+
+    def test_numeric_vector_algorithms(self):
+        self.run_c(tb.generate(["vector"], main=r"""
+#include <assert.h>
+int main(void) {
+    IntVector v = IntVector_new();
+    IntVector_push(&v, 5); IntVector_push(&v, -2); IntVector_push(&v, 5); IntVector_push(&v, 0);
+    assert(IntVector_sum(&v) == 8 && IntVector_min(&v) == -2 && IntVector_max(&v) == 5);
+    assert(IntVector_argmin(&v) == 1 && IntVector_argmax(&v) == 0);
+    assert(IntVector_mean(&v) == 2 && IntVector_median(&v) == 2.5);
+    assert(IntVector_at(&v, 0) == 5);
+    assert(fabs(IntVector_variance(&v) - 9.5) < 1e-12);
+    assert(fabs(IntVector_stddev(&v) - sqrt(9.5)) < 1e-12);
+    assert(IntVector_contains(&v, 5) && IntVector_count(&v, 5) == 2);
+    assert(IntVector_find(&v, 99) == SIZE_MAX);
+    IntVector_sort_asc(&v);
+    assert(IntVector_lower_bound(&v, 5) == 2 && IntVector_upper_bound(&v, 5) == 4);
+    assert(IntVector_lower_bound(&v, 100) == 4 && IntVector_upper_bound(&v, -3) == 0);
+    IntVector_unique_sorted(&v); assert(IntVector_size(&v) == 3);
+    IntVector_sort_desc(&v); assert(IntVector_at(&v, 0) == 5);
+    IntVector copy = IntVector_slice(&v, 1, 2);
+    IntVector_fill(&copy, 7); IntVector_extend_vector(&copy, &copy);
+    assert(IntVector_size(&copy) == 4 && IntVector_sum(&copy) == 28);
+    assert(IntVector_variance(&copy) == 0);
+    IntVector_free(&copy); IntVector_free(&v);
+    assert(IntVector_empty(&v) && IntVector_sum(&v) == 0);
+    return 0;
+}"""))
+
+    def test_double_and_wide_integer_statistics(self):
+        self.run_c(tb.generate(["vector"], ["Real=double", "Wide=long long"], main=r"""
+#include <assert.h>
+int main(void) {
+    Real v = Real_new();
+    Real_push(&v, 1.5); Real_push(&v, -0.5); Real_push(&v, 3);
+    assert(fabs(Real_sum(&v) - 4) < 1e-12 && Real_median(&v) == 1.5);
+    assert(fabs(Real_mean(&v) - 4.0 / 3) < 1e-12);
+    Real_sort_asc(&v); assert(Real_at(&v, 0) == -0.5);
+    assert(Real_lower_bound(&v, 1.5) == 1 && Real_upper_bound(&v, 1.5) == 2);
+    Real_free(&v);
+    Wide w = Wide_new(); Wide_push(&w, LLONG_MAX); Wide_push(&w, LLONG_MAX);
+    assert(Wide_variance(&w) == 0 && Wide_stddev(&w) == 0);
+    assert(Wide_median(&w) == (double)LLONG_MAX); Wide_free(&w);
+    return 0;
+}"""))
+        self.run_c(tb.generate(["vector"], ["Wide=long long"], main=r"""
+int main(void) {
+    long long items[] = {LLONG_MAX, 1};
+    Wide v = {items, 2, 2};
+    (void)Wide_sum(&v); return 0;
+}"""), exit_code=1, error_contains="integer sum overflow")
+        self.run_c(tb.generate(["vector"], main="int main(void) { IntVector v = {0}; (void)IntVector_mean(&v); return 0; }"),
+                   exit_code=1, error_contains="mean of empty vector")
+
+    def test_object_mapping_and_conversion(self):
+        self.run_c(tb.generate(["io", "counter", "set"], main=r"""
+#include <assert.h>
+int main(void) {
+    String text = string_from("b a b");
+    StringList words = string_split_whitespace(&text);
+    Counter c = counter_from_strings(&words);
+    Set s = set_from_strings(&words);
+    String key = string_from("b"), best = string_new();
+    assert(counter_get_s(&c, &key) == 2);
+    assert(counter_add_s(&c, &key, 1));
+    long long count;
+    assert(counter_most_common_string(&c, &best, &count) && count == 3 && string_equal(&best, &key));
+    assert(set_contains_s(&s, &key) && !set_add_s(&s, &key));
+    StringList keys = counter_keys(&c), set_keys = set_values(&s);
+    counter_free(&c); set_free(&s);
+    string_list_sort(&keys); assert(string_equal_text(string_list_get(&keys, 0), "a"));
+    Map m = map_new(); map_set_s(&m, &key, 7);
+    assert(map_get_s(&m, &key, &count) && count == 7 && map_contains_s(&m, &key));
+    assert(map_get_or_s(&m, &key, 0) == 7 && map_remove_s(&m, &key));
+    map_free(&m);
+    string_assign(&key, "42"); assert(string_to_int(&key) == 42 && string_to_ll(&key) == 42);
+    string_assign(&key, "1.25"); assert(string_to_double(&key) == 1.25);
+    int n = 99; assert(parse_int_s(&key, &n) == IO_FORMAT && n == 99);
+    string_free(&text); string_free(&key); string_free(&best);
+    string_list_free(&words); string_list_free(&keys); string_list_free(&set_keys);
+    return 0;
+}"""))
+
+    def test_closed_workflow_examples(self):
+        for name, modules, input_text, expected in [
+            ("word_report", ["io", "counter"], " pear  apple pear\n", "apple: 1\npear: 2\n"),
+            ("number_report", ["io"], "4\n5 -2 5 0\n", "count=4 mean=2.00 median=2.50\n-2 0 5\n")
+        ]:
+            main = (ROOT / ("examples/" + name + ".c")).read_text(encoding="utf-8")
+            self.assertNotIn("string_cstr", main)
+            self.assertNotIn(".data", main)
+            self.assertEqual(self.run_c(tb.generate(modules, main=main), input_text), expected)
 
 
 if __name__ == "__main__":
