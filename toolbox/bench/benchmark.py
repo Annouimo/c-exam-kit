@@ -10,7 +10,7 @@ OUT.mkdir(exist_ok=True)
 N = int(os.environ.get("BENCH_N", "120000"))
 CC = os.environ.get("CC", "gcc")
 FLAGS = ["-O2", "-std=c99", "-DNDEBUG", "-Wno-unused-function"]
-REPS = 5
+REPS = 7
 
 def cmd(args, **kwargs):
     return subprocess.run(list(map(str,args)), check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
@@ -35,7 +35,7 @@ def do_bench(name, body, includes=(), defs=(), incpaths=(), extra=()):
     checks=[]
     for _ in range(REPS):
         t0=time.perf_counter()
-        p=subprocess.run([str(executable),str(N)],capture_output=True,text=True)
+        p=subprocess.run([str(executable),str(N * 10 if name.startswith('vector_') else N)],capture_output=True,text=True)
         elapsed=time.perf_counter()-t0
         if p.returncode: return {"name":name,"error":"run failed: "+p.stderr[-1000:]}
         times.append(elapsed);checks.append(p.stdout.strip())
@@ -104,13 +104,13 @@ def main():
     case("vector_klib",mk_vec("kvec_t(int) v; kv_init(v);","kv_push(int,v,x);","kv_A(v,i)","kv_pop(v);","kv_destroy(v);"),['#include "kvec.h"'],paths=[klib])
     ownmap=toolbox["generate"](["map"])
     case("map_toolbox",mk_map("Map map=map_new();","map_set(&map,k,i);","map_get_or(&map,k,-1)","map_free(&map);"),[ownmap])
-    case("map_stb",mk_map("struct {char *key; long long value;} *map=NULL; sh_new_strdup(map);","shput(map,k,i);","shget(map,k)","shfree(map);"),[PRELUDE+"#define STB_DS_IMPLEMENTATION\n#include \"stb_ds.h\"\n"],paths=[stb])
+    case("map_stb",mk_map("struct {char *key; long long value;} *map=NULL; sh_new_strdup(map);","shput(map,k,i);","shget(map,k)","shfree(map);"),["#define STB_DS_IMPLEMENTATION\n#include \"stb_ds.h\"\n"],paths=[stb])
     # STC generic map, cstr manages keys, comparison, hash, and key ownership.
     case("map_stc",mk_map("BenchMap map={0};","BenchMap_emplace_or_assign(&map,k,i);","(BenchMap_get(&map,k) ? BenchMap_get(&map,k)->second : -1)","BenchMap_drop(&map);"),
-         ['#define i_implement\n#include "stc/cstr.h"\n#define T BenchMap, cstr, long long\n#include "stc/hashmap.h"'],paths=[stc/"include",stc])
+         ['#define i_implement\n#include "stc/cstr.h"\n#define T BenchMap, cstr, long long, c_pro_key\n#include "stc/hashmap.h"'],paths=[stc/"include",stc])
     case("map_klib",mk_map("khash_t(str) *map=kh_init(str);int ret;khiter_t it;","it=kh_put(str,map,k,&ret);kh_val(map,it)=i;","(kh_get(str,map,k)==kh_end(map) ? -1 : kh_val(map,kh_get(str,map,k)))","kh_destroy(str,map);"),
-         [PRELUDE,'#include "khash.h"\nKHASH_MAP_INIT_STR(str,long long)'],paths=[klib])
+         ['#include "khash.h"\nKHASH_MAP_INIT_STR(str,long long)'],paths=[klib])
     result={"versions":versions,"cc":CC,"flags":FLAGS,"n":N,"reps":REPS,"results":output}
     (OUT/"results.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
-    print("FULL_REPORT "+json.dumps(result,ensure_ascii=False),flush=True)
+    print("FULL_REPORT "+json.dumps(result,ensure_ascii=False),flush=True)\n    failed=[x for x in output if "error" in x]\n    if failed: raise SystemExit("Benchmark cases failed: "+", ".join(x["name"] for x in failed))
 if __name__=="__main__":main()
