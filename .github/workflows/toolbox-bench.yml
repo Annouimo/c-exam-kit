@@ -9,6 +9,12 @@ permissions:
 jobs:
   microbench:
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cc: [gcc, clang]
+    env:
+      CC: ${{ matrix.cc }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: c-toolbox-backend-benchmark
+          name: c-toolbox-backend-benchmark-${{ matrix.cc }}
           path: |
             benchmark.log
             toolbox/bench/_build/results.json
