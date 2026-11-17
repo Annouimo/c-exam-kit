@@ -1,8 +1,14 @@
-# C Toolbox · v0.2.0 原型
+# C Toolbox · v0.3.0 原型
 
 面向熟悉 Python / JS / C++ 的 C 语言考生。Python 3.9+ 装配器离线生成独立 C99 代码；生成结果不依赖 Python、第三方库或运行时外部文件。此项目与课程脚手架的接口、版本、发布流程独立，当前同仓库开发。
 
 当前提供 String、类型化 Vector / Deque / Heap、字符串键 Map / Set / Counter。尚未实现通用键值类型、Matrix 或完整高级语言标准库；普通数学算法仍可从原脚手架生成后组合使用。
+
+## 输入输出（v0.3.0）
+
+新增 io 模块：默认跳过空白，精确读取用 raw 接口。read_line 跳过空行、去掉行首尾空白并保留内部空格；read_line_raw 保留空行与首尾空白。数字后要精确读取下一行，用 read_next_line_raw。单值、动态文本、Vector 批量读写、数值验证和 EOF 状态使用同一套规则。
+
+[完整输入输出说明](docs/io.md) · [保留空行示例](examples/io_lines.c) · [新版删词题](examples/io_remove_words.c)
 
 ## 使用
 
@@ -10,23 +16,23 @@
 
 ~~~sh
 python toolbox/build.py
-python toolbox/dist/c_toolbox_v0.2.0.py --list
-python toolbox/dist/c_toolbox_v0.2.0.py --modules string counter -o answer.c
+python toolbox/dist/c_toolbox_v0.3.0.py --list
+python toolbox/dist/c_toolbox_v0.3.0.py --modules string counter -o answer.c
 ~~~
 
-分发时只需要 c_toolbox_v0.2.0.py，无第三方 Python 依赖。无参数在终端显示简单的组件选择提示；非交互输入时默认生成全部组件。--modules 明确选择组件，自动加入依赖，不会加入未选中的其他对象。生成结果默认是组件函数，没有 main；粘贴至答案或用 --main 追加自己的完整程序。
+分发时只需要 c_toolbox_v0.3.0.py，无第三方 Python 依赖。无参数在终端显示简单的组件选择提示；非交互输入时默认生成全部组件。--modules 明确选择组件，自动加入依赖，不会加入未选中的其他对象。生成结果默认是组件函数，没有 main；粘贴至答案或用 --main 追加自己的完整程序。
 
 可运行的单词计数例子（顺序不保证，按字面空格分割，不是通用分词器）：
 
 ~~~sh
-python toolbox/dist/c_toolbox_v0.2.0.py --modules string counter --main toolbox/examples/word_count.c -o answer.c
+python toolbox/dist/c_toolbox_v0.3.0.py --modules string counter --main toolbox/examples/word_count.c -o answer.c
 cc -std=c99 -O2 answer.c -o answer
 ~~~
 
 用户结构体与类型化容器：
 
 ~~~sh
-python toolbox/dist/c_toolbox_v0.2.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o students.c
+python toolbox/dist/c_toolbox_v0.3.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o students.c
 cc -std=c99 -O2 students.c -o students
 ~~~
 
@@ -57,6 +63,7 @@ cc -std=c99 -O2 students.c -o students
 | Counter | new / add / get / remove / size / clear / next / most_common / clone / free |
 | Name 类型 Deque | Name_new / reserve / push_front / push_back / pop_front / pop_back / front / back / get / clear / clone / free |
 | Name 类型 Heap | Name_new(compare) / from / reserve / push / peek / pop / clear / clone / free |
+| io | read_int / ll / double / word / line / char、raw 精确读法、try_read 状态、批量读写 |
 
 String 的 find 接收起始下标，未找到返回 SIZE_MAX；空目标匹配起点。replace_all 使用不重叠替换，空目标不修改；支持旧串、替换串引用原字符串。split 接收非空字面分隔串并保留空字段，join 返回新 String。readline 去掉 LF 和末尾 CR，即使空行也返回 true，立即 EOF 返回 false。
 

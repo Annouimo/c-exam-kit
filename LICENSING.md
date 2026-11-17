@@ -6,7 +6,7 @@ Copyright © 2026 Annouimo。下列授权适用于本项目由 Annouimo 提供�
 | --- | --- |
 | 生成器核心、构建与测试脚本、工作流、非文档配置及编译脚本 | [MIT](LICENSE) |
 | `templates/`、`toolbox/templates/`、`toolbox/examples/` 中的 C 代码、`catalog/code_comments.json` 中的代码注释、手册和 README 中可复制的代码示例，以及程序装配输出的所有源码（含依赖定义和可选署名） | [MIT-0](LICENSES/MIT-0.txt) |
-| README（含 `toolbox/README.md`）、`docs/` 文档、手册正文与表格、组件的说明文字，以及由它们生成的 PDF/Markdown 手册 | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
+| README（含 `toolbox/README.md`）、`docs/`、`toolbox/docs/` 文档、手册正文与表格、组件的说明文字，以及由它们生成的 PDF/Markdown 手册 | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
 
 未在上表单独列出的本项目工程代码默认采用 MIT。模板或说明文字即使被嵌入单文件生成器，其原有授权范围也不改变。完整生成器包含 MIT、MIT-0 与 CC BY 4.0 内容，不能将整个生成器当作免署名模板重新分发。
 
@@ -23,3 +23,4 @@ Copyright © 2026 Annouimo。下列授权适用于本项目由 Annouimo 提供�
 标准库速查的参考入口见 `catalog/handbook/references.json`（C99 / WG14 N1256）。这里的引用用于说明参考来源，不表示对标准文档本身重新授权。
 
 提交修改时，请确认有权提供相应内容，并同意按修改对象对应的协议发布。引用他人代码、课件、题目或图片时，请提供来源和适用授权；不能将无法确认授权的内容直接并入本项目。发现遗漏来源或授权疑问，请通过 Issue 告知具体文件和段落。
+

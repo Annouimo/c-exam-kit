@@ -11,13 +11,13 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable, str(ROOT / "build.py")], check=True)
-STANDALONE = ROOT / "dist/c_toolbox_v0.2.0.py"
+STANDALONE = ROOT / "dist/c_toolbox_v0.3.0.py"
 spec = importlib.util.spec_from_file_location("toolbox", STANDALONE)
 tb = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tb)
 
 class ToolboxTests(unittest.TestCase):
-    def run_c(self, code, input_text="", flags=()):
+    def run_c(self, code, input_text="", flags=(), exit_code=0, error_contains=None):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
             source = folder / "answer.c"
@@ -30,7 +30,9 @@ class ToolboxTests(unittest.TestCase):
             compiled = subprocess.run(cmd, capture_output=True, text=True)
             self.assertEqual(compiled.returncode, 0, compiled.stderr)
             completed = subprocess.run([str(binary)], input=input_text, capture_output=True, text=True)
-            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertEqual(completed.returncode, exit_code, completed.stderr)
+            if error_contains is not None:
+                self.assertIn(error_contains, completed.stderr)
             return completed.stdout
 
     def test_standalone_without_sources(self):
@@ -55,7 +57,7 @@ class ToolboxTests(unittest.TestCase):
                 tb.generate(modules, specs)
 
     def test_each_module_compiles(self):
-        for module in ("string", "vector", "map", "set", "counter", "deque", "heap"):
+        for module in ("string", "vector", "map", "set", "counter", "deque", "heap", "io"):
             with self.subTest(module=module):
                 self.run_c(tb.generate([module], main="int main(void) { return 0; }"))
 
@@ -429,6 +431,171 @@ int main(void) {
         self.assertEqual(self.run_c(tb.generate(["string"], main=main), "aabb hello\n2\nab hello\n"), " \n")
         main = (ROOT / "examples/priority_queue.c").read_text(encoding="utf-8")
         self.assertEqual(self.run_c(tb.generate(["heap"], main=main)), "10\n20\n30\n")
+
+
+    def test_io_default_skips_whitespace(self):
+        self.assertEqual(self.run_c(tb.generate(["io"], main=r"""
+#include <assert.h>
+int main(void) {
+    assert(read_int() == 3);
+    String line = read_line();
+    assert(!strcmp(string_cstr(&line), "leading and trailing"));
+    print_string(&line, "\n");
+    assert(try_read_line(&line) == IO_EOF && !strcmp(line.data, "leading and trailing"));
+    string_free(&line); return 0;
+}"""), "\t\n3  \n\n  leading and trailing  \n \t \n"), "leading and trailing\n")
+
+    def test_io_raw_remainder_and_extra_data(self):
+        self.run_c(tb.generate(["io"], main=r"""
+#include <assert.h>
+int main(void) {
+    assert(read_int() == 42);
+    String tail = read_rest();
+    assert(!strcmp(string_cstr(&tail), "  hello world  "));
+    string_free(&tail);
+    assert(read_int() == 7);
+    assert(io_finish_line(tb_input()) == IO_EXTRA_DATA);
+    assert(tb_input()->line_pending);
+    tail = read_rest(); /* validation consumed the preceding horizontal spaces */
+    assert(!strcmp(string_cstr(&tail), "extra"));
+    string_free(&tail);
+    assert(read_int() == 9);
+    discard_line();
+    tail = read_line(); assert(!strcmp(string_cstr(&tail), "next"));
+    string_free(&tail);
+    return 0;
+}"""), "42  hello world  \n7 \t extra\n9 discard this\nnext")
+
+    def test_io_exact_line_endings_and_final_eof(self):
+        self.run_c(tb.generate(["io"], main=r"""
+#include <assert.h>
+int main(void) {
+    FILE *input = tmpfile(); assert(input);
+    const char bytes[] = "2 \t\r\n\r\n  abc  \r\nlast\rend";
+    assert(fwrite(bytes, 1, sizeof bytes - 1, input) == sizeof bytes - 1);
+    rewind(input);
+    IOReader r = io_reader(input);
+    int n;
+    assert(io_read_int(&r, &n) == IO_OK && n == 2);
+    String s = string_new();
+    assert(io_read_next_line_raw(&r, &s) == IO_OK && !s.len);
+    assert(io_read_line_raw(&r, &s) == IO_OK && !strcmp(string_cstr(&s), "  abc  "));
+    assert(io_read_line_raw(&r, &s) == IO_OK && !strcmp(string_cstr(&s), "last"));
+    assert(io_read_line_raw(&r, &s) == IO_OK && !strcmp(string_cstr(&s), "end"));
+    assert(io_read_line_raw(&r, &s) == IO_EOF && !strcmp(string_cstr(&s), "end"));
+    string_free(&s); fclose(input); return 0;
+}"""))
+
+    def test_io_empty_input_and_raw_char(self):
+        self.run_c(tb.generate(["io"], main=r"""
+#include <assert.h>
+int main(void) {
+    FILE *empty = tmpfile(); assert(empty);
+    IOReader r = io_reader(empty);
+    String s = string_from("keep");
+    int n = 123; char c = 'x';
+    assert(io_read_line(&r, &s) == IO_EOF && !strcmp(s.data, "keep"));
+    assert(io_read_word(&r, &s) == IO_EOF);
+    assert(io_read_int(&r, &n) == IO_EOF && n == 123);
+    assert(io_read_char(&r, &c) == IO_EOF && c == 'x');
+    string_free(&s); fclose(empty);
+    assert(read_char_raw() == ' ');
+    assert(read_char_raw() == '\t');
+    assert(read_char_raw() == '\n');
+    s = read_line_raw(); assert(!s.len); string_free(&s);
+    s = read_line_raw(); assert(!strcmp(string_cstr(&s), "tail")); string_free(&s);
+    assert(read_char() == 'z');
+    return 0;
+}"""), " \t\n\ntail\n \t\nz")
+
+    def test_io_numeric_validation_and_recovery(self):
+        self.run_c(tb.generate(["io"], main=r"""
+#include <assert.h>
+int main(void) {
+    int n = 77;
+    long long ll = 88;
+    double d = 99;
+    char text[100];
+    sprintf(text, "%lld", LLONG_MIN);
+    assert(parse_ll(text, &ll) == IO_OK && ll == LLONG_MIN);
+    sprintf(text, "%lld", LLONG_MAX);
+    assert(parse_ll(text, &ll) == IO_OK && ll == LLONG_MAX);
+    sprintf(text, "%d", INT_MIN); assert(parse_int(text, &n) == IO_OK && n == INT_MIN);
+    sprintf(text, "%d", INT_MAX); assert(parse_int(text, &n) == IO_OK && n == INT_MAX);
+    assert(parse_int(" \t-12 \r\n", &n) == IO_OK && n == -12);
+    assert(parse_int("12junk", &n) == IO_FORMAT && n == -12);
+    assert(parse_int("12 13", &n) == IO_FORMAT);
+    assert(parse_int("", &n) == IO_FORMAT && parse_int("  ", &n) == IO_FORMAT);
+    assert(parse_int("9999999999999999999999999", &n) == IO_RANGE);
+    assert(parse_double("1.25e2", &d) == IO_OK && d == 125);
+    assert(parse_double("1e99999", &d) == IO_RANGE && d == 125);
+    assert(parse_double("1e-99999", &d) == IO_RANGE);
+    assert(parse_double("nan", &d) == IO_RANGE && parse_double("inf", &d) == IO_RANGE);
+    assert(parse_double("1.5abc", &d) == IO_FORMAT);
+    n = 77;
+    assert(try_read_int(&n) == IO_FORMAT && n == 77);
+    assert(read_int() == 42);
+    assert(try_read_int(&n) == IO_RANGE && n == 77);
+    assert(read_double() == -0.25);
+    assert(try_read_int(&n) == IO_EOF && n == 77);
+    return 0;
+}"""), "12bad 42 9999999999999999999999999 -2.5e-1")
+
+    def test_io_long_words_and_binary_rejection(self):
+        self.run_c(tb.generate(["io"], main=r"""
+#include <assert.h>
+int main(void) {
+    String word = read_word();
+    assert(word.len == 20000);
+    string_free(&word);
+    finish_line();
+    word = read_line_raw(); assert(!word.len); string_free(&word);
+    FILE *input = tmpfile(); assert(input);
+    const char bytes[] = {'a', 0, 'b', ' ', '4', '\n', 0, '\n', 'x'};
+    assert(fwrite(bytes, 1, sizeof bytes, input) == sizeof bytes);
+    rewind(input); IOReader r = io_reader(input);
+    word = string_from("keep");
+    assert(io_read_word(&r, &word) == IO_FORMAT && !strcmp(word.data, "keep"));
+    int n;
+    assert(io_read_int(&r, &n) == IO_OK && n == 4);
+    assert(io_finish_line(&r) == IO_OK);
+    assert(io_read_line(&r, &word) == IO_FORMAT && !strcmp(word.data, "keep"));
+    assert(io_read_line(&r, &word) == IO_OK && !strcmp(word.data, "x"));
+    string_free(&word); fclose(input); return 0;
+}"""), " \t" + "a" * 20000 + "\n\n")
+
+    def test_io_batch_read_and_print(self):
+        output = self.run_c(tb.generate(["io"], main=r"""
+int main(void) {
+    IntVector ints = read_ints(3); print_ints(&ints, ",", "\n"); IntVector_free(&ints);
+    LongLongVector lls = read_lls(2); print_lls(&lls, " ", "\n"); LongLongVector_free(&lls);
+    DoubleVector ds = read_doubles(2); print_doubles(&ds, 2, "|", "\n"); DoubleVector_free(&ds);
+    StringList words = read_words(2); print_strings(&words, "/", "\n"); string_list_free(&words);
+    ints = read_ints(0); print_ints(&ints, ",", "empty\n"); IntVector_free(&ints);
+    words = read_words(0); print_strings(&words, ",", "done\n"); string_list_free(&words);
+    return 0;
+}"""), "1 2 3 1234567890123 -5 1.25 2.5 cat dog")
+        self.assertEqual(output, "1,2,3\n1234567890123 -5\n1.25|2.50\ncat/dog\nempty\ndone\n")
+
+    def test_io_errors_are_visible(self):
+        self.run_c(tb.generate(["io"], main="int main(void) { (void)read_int(); return 0; }"),
+                   "oops", exit_code=1, error_contains="invalid input token")
+        self.run_c(tb.generate(["io"], main="int main(void) { (void)read_line(); return 0; }"),
+                   " \n\t\n", exit_code=1, error_contains="unexpected end of input")
+        self.run_c(tb.generate(["io"], main="int main(void) { (void)read_int(); (void)read_next_line(); return 0; }"),
+                   "1 extra\nhello\n", exit_code=1, error_contains="extra text after token")
+
+    def test_io_generation_and_examples(self):
+        with self.assertRaises(ValueError):
+            tb.generate(["io"], ["IntVector=double"])
+        with self.assertRaises(ValueError):
+            tb.generate(["io", "deque"], deques=["DoubleVector=int"])
+        self.run_c(tb.generate(["io"], ["Custom=int"], main="int main(void) { return 0; }"))
+        main = (ROOT / "examples/io_lines.c").read_text(encoding="utf-8")
+        self.assertEqual(self.run_c(tb.generate(["io"], main=main), "3\n\n  a  \n \t \n"),
+                         "[]\n[  a  ]\n[ \t ]\n")
+        main = (ROOT / "examples/io_remove_words.c").read_text(encoding="utf-8")
+        self.assertEqual(self.run_c(tb.generate(["io"], main=main), "aabb hello\n2 ab hello\n"), " \n")
 
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ def resolve(modules):
 def vectors_from(specs):
     vectors = []
     used = set()
-    reserved = {"String", "StringList", "Map", "MapEntry", "Set", "Counter",
+    reserved = {"String", "StringList", "Map", "MapEntry", "Set", "Counter", "IOReader", "IOStatus",
                 "int", "char", "long", "short", "float", "double", "void",
                 "struct", "union", "enum", "bool", "size_t", "FILE"}
     for spec in specs:
@@ -57,6 +57,14 @@ def generate(modules, specs=(), preamble="", main="", deques=(), heaps=()):
         if kind in ordered:
             instances.extend((kind, name, ctype)
                              for name, ctype in vectors_from(choices or [default]))
+    if "io" in ordered:
+        for name, ctype in (("IntVector", "int"), ("LongLongVector", "long long"),
+                            ("DoubleVector", "double")):
+            existing = [entry for entry in instances if entry[1] == name]
+            if existing and existing != [("vector", name, ctype)]:
+                raise ValueError("io requires " + name + "=" + ctype)
+            if not existing:
+                instances.append(("vector", name, ctype))
     names = [name for _, name, _ in instances]
     if len(set(names)) != len(names):
         raise ValueError("container names must be unique across all modules")
@@ -75,7 +83,7 @@ def generate(modules, specs=(), preamble="", main="", deques=(), heaps=()):
         return "\n".join(BUNDLE["templates"][path] for path in
                          [entry["template"]] + entry.get("extra_templates", []))
     for name in ordered:
-        if name == "core" or name in parameters:
+        if name == "core" or name in parameters or BUNDLE["catalog"]["modules"][name].get("post_containers"):
             continue
         parts.append(template_for(name))
     if preamble:
@@ -91,6 +99,9 @@ def generate(modules, specs=(), preamble="", main="", deques=(), heaps=()):
             parts.append(template_for(kind).replace("@TYPE@", ctype).replace("@NAME@", typename))
             emitted.add(typename)
             instances.remove((kind, typename, ctype))
+    for name in ordered:
+        if BUNDLE["catalog"]["modules"][name].get("post_containers"):
+            parts.append(template_for(name))
     if main:
         parts.append("/* User program */\n" + main)
     return "\n\n".join(parts) + "\n"
@@ -115,9 +126,9 @@ def cli(argv=None):
     modules = args.modules
     if modules is None:
         if sys.stdin.isatty():
-            print("Modules: string vector map set counter deque heap", file=sys.stderr)
+            print("Modules: string vector map set counter deque heap io", file=sys.stderr)
             modules = input("Select (space separated; Enter = all): ").split()
-        modules = modules or ["string", "vector", "map", "set", "counter", "deque", "heap"]
+        modules = modules or ["string", "vector", "map", "set", "counter", "deque", "heap", "io"]
     try:
         code = generate(modules, args.vector,
                         args.preamble.read_text(encoding="utf-8") if args.preamble else "",

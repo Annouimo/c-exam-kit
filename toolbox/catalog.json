@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "modules": {
     "core": {
       "template": "core.c",
@@ -60,6 +60,15 @@
         "core"
       ],
       "description": "类型化优先队列（比较器决定优先级）"
+    },
+    "io": {
+      "template": "io.c",
+      "requires": [
+        "string",
+        "vector"
+      ],
+      "post_containers": true,
+      "description": "默认跳过空白、raw 精确读取、数值验证与批量输出"
     }
   }
 }
