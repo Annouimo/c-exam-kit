@@ -10,8 +10,8 @@ def build():
     catalog = json.loads((ROOT / "catalog.json").read_text(encoding="utf-8"))
     templates = {}
     for entry in catalog["modules"].values():
-        name = entry["template"]
-        templates[name] = (ROOT / "templates" / name).read_text(encoding="utf-8")
+        for name in [entry["template"]] + entry.get("extra_templates", []):
+            templates[name] = (ROOT / "templates" / name).read_text(encoding="utf-8")
     bundle = {"catalog": catalog, "templates": templates}
     notice = (ROOT.parent / "LICENSE").read_text(encoding="utf-8")
     template_notice = (ROOT.parent / "LICENSES/MIT-0.txt").read_text(encoding="utf-8")
@@ -24,7 +24,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    target = ROOT / "dist/c_toolbox_v0.1.0.py"
+    version = json.loads((ROOT / "catalog.json").read_text(encoding="utf-8"))["version"]
+    target = ROOT / ("dist/c_toolbox_v" + version + ".py")
     content = build()
     if args.check:
         if not target.exists() or target.read_text(encoding="utf-8") != content:
@@ -36,3 +37,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

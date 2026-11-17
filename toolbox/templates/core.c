@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: MIT-0 */
 #include <stdbool.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <limits.h>
@@ -29,3 +30,4 @@ static size_t tb_capacity(size_t current, size_t needed) {
     }
     return result;
 }
+

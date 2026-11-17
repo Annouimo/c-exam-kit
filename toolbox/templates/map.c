@@ -106,3 +106,15 @@ static Map map_clone(const Map *m) {
             (void)map_set(&copy, m->entries[i].key, m->entries[i].value);
     return copy;
 }
+static size_t map_size(const Map *m) { return m->len; }
+static long long map_get_or(const Map *m, const char *key, long long fallback) {
+    long long value;
+    return map_get(m, key, &value) ? value : fallback;
+}
+static void map_clear(Map *m) {
+    for (size_t i = 0; i < m->cap; ++i)
+        if (m->entries[i].state == 1) free(m->entries[i].key);
+    if (m->cap) memset(m->entries, 0, m->cap * sizeof *m->entries);
+    m->len = m->used = 0;
+}
+

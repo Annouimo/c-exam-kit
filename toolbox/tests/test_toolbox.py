@@ -11,7 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable, str(ROOT / "build.py")], check=True)
-STANDALONE = ROOT / "dist/c_toolbox_v0.1.0.py"
+STANDALONE = ROOT / "dist/c_toolbox_v0.2.0.py"
 spec = importlib.util.spec_from_file_location("toolbox", STANDALONE)
 tb = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tb)
@@ -55,7 +55,7 @@ class ToolboxTests(unittest.TestCase):
                 tb.generate(modules, specs)
 
     def test_each_module_compiles(self):
-        for module in ("string", "vector", "map", "set", "counter"):
+        for module in ("string", "vector", "map", "set", "counter", "deque", "heap"):
             with self.subTest(module=module):
                 self.run_c(tb.generate([module], main="int main(void) { return 0; }"))
 
@@ -239,5 +239,198 @@ int main(void) {
         self.assertEqual(self.run_c(tb.generate(["vector"], ["StudentVector=Student"],
                                                 preamble, main)), "2 95\n1 80\n")
 
+    def test_string_common_operations(self):
+        self.run_c(tb.generate(["string"], main=r"""
+#include <assert.h>
+int main(void) {
+    String s = string_new();
+    assert(!string_pop(&s, NULL));
+    string_trim(&s);
+    string_assign(&s, " \tAbC \r\n");
+    string_trim(&s);
+    assert(!strcmp(s.data, "AbC"));
+    string_lower(&s); assert(!strcmp(s.data, "abc"));
+    string_upper(&s); assert(!strcmp(s.data, "ABC"));
+    assert(string_starts_with(&s, "AB") && string_ends_with(&s, "BC"));
+    assert(string_contains(&s, "") && !string_contains(&s, "D"));
+    assert(!string_starts_with(&s, "ABCD") && !string_ends_with(&s, "XABC"));
+    string_assign(&s, s.data + 1); assert(!strcmp(s.data, "BC"));
+    string_push(&s, '!'); char ch;
+    assert(string_pop(&s, &ch) && ch == '!');
+    string_assign(&s, "aabb");
+    assert(string_count(&s, "ab") == 1 && string_count(&s, "") == 0);
+    string_remove_all(&s, "ab"); assert(!strcmp(s.data, "ab"));
+    string_assign(&s, "aabb");
+    assert(string_remove_repeated(&s, "ab") == 2 && s.len == 0);
+    assert(string_remove_repeated(&s, "") == 0);
+    string_assign(&s, "abab");
+    assert(string_remove_repeated(&s, s.data + 2) == 2 && s.len == 0);
+    string_assign(&s, " \t\r\n"); string_trim(&s); assert(!s.len);
+    string_clear(&s); assert(!s.len && !strcmp(s.data, ""));
+    assert(string_read_token(&s, stdin) && s.len == 10000);
+    assert(string_read_token(&s, stdin) && !strcmp(s.data, "last"));
+    assert(!string_read_token(&s, stdin) && !s.len);
+    string_free(&s); return 0;
+}"""), "\t" + "a" * 10000 + " \nlast")
+
+    def test_vector_extend_resize(self):
+        self.run_c(tb.generate(["vector"], main=r"""
+#include <assert.h>
+int main(void) {
+    IntVector v = IntVector_new();
+    assert(!IntVector_front(&v, NULL) && !IntVector_back(&v, NULL));
+    IntVector_extend(&v, NULL, 0);
+    for (int i = 0; i < 8; ++i) IntVector_push(&v, i);
+    IntVector_extend(&v, v.data + 2, 6);
+    assert(v.len == 14 && v.data[8] == 2 && v.data[13] == 7);
+    IntVector_reverse(&v); int x;
+    assert(IntVector_front(&v, &x) && x == 7);
+    assert(IntVector_back(&v, &x) && x == 0);
+    assert(IntVector_set(&v, 0, -1));
+    assert(IntVector_get(&v, 0, &x) && x == -1);
+    assert(!IntVector_get(&v, v.len, &x) && !IntVector_set(&v, v.len, 0));
+    IntVector_resize(&v, 100, 42); assert(v.len == 100 && v.data[99] == 42);
+    IntVector_resize(&v, 0, 0); assert(!v.len);
+    IntVector_reverse(&v); IntVector_free(&v); return 0;
+}"""))
+
+    def test_container_type_dependencies(self):
+        self.run_c(tb.generate(["vector", "deque"],
+            ["Words=String", "Nested=WordQueue"],
+            deques=["WordQueue=String"], main=r"""
+#include <assert.h>
+int main(void) {
+    Words words = Words_new();
+    Words_push(&words, string_from("hello"));
+    assert(!strcmp(words.data[0].data, "hello"));
+    string_free(&words.data[0]); Words_free(&words);
+    Nested nested = Nested_new(); Nested_free(&nested);
+    WordQueue q = WordQueue_new();
+    WordQueue_push_back(&q, string_from("x"));
+    String item;
+    assert(WordQueue_pop_front(&q, &item));
+    string_free(&item); WordQueue_free(&q); return 0;
+}"""))
+        with self.assertRaises(ValueError):
+            tb.generate(["vector", "deque"], ["Same=int"], deques=["Same=int"])
+        with self.assertRaises(ValueError):
+            tb.generate(["vector"], ["A=B", "B=A"])
+
+    def test_deque_random_against_python(self):
+        from collections import deque
+        rng = random.Random(2026)
+        expected = deque()
+        operations = []
+        for _ in range(1500):
+            action = rng.randrange(4)
+            if action < 2 or not expected:
+                value = rng.randrange(-99, 100)
+                if action == 0:
+                    expected.appendleft(value)
+                    operations.append("IntDeque_push_front(&q, %d);" % value)
+                else:
+                    expected.append(value)
+                    operations.append("IntDeque_push_back(&q, %d);" % value)
+            else:
+                if action == 2:
+                    value = expected.popleft(); name = "pop_front"
+                else:
+                    value = expected.pop(); name = "pop_back"
+                operations.append("assert(IntDeque_%s(&q, &value) && value == %d);" % (name, value))
+            operations.append("assert(q.len == %d);" % len(expected))
+        operations += ["IntDeque copy = IntDeque_clone(&q); IntDeque_free(&q);"]
+        for value in expected:
+            operations.append("assert(IntDeque_pop_front(&copy, &value) && value == %d);" % value)
+        self.run_c(tb.generate(["deque"], main="#include <assert.h>\nint main(void) {"
+                   "IntDeque q = IntDeque_new(); int value;\n" + "\n".join(operations) +
+                   "\nassert(!IntDeque_pop_back(&copy, NULL));"
+                   "IntDeque_clear(&copy); IntDeque_free(&copy); return 0; }"))
+
+    def test_heap_random_against_python(self):
+        import heapq
+        rng = random.Random(55)
+        expected = []
+        operations = []
+        for _ in range(1000):
+            if not expected or rng.randrange(3):
+                value = rng.randrange(-100, 100)
+                heapq.heappush(expected, value)
+                operations.append("IntHeap_push(&h, %d);" % value)
+            else:
+                operations.append("assert(IntHeap_pop(&h, &value) && value == %d);" % heapq.heappop(expected))
+            operations.append("assert(h.len == %d);" % len(expected))
+            if expected:
+                operations.append("assert(IntHeap_peek(&h, &value) && value == %d);" % expected[0])
+        for value in sorted(expected):
+            operations.append("assert(IntHeap_pop(&h, &value) && value == %d);" % value)
+        self.run_c(tb.generate(["heap"], main=r"""
+#include <assert.h>
+static int compare(const void *a, const void *b) {
+    int x = *(const int *)a, y = *(const int *)b;
+    return (x > y) - (x < y);
+}
+static int reverse(const void *a, const void *b) { return -compare(a, b); }
+int main(void) { IntHeap h = IntHeap_new(compare); int value;
+""" + "\n".join(operations) + r"""
+assert(!IntHeap_pop(&h, NULL)); IntHeap_free(&h);
+for (int n = 0; n < 50; ++n) {
+    int items[50];
+    for (int i = 0; i < n; ++i) items[i] = (i * 13) % 17;
+    h = IntHeap_from(items, (size_t)n, reverse);
+    IntHeap copy = IntHeap_clone(&h); IntHeap_free(&h);
+    int last = INT_MAX;
+    while (IntHeap_pop(&copy, &value)) { assert(value <= last); last = value; }
+    IntHeap_clear(&copy); IntHeap_free(&copy);
+}
+return 0; }"""))
+
+    def test_heap_custom_struct(self):
+        self.run_c(tb.generate(["heap"], preamble="typedef struct { int id, priority; } Task;",
+            heaps=["TaskHeap=Task"], main=r"""
+#include <assert.h>
+static int compare(const void *a, const void *b) {
+    const Task *x = a, *y = b;
+    return (x->priority > y->priority) - (x->priority < y->priority);
+}
+int main(void) {
+    TaskHeap h = TaskHeap_new(compare);
+    TaskHeap_push(&h, (Task){1, 100}); TaskHeap_push(&h, (Task){2, 10});
+    Task task;
+    assert(TaskHeap_pop(&h, &task) && task.id == 2);
+    TaskHeap_free(&h); return 0;
+}"""))
+
+    def test_set_algebra_and_counter(self):
+        self.run_c(tb.generate(["set", "counter"], main=r"""
+#include <assert.h>
+int main(void) {
+    Set a = set_new(), b = set_new();
+    set_add(&a, "a"); set_add(&a, "b"); set_add(&b, "b"); set_add(&b, "c");
+    Set u = set_union(&a, &b), i = set_intersection(&a, &b), d = set_difference(&a, &b);
+    assert(set_size(&u) == 3 && set_size(&i) == 1 && set_size(&d) == 1);
+    assert(set_contains(&i, "b") && set_contains(&d, "a"));
+    assert(set_is_subset(&a, &u) && !set_is_subset(&a, &b));
+    set_clear(&a); assert(!set_size(&a)); set_add(&a, "fresh");
+    set_free(&a); set_free(&b); set_free(&u); set_free(&i); set_free(&d);
+    Map m = map_new(); assert(map_get_or(&m, "x", 7) == 7);
+    map_set(&m, "x", 0); assert(map_get_or(&m, "x", 7) == 0 && map_size(&m) == 1);
+    size_t cap = m.cap; map_clear(&m); assert(map_size(&m) == 0 && m.cap == cap);
+    map_set(&m, "y", 1); map_free(&m);
+    Counter c = counter_new(); const char *key; long long count;
+    assert(!counter_most_common(&c, &key, &count));
+    counter_add(&c, "b", -1); counter_add(&c, "a", -1);
+    assert(counter_most_common(&c, &key, &count) && !strcmp(key, "a") && count == -1);
+    assert(counter_size(&c) == 2); counter_clear(&c); assert(!counter_size(&c));
+    counter_free(&c); return 0;
+}"""))
+
+    def test_new_examples(self):
+        main = (ROOT / "examples/remove_words.c").read_text(encoding="utf-8")
+        self.assertEqual(self.run_c(tb.generate(["string"], main=main), "aabb hello\n2\nab hello\n"), " \n")
+        main = (ROOT / "examples/priority_queue.c").read_text(encoding="utf-8")
+        self.assertEqual(self.run_c(tb.generate(["heap"], main=main)), "10\n20\n30\n")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+

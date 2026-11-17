@@ -48,12 +48,14 @@ jobs:
       - run: python toolbox/build.py
       - name: Generate preview sources
         run: |
-          python toolbox/dist/c_toolbox_v0.1.0.py --modules string vector map set counter -o toolbox/dist/c_toolbox_all_v0.1.0.h
-          python toolbox/dist/c_toolbox_v0.1.0.py --modules string counter --main toolbox/examples/word_count.c -o toolbox/dist/word_count.c
-          python toolbox/dist/c_toolbox_v0.1.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o toolbox/dist/student_sort.c
+          python toolbox/dist/c_toolbox_v0.2.0.py --modules string vector map set counter deque heap -o toolbox/dist/c_toolbox_all_v0.2.0.h
+          python toolbox/dist/c_toolbox_v0.2.0.py --modules string counter --main toolbox/examples/word_count.c -o toolbox/dist/word_count.c
+          python toolbox/dist/c_toolbox_v0.2.0.py --modules vector --vector StudentVector=Student --preamble toolbox/examples/student_types.c --main toolbox/examples/student_sort.c -o toolbox/dist/student_sort.c
+          python toolbox/dist/c_toolbox_v0.2.0.py --modules string --main toolbox/examples/remove_words.c -o toolbox/dist/remove_words.c
+          python toolbox/dist/c_toolbox_v0.2.0.py --modules heap --main toolbox/examples/priority_queue.c -o toolbox/dist/priority_queue.c
       - uses: actions/upload-artifact@v4
         with:
-          name: c-toolbox-v0.1.0-preview
+          name: c-toolbox-v0.2.0-preview
           path: |
             toolbox/dist/
             toolbox/README.md
@@ -61,3 +63,4 @@ jobs:
             LICENSES/MIT-0.txt
             LICENSES/CC-BY-4.0.txt
           if-no-files-found: error
+

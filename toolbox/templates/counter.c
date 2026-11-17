@@ -21,3 +21,21 @@ static bool counter_next(const Counter *c, size_t *cursor, const char **key, lon
 }
 static Counter counter_clone(const Counter *c) { Counter copy = {map_clone(&c->items)}; return copy; }
 static void counter_free(Counter *c) { map_free(&c->items); }
+static void counter_clear(Counter *c) { map_clear(&c->items); }
+static size_t counter_size(const Counter *c) { return c->items.len; }
+/* Highest count; ties choose lexicographically smallest key. Borrowed key. */
+static bool counter_most_common(const Counter *c, const char **out_key, long long *out_count) {
+    size_t cursor = 0;
+    const char *key, *best_key = NULL;
+    long long value, best = 0;
+    while (counter_next(c, &cursor, &key, &value)) {
+        if (!best_key || value > best || (value == best && strcmp(key, best_key) < 0)) {
+            best_key = key; best = value;
+        }
+    }
+    if (!best_key) return false;
+    if (out_key) *out_key = best_key;
+    if (out_count) *out_count = best;
+    return true;
+}
+

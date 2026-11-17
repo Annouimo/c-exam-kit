@@ -10,3 +10,35 @@ static bool set_next(const Set *s, size_t *cursor, const char **key) {
 }
 static Set set_clone(const Set *s) { Set copy = {map_clone(&s->items)}; return copy; }
 static void set_free(Set *s) { map_free(&s->items); }
+static void set_clear(Set *s) { map_clear(&s->items); }
+static bool set_is_subset(const Set *a, const Set *b) {
+    size_t cursor = 0;
+    const char *key;
+    while (set_next(a, &cursor, &key))
+        if (!set_contains(b, key)) return false;
+    return true;
+}
+static Set set_union(const Set *a, const Set *b) {
+    Set result = set_clone(a);
+    size_t cursor = 0;
+    const char *key;
+    while (set_next(b, &cursor, &key)) (void)set_add(&result, key);
+    return result;
+}
+static Set set_intersection(const Set *a, const Set *b) {
+    Set result = {0};
+    size_t cursor = 0;
+    const char *key;
+    while (set_next(a, &cursor, &key))
+        if (set_contains(b, key)) (void)set_add(&result, key);
+    return result;
+}
+static Set set_difference(const Set *a, const Set *b) {
+    Set result = {0};
+    size_t cursor = 0;
+    const char *key;
+    while (set_next(a, &cursor, &key))
+        if (!set_contains(b, key)) (void)set_add(&result, key);
+    return result;
+}
+

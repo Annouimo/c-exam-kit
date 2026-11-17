@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "modules": {
     "core": {
       "template": "core.c",
@@ -11,14 +11,20 @@
       "requires": [
         "core"
       ],
-      "description": "动态字符串、编辑、分割与连接"
+      "description": "动态字符串、编辑、分割与连接",
+      "extra_templates": [
+        "string_extra.c"
+      ]
     },
     "vector": {
       "template": "vector.c",
       "requires": [
         "core"
       ],
-      "description": "按实际 C 类型生成动态数组"
+      "description": "按实际 C 类型生成动态数组",
+      "extra_templates": [
+        "vector_extra.c"
+      ]
     },
     "map": {
       "template": "map.c",
@@ -40,6 +46,20 @@
         "map"
       ],
       "description": "字符串频次统计"
+    },
+    "deque": {
+      "template": "deque.c",
+      "requires": [
+        "core"
+      ],
+      "description": "类型化双端队列（队列与栈）"
+    },
+    "heap": {
+      "template": "heap.c",
+      "requires": [
+        "core"
+      ],
+      "description": "类型化优先队列（比较器决定优先级）"
     }
   }
 }

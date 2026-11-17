@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: MIT-0 */
 /* Owns data. Zero initialization is valid. Positions and lengths count bytes. */
 typedef struct { char *data; size_t len, cap; } String;
+static String string_new(void) { return (String){0}; }
 static const char *string_cstr(const String *s) { return s->data ? s->data : ""; }
 static void string_reserve(String *s, size_t length) {
     size_t needed = tb_add_size(length, 1);
@@ -123,3 +124,4 @@ static void string_list_free(StringList *list) {
     free(list->data);
     *list = (StringList){0};
 }
+
