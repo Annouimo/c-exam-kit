@@ -35,7 +35,7 @@ def do_bench(name, body, includes=(), defs=(), incpaths=(), extra=()):
     checks=[]
     for _ in range(REPS):
         t0=time.perf_counter()
-        p=subprocess.run([str(executable),str(N * 10 if name.startswith('vector_') else N)],capture_output=True,text=True)
+        p=subprocess.run([str(executable),str(N * 10 if name.startswith('vector_') else N * 5 if name.startswith('string_') else N)],capture_output=True,text=True)
         elapsed=time.perf_counter()-t0
         if p.returncode: return {"name":name,"error":"run failed: "+p.stderr[-1000:]}
         times.append(elapsed);checks.append(p.stdout.strip())
@@ -83,6 +83,7 @@ def main():
         stc,versions["STC"]=repo("STC","https://github.com/stclib/STC.git")
         stb,versions["stb"]=repo("stb","https://github.com/nothings/stb.git")
         klib,versions["klib"]=repo("klib","https://github.com/attractivechaos/klib.git")
+        sds,versions["SDS"]=repo("sds","https://github.com/antirez/sds.git")
     except Exception as e:
         print("FETCH FAILED",repr(e));raise
     # Current toolbox is assembled from checked-in templates.
@@ -110,6 +111,28 @@ def main():
          ['#define i_implement\n#include "stc/cstr.h"\n#define T BenchMap, cstr, long long, c_pro_key\n#include "stc/hashmap.h"'],paths=[stc/"include",stc])
     case("map_klib",mk_map("khash_t(str) *map=kh_init(str);int ret;khiter_t it;","it=kh_put(str,map,k,&ret);kh_val(map,it)=i;","(kh_get(str,map,k)==kh_end(map) ? -1 : kh_val(map,kh_get(str,map,k)))","kh_destroy(str,map);"),
          ['#include "khash.h"\nKHASH_MAP_INIT_STR(str,long long)'],paths=[klib])
+
+    # String append-only workload; not a substitute for split/edit benchmarks.
+    stringbody = """
+int main(int argc,char**argv) {
+ int n=atoi(argv[1]);
+ @START@
+ for(int i=0;i<n;i++) { @APPEND@ }
+ size_t len=@LEN@;
+ unsigned long long check=(unsigned long long)len*13ull+(unsigned char)(@LAST@);
+ @DROP@
+ printf("%llu\n",check);return 0;
+}
+"""
+    def string_case(name,start,append,length,last,drop,headers=(),paths=(),extra=()):
+        body=stringbody.replace("@START@",start).replace("@APPEND@",append).replace("@LEN@",length).replace("@LAST@",last).replace("@DROP@",drop)
+        case(name,body,[PRELUDE,*headers],paths=paths,extra=extra)
+    ownstring=toolbox["generate"](["string"])
+    string_case("string_toolbox","String s=string_new();",'string_append(&s,"abc");',"s.len","s.data[len-1]","string_free(&s);",[ownstring])
+    string_case("string_stc","cstr s=cstr_init();",'cstr_append(&s,"abc");',"cstr_size(&s)","cstr_str(&s)[len-1]","cstr_drop(&s);",
+        ['#define i_implement\n#include "stc/cstr.h"'],paths=[stc/"include",stc])
+    string_case("string_sds",'sds s=sdsempty();','s=sdscat(s,"abc");','sdslen(s)','s[len-1]','sdsfree(s);',
+        ['#include "sds.h"'],paths=[sds],extra=[str(sds/"sds.c")])
     result={"versions":versions,"cc":CC,"flags":FLAGS,"n":N,"reps":REPS,"results":output}
     (OUT/"results.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
     print("FULL_REPORT "+json.dumps(result,ensure_ascii=False),flush=True)
