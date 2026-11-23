@@ -569,6 +569,107 @@
         "bigint_parse",
         "io_base"
       ]
+    },
+    {
+      "id": "date",
+      "description": "Lightweight C99 date",
+      "symbols": [
+        "Date",
+        "date_is_leap",
+        "date_days_in_month",
+        "date_valid",
+        "date_new",
+        "date_day_of_year",
+        "date_to_serial",
+        "date_from_serial",
+        "date_add_days",
+        "date_diff",
+        "date_compare",
+        "date_print"
+      ],
+      "source": "components/date.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "time",
+      "description": "Lightweight C99 time",
+      "symbols": [
+        "Time",
+        "time_valid",
+        "time_new",
+        "time_to_seconds",
+        "time_from_seconds",
+        "time_diff",
+        "time_add_seconds",
+        "time_next_second",
+        "time_next_minute",
+        "time_print"
+      ],
+      "source": "components/time.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_ll_basic",
+      "description": "Lightweight C99 array ll basic",
+      "symbols": [
+        "fill_lls",
+        "fill_lls_into",
+        "copy_lls",
+        "copy_lls_into",
+        "sort_lls",
+        "reverse_lls",
+        "find_lls",
+        "lower_bound_lls",
+        "upper_bound_lls",
+        "sum_lls",
+        "min_lls",
+        "max_lls"
+      ],
+      "source": "components/array_ll_basic.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_double_basic",
+      "description": "Lightweight C99 array double basic",
+      "symbols": [
+        "fill_doubles",
+        "fill_doubles_into",
+        "copy_doubles",
+        "copy_doubles_into",
+        "sort_doubles",
+        "reverse_doubles",
+        "find_doubles",
+        "lower_bound_doubles",
+        "upper_bound_doubles",
+        "sum_doubles",
+        "mean_doubles",
+        "min_doubles",
+        "max_doubles"
+      ],
+      "source": "components/array_double_basic.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "number_digits_extra",
+      "description": "Lightweight C99 number digits extra",
+      "symbols": [
+        "int_to_digits",
+        "int_to_digits_into",
+        "digits_to_int",
+        "int_reverse_digits"
+      ],
+      "source": "components/number_digits_extra.h",
+      "requires": [
+        "algo_core"
+      ]
     }
   ]
 }
