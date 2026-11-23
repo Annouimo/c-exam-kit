@@ -15,4 +15,6 @@ for (const component of manifest.components) {
 }
 await fs.rm(output,{recursive:true,force:true});
 await fs.cp(source,output,{recursive:true});
+await fs.copyFile(path.resolve(packageDir, "../../LICENSES/MIT-0.txt"),
+  path.join(packageDir, "LICENSE"));
 console.log("Packed exam-io-c99 preset with",manifest.components.length,"components.");
