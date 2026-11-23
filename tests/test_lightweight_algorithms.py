@@ -1,6 +1,8 @@
 """Cross-platform compile/run tests for standalone C99 algorithm preset."""
 from pathlib import Path
 import json
+import random
+import math
 import os
 import shutil
 import subprocess
@@ -282,6 +284,69 @@ int main(void) {
         self.assertEqual(self.run_c(source, selected={
             "bigint_parse","bigint_div","bigint_factorial","print_scalar"
         }),"1\n")
+
+
+    def test_polynomial_bisection_and_frequency(self):
+        source=r"""
+static double f(double x) { return x*x - 2.0; }
+int main(void) {
+    long long coeff[]={1,2,3};
+    int values[]={0,1,1,3,3,3};
+    int freq[5];
+    frequency_ints(values,6,freq,4);
+    if(freq[0]!=1 || freq[1]!=2 || freq[2]!=0 || freq[3]!=3) return 1;
+    if(poly_eval_lls(coeff,3,2)!=17) return 2;
+    double root=bisect_root(f,0,2,1e-11,200);
+    if(fabs(root-sqrt(2.0))>1e-9) return 3;
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={
+            "polynomial","bisect_root","array_frequency"}),"")
+
+    def test_bigint_deterministic_randomized_arithmetic(self):
+        # Compare signed arithmetic to Python's arbitrary-precision integers.
+        rng=random.Random(41027)
+        pairs=[]
+        for _ in range(24):
+            x=rng.randrange(-10**90,10**90)
+            y=rng.randrange(-10**45,10**45)
+            if y==0:
+                y=1
+            pairs.append((x,y))
+        data=str(len(pairs))+"\n"+"".join(f"{x} {y}\n" for x,y in pairs)
+        source=r"""
+int main(void) {
+    int t=read_int();
+    for(int i=0;i<t;++i) {
+        BigInt a,b,z,q,r;
+        read_bigint(&a); read_bigint(&b);
+        bigint_add(&z,&a,&b); bigint_print(&z," ");
+        bigint_sub(&z,&a,&b); bigint_print(&z," ");
+        bigint_mul(&z,&a,&b); bigint_print(&z," ");
+        bigint_divmod(&q,&r,&a,&b);
+        bigint_print(&q," "); bigint_print(&r,"\n");
+    }
+    return 0;
+}"""
+        expected=[]
+        for x,y in pairs:
+            q=(abs(x)//abs(y))*(1 if (x<0)==(y<0) else -1)
+            r=x-q*y
+            expected.append(f"{x+y} {x-y} {x*y} {q} {r}")
+        self.assertEqual(self.run_c(source, data, selected={
+            "io_int","bigint_io","bigint_parse","bigint_add",
+            "bigint_mul","bigint_div"}), "\n".join(expected)+"\n")
+
+    def test_bigint_factorial_large(self):
+        source=r"""
+int main(void) {
+    BigInt value;
+    bigint_factorial(&value,500);
+    bigint_print(&value,"\n");
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source,selected={"bigint_factorial","bigint_parse"}),
+                         str(math.factorial(500))+"\n")
 
 
 if __name__ == "__main__":
