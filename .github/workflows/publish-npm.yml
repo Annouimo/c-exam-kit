@@ -34,6 +34,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # Source remains in the approved development branch until accepted.
+          # DRY_RUN on main checks the exact same source as PUBLISH_NEXT.
+          ref: feat/npm-accoding-preset
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -43,7 +46,19 @@ jobs:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = "refs/heads/feat/npm-accoding-preset"
+          # GitHub's workflow_dispatch defaults to main, even though the
+          # preview's source lives on the named development branch.
+          if [[ "$GITHUB_REF" != "refs/heads/main" &&
+                "$GITHUB_REF" != "refs/heads/feat/npm-accoding-preset" ]]; then
+            echo "::error::Run this workflow on main (DRY_RUN) or feat/npm-accoding-preset." >&2
+            exit 1
+          fi
+          if [[ "${{ inputs.mode }}" == "PUBLISH_NEXT" &&
+                "$GITHUB_REF" != "refs/heads/feat/npm-accoding-preset" ]]; then
+            echo "::error::To publish a preview, select feat/npm-accoding-preset in the Run workflow branch dropdown." >&2
+            exit 1
+          fi
+          echo "Checking source from feat/npm-accoding-preset; workflow was triggered on $GITHUB_REF."
           node - <<'NODE'
           const fs=require("node:fs");
           const file="npm/accoding-preset/package.json";
