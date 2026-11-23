@@ -1,4 +1,4 @@
-# @annouimo/c-exam-kit-preset (draft)
+# @annouimo/c-exam-kit-preset
 
 This npm package contains **C99 header/template data only**. It does not run code on installation, download assets at runtime, or replace the independent C Exam Kit project.
 
@@ -17,4 +17,4 @@ The package carries the manifest and component fragments. Accoding Companion ass
 
 Accoding Companion's external installer downloads this package into an explicitly versioned, user-owned data directory. Existing exercise snapshots are never changed just because a new version was downloaded.
 
-Release is intentionally blocked by `private: true` until the package contents and integration tests are accepted.
+The release workflow validates and publishes the packed package to npm.
