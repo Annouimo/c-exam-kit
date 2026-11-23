@@ -461,6 +461,114 @@
       "requires": [
         "algo_core"
       ]
+    },
+    {
+      "id": "bigint_core",
+      "description": "Fixed-capacity C99 bigint core",
+      "symbols": [
+        "BigInt",
+        "bigint_zero"
+      ],
+      "source": "components/bigint_core.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "bigint_parse",
+      "description": "Fixed-capacity C99 bigint parse",
+      "symbols": [
+        "bigint_from_str",
+        "bigint_from_ll",
+        "bigint_to_str",
+        "bigint_to_str_into",
+        "bigint_print"
+      ],
+      "source": "components/bigint_parse.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_compare",
+      "description": "Fixed-capacity C99 bigint compare",
+      "symbols": [
+        "bigint_compare"
+      ],
+      "source": "components/bigint_compare.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_add",
+      "description": "Fixed-capacity C99 bigint add",
+      "symbols": [
+        "bigint_add",
+        "bigint_sub"
+      ],
+      "source": "components/bigint_add.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_mul",
+      "description": "Fixed-capacity C99 bigint mul",
+      "symbols": [
+        "bigint_mul"
+      ],
+      "source": "components/bigint_mul.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_div",
+      "description": "Fixed-capacity C99 bigint div",
+      "symbols": [
+        "bigint_divmod"
+      ],
+      "source": "components/bigint_div.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_small",
+      "description": "Fixed-capacity C99 bigint small",
+      "symbols": [
+        "bigint_mul_small",
+        "bigint_div_small"
+      ],
+      "source": "components/bigint_small.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_factorial",
+      "description": "Fixed-capacity C99 bigint factorial",
+      "symbols": [
+        "bigint_factorial"
+      ],
+      "source": "components/bigint_factorial.h",
+      "requires": [
+        "bigint_small"
+      ]
+    },
+    {
+      "id": "bigint_io",
+      "description": "Fixed-capacity C99 bigint io",
+      "symbols": [
+        "read_bigint",
+        "try_read_bigint"
+      ],
+      "source": "components/bigint_io.h",
+      "requires": [
+        "bigint_parse",
+        "io_base"
+      ]
     }
   ]
 }
