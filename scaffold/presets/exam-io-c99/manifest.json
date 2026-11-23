@@ -706,6 +706,15 @@
       ]
     },
     {
+      "id": "record_type",
+      "description": "Forward declaration of the user-defined Record type",
+      "symbols": [
+        "Record"
+      ],
+      "source": "components/record_type.h",
+      "requires": []
+    },
+    {
       "id": "sort_records",
       "description": "Sort user-defined struct Record using typed record_cmp callback",
       "symbols": [
@@ -713,7 +722,21 @@
       ],
       "source": "components/sort_records.h",
       "requires": [
-        "algo_core"
+        "algo_core",
+        "record_type"
+      ]
+    },
+    {
+      "id": "search_records",
+      "description": "Linear and binary search of Record arrays using a typed comparator",
+      "symbols": [
+        "find_records_by",
+        "binary_search_records_by"
+      ],
+      "source": "components/search_records.h",
+      "requires": [
+        "algo_core",
+        "record_type"
       ]
     },
     {

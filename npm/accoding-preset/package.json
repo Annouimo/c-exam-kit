@@ -1,6 +1,6 @@
 {
   "name": "@annouimo/c-exam-kit-preset",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Versioned C99 data-only presets for Accoding Companion",
   "private": true,
   "license": "MIT-0",

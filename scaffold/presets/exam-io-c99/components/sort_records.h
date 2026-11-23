@@ -3,7 +3,6 @@
  *   int record_cmp(const Record *a, const Record *b);
  * after including exam.h. sort_records uses qsort; stability is NOT guaranteed.
  */
-typedef struct Record Record;
 int record_cmp(const Record *a, const Record *b);
 
 static inline int exam_record_qsort_cmp(const void *a, const void *b) {
