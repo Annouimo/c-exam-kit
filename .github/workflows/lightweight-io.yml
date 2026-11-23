@@ -2,7 +2,7 @@ name: Lightweight IO preset tests
 
 on:
   push:
-    branches: ['feat/lightweight-io-standalone-preset']
+    branches: ['feat/lightweight-io-standalone-preset', 'feat/lightweight-algorithms-phase1']
   pull_request:
     branches: [main]
     paths:
@@ -23,6 +23,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python3 tests/test_lightweight_io.py
+      - run: python3 tests/test_lightweight_algorithms.py
+      - run: python3 tests/test_lightweight_algorithms.py
   macos:
     runs-on: macos-latest
     steps:
@@ -43,3 +45,6 @@ jobs:
       - name: Run C99 tests with GCC in MSYS2
         shell: msys2 {0}
         run: python3 tests/test_lightweight_io.py
+      - name: Test algorithm preset
+        shell: msys2 {0}
+        run: python3 tests/test_lightweight_algorithms.py
