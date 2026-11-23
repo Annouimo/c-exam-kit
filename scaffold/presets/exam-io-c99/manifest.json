@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "id": "exam-io-c99",
+  "language": "c",
+  "standard": "c99",
+  "headerFile": "exam.h",
+  "systemHeaders": [
+    "stdio.h",
+    "stdlib.h",
+    "stddef.h",
+    "stdbool.h",
+    "ctype.h",
+    "errno.h",
+    "limits.h",
+    "math.h"
+  ],
+  "components": [
+    {
+      "id": "io_base",
+      "description": "Shared token scanning, line state and errors",
+      "symbols": [
+        "exam_io_fail"
+      ],
+      "source": "components/io_base.h",
+      "requires": []
+    },
+    {
+      "id": "io_int",
+      "description": "int input and EOF-aware reading",
+      "symbols": [
+        "read_int",
+        "try_read_int"
+      ],
+      "source": "components/io_int.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_ll",
+      "description": "long long input and EOF-aware reading",
+      "symbols": [
+        "read_ll",
+        "try_read_ll"
+      ],
+      "source": "components/io_ll.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_double",
+      "description": "double input and EOF-aware reading",
+      "symbols": [
+        "read_double",
+        "try_read_double"
+      ],
+      "source": "components/io_double.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_char",
+      "description": "Character input, skipping whitespace or raw",
+      "symbols": [
+        "read_char",
+        "try_read_char",
+        "read_char_raw",
+        "try_read_char_raw"
+      ],
+      "source": "components/io_char.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_word",
+      "description": "Word input with compile-time array capacity",
+      "symbols": [
+        "read_word",
+        "try_read_word",
+        "read_word_into",
+        "try_read_word_into"
+      ],
+      "source": "components/io_word.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_line",
+      "description": "Full-line, rest-of-line and line skipping",
+      "symbols": [
+        "read_line",
+        "try_read_line",
+        "read_line_into",
+        "try_read_line_into",
+        "read_rest",
+        "try_read_rest",
+        "read_rest_into",
+        "try_read_rest_into",
+        "skip_line"
+      ],
+      "source": "components/io_line.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_ints",
+      "description": "Read int arrays with an automatic capacity check",
+      "symbols": [
+        "read_ints",
+        "read_ints_into"
+      ],
+      "source": "components/io_ints.h",
+      "requires": [
+        "io_int"
+      ]
+    },
+    {
+      "id": "io_lls",
+      "description": "Read long long arrays with an automatic capacity check",
+      "symbols": [
+        "read_lls",
+        "read_lls_into"
+      ],
+      "source": "components/io_lls.h",
+      "requires": [
+        "io_ll"
+      ]
+    },
+    {
+      "id": "io_doubles",
+      "description": "Read double arrays with an automatic capacity check",
+      "symbols": [
+        "read_doubles",
+        "read_doubles_into"
+      ],
+      "source": "components/io_doubles.h",
+      "requires": [
+        "io_double"
+      ]
+    },
+    {
+      "id": "print_scalar",
+      "description": "Scalar output with configurable terminator",
+      "symbols": [
+        "print_int",
+        "print_ll",
+        "print_double",
+        "print_char",
+        "print_text"
+      ],
+      "source": "components/print_scalar.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "print_arrays",
+      "description": "Output arrays with separators and terminators",
+      "symbols": [
+        "print_ints",
+        "print_lls",
+        "print_doubles"
+      ],
+      "source": "components/print_arrays.h",
+      "requires": [
+        "print_scalar"
+      ]
+    }
+  ]
+}
