@@ -1,9 +1,6 @@
 name: Publish npm stable release
 
 on:
-  push:
-    branches:
-      - feat/fine-grained-preset
   workflow_dispatch:
     inputs:
       mode:
@@ -29,7 +26,6 @@ concurrency:
 
 jobs:
   pack:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Release npm latest 0.6.4' }}
     name: Build and validate C Exam Kit preset
     runs-on: ubuntu-latest
     permissions:
@@ -44,7 +40,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Verify the intended source branch and stable version
         env:
-          EXPECTED_VERSION: ${{ inputs.expected_version || '0.6.4' }}
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/feat/fine-grained-preset"
@@ -88,7 +84,7 @@ jobs:
   publish:
     name: Publish C Exam Kit preset to npm latest
     needs: pack
-    if: ${{ github.event_name == 'push' || inputs.mode == 'PUBLISH_LATEST' }}
+    if: ${{ inputs.mode == 'PUBLISH_LATEST' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
