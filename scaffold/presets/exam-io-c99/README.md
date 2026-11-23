@@ -4,6 +4,8 @@
 
 ## Workflow
 
+[中文函数速查手册](manual.zh-CN.md)随 npm preset 一起发布，打包时标注适用版本。新增或修改公开接口时，同步更新手册中的调用方法、返回值和关键前提。
+
 ~~~sh
 # From better-accoding-for-buaaers, standalone CLI feature branch:
 bun src/standalone/cli.ts scaffold init ./A --preset /path/to/c-exam-kit/scaffold/presets/exam-io-c99/manifest.json

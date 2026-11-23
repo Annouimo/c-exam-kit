@@ -64,6 +64,11 @@ jobs:
           mkdir -p "$RUNNER_TEMP/npm-dist"
           npm pack --pack-destination "$RUNNER_TEMP/npm-dist"
           test -f preset/manifest.json
+          tarball="$(find "$RUNNER_TEMP/npm-dist" -name '*.tgz' -print -quit)"
+          version="$(node -p 'require("./package.json").version')"
+          tar -xOf "$tarball" package/preset/manual.zh-CN.md | awk -v version="$version" '
+            index($0, "C Exam Kit " version " · exam-io-c99") { found = 1 }
+            END { exit !found }'
           node - <<'NODE'
           const fs=require("node:fs");
           const manifest=JSON.parse(fs.readFileSync("preset/manifest.json","utf8"));

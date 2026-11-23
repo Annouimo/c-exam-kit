@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 import random
+import re
 import math
 import os
 import shutil
@@ -39,6 +40,12 @@ def header(selected=None):
 
 
 class Algorithms(unittest.TestCase):
+    def test_record_search_manual_example(self):
+        manual = (PRESET / "manual.zh-CN.md").read_text(encoding="utf-8")
+        example = re.search(r'(?m)^\x60{3}c\n#include "exam\.h"\n([\s\S]*?)^\x60{3}$', manual)
+        self.assertIsNotNone(example)
+        self.assertEqual(self.run_c(example[1]), "0\n1\n")
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="algorithms-c99-")
         self.addCleanup(self.temp.cleanup)

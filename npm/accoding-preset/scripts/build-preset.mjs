@@ -5,6 +5,11 @@ const packageDir = path.resolve(import.meta.dirname, "..");
 const source = path.resolve(packageDir, "../../scaffold/presets/exam-io-c99");
 const output = path.join(packageDir, "preset");
 const manifest = JSON.parse(await fs.readFile(path.join(source, "manifest.json"), "utf8"));
+const { version } = JSON.parse(await fs.readFile(path.join(packageDir, "package.json"), "utf8"));
+const manualName = "manual.zh-CN.md";
+const manual = await fs.readFile(path.join(source, manualName), "utf8");
+if (manual.split("@PRESET_VERSION@").length !== 2)
+  throw Error("The preset manual must have exactly one version placeholder.");
 const tokenNoise = /\/\*[\s\S]*?\*\/|\/\/[^\n]*|"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g;
 const mask = (code) => code.replace(tokenNoise, (part) => part.replace(/[^\n]/g, " "));
 
@@ -99,5 +104,8 @@ for (const component of ordered.values())
   await fs.writeFile(path.join(output, component.source), definitions.get(component.id));
 await fs.writeFile(path.join(output, "manifest.json"),
   JSON.stringify({ ...manifest, components: [...ordered.values()] }, null, 2) + "\n");
+await fs.writeFile(path.join(output, manualName), manual.replace("@PRESET_VERSION@", version));
+await fs.copyFile(path.resolve(packageDir, "../../LICENSES/CC-BY-4.0.txt"),
+  path.join(output, "CC-BY-4.0.txt"));
 await fs.copyFile(path.resolve(packageDir, "../../LICENSES/MIT-0.txt"), path.join(packageDir, "LICENSE"));
 console.log(`Packed ${components.length} C99 components with individual dependency lists.`);
