@@ -754,6 +754,53 @@
       "requires": [
         "algo_core"
       ]
+    },
+    {
+      "id": "array_ll_extra",
+      "description": "Long long array values, range, search, statistics and unique",
+      "symbols": [
+        "values_lls",
+        "values_lls_into",
+        "range_lls",
+        "range_lls_into",
+        "sort_lls_desc",
+        "count_lls",
+        "binary_search_lls",
+        "argmin_lls",
+        "argmax_lls",
+        "mean_lls",
+        "variance_lls",
+        "stddev_lls",
+        "median_lls",
+        "unique_sorted_lls",
+        "unique_lls"
+      ],
+      "source": "components/array_ll_extra.h",
+      "requires": [
+        "array_ll_basic"
+      ]
+    },
+    {
+      "id": "array_double_extra",
+      "description": "Double array values, search, statistics and unique",
+      "symbols": [
+        "values_doubles",
+        "values_doubles_into",
+        "sort_doubles_desc",
+        "count_doubles",
+        "binary_search_doubles",
+        "argmin_doubles",
+        "argmax_doubles",
+        "variance_doubles",
+        "stddev_doubles",
+        "median_doubles",
+        "unique_sorted_doubles",
+        "unique_doubles"
+      ],
+      "source": "components/array_double_extra.h",
+      "requires": [
+        "array_double_basic"
+      ]
     }
   ]
 }
