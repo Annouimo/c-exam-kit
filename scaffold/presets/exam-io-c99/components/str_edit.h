@@ -38,6 +38,8 @@ static inline int str_remove_char(char *s, char key) {
 static inline int str_replace_all_into(char *s, const char *needle,
                                        const char *replacement,
                                        size_t capacity) {
+    if (!s || !needle || !replacement || capacity == 0)
+        exam_algo_fail("str_replace_all invalid arguments");
     size_t old_len = strlen(needle), new_len = strlen(replacement);
     if (!old_len) exam_algo_fail("str_replace_all empty pattern");
     char *out = (char *)malloc(capacity);

@@ -11,8 +11,9 @@ static inline void diff_range_add(long long *difference, int n,
                                   int begin, int end, long long delta) {
     if (n < 0 || begin < 0 || begin > end || end > n)
         exam_algo_fail("invalid difference range");
-    difference[begin] += delta;
-    difference[end] -= delta;
+    if (begin == end) return;
+    difference[begin] = exam_add_checked_ll(difference[begin], delta);
+    difference[end] = exam_sub_checked_ll(difference[end], delta);
 }
 static inline void diff_to_lls_into(const long long *difference, int n,
                                     long long *out, size_t capacity) {
@@ -20,7 +21,7 @@ static inline void diff_to_lls_into(const long long *difference, int n,
         exam_algo_fail("difference output array too small");
     long long current = 0;
     for (int i = 0; i < n; ++i) {
-        current += difference[i];
+        current = exam_add_checked_ll(current, difference[i]);
         out[i] = current;
     }
 }
