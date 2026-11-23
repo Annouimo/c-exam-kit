@@ -56,16 +56,104 @@ long long total = sum_ints(a,n);
 - sequence: `longest_equal_run_ints`, `longest_plus_one_run_ints`, `max_subarray_sum_ints`, `max_forward_diff_ints`.
 - interval: `build_prefix_ints(a,n,prefix)`, `prefix_range_sum(prefix,begin,end)`; `build_diff_ints(a,n,diff)`, `diff_range_add(diff,n,begin,end,delta)`, `diff_to_lls(diff,n,out)`. Prefix/difference buffers require **at least n+1** `long long` elements; end is exclusive.
 - frequencies: `frequency_ints(a,n,freq,max_value)` fills counters for **nonnegative** values `0..max_value`.
-- long long: `fill_lls`, `copy_lls`, `sort_lls`, `reverse_lls`, `find_lls`, `lower_bound_lls`, `upper_bound_lls`, `sum_lls`, `min_lls`, `max_lls`.
-- double: `fill_doubles`, `copy_doubles`, `sort_doubles`, `reverse_doubles`, `find_doubles`, `lower_bound_doubles`, `upper_bound_doubles`, `sum_doubles`, `mean_doubles`, `min_doubles`, `max_doubles`. Sorting rejects NaN and infinities; finding compares using C's exact `==`.
+- long long: `fill_lls`, `copy_lls`, `values_lls`, `range_lls`, `sort_lls`, `sort_lls_desc`, `reverse_lls`, `find_lls`, `count_lls`, `binary_search_lls`, `lower_bound_lls`, `upper_bound_lls`, `sum_lls`, `mean_lls`, `variance_lls`, `stddev_lls`, `median_lls`, `min_lls`, `max_lls`, `argmin_lls`, `argmax_lls`, `unique_lls`, `unique_sorted_lls`.
+- double: `fill_doubles`, `copy_doubles`, `values_doubles`, `sort_doubles`, `sort_doubles_desc`, `reverse_doubles`, `find_doubles`, `count_doubles`, `binary_search_doubles`, `lower_bound_doubles`, `upper_bound_doubles`, `sum_doubles`, `mean_doubles`, `variance_doubles`, `stddev_doubles`, `median_doubles`, `min_doubles`, `max_doubles`, `argmin_doubles`, `argmax_doubles`, `unique_doubles`, `unique_sorted_doubles`. Floating equality is **exact**; sorting, statistics and deduplication reject NaN and infinity. `range_doubles` is not provided.
 
 `find_*` returns the first matching 0-based index or -1. Binary search requires **ascending** input and returns the first match. `lower_bound`/`upper_bound` return insertion positions. `unique_ints` preserves the first occurrence order but takes O(n²) time. `median_ints` does not alter input and may allocate a temporary array.
+
+## Structure sorting, indirect sorting and integer answer search
+
+The record type is fixed to `Record` for simplicity. **Define a named struct
+tag**, not an anonymous `typedef struct { ... } Record;`. Include `exam.h`
+first, then define the fields and implement the **non-static**
+`record_cmp(const Record *, const Record *)`. The comparator returns negative,
+zero or positive for less-than, equal or greater-than ordering. The library
+adapts this typed comparator to C99 `qsort`:
+
+~~~c
+#include "exam.h"
+
+struct Record {
+    int score, penalty;
+};
+
+int record_cmp(const Record *a, const Record *b) {
+    if (a->score != b->score)
+        return (a->score < b->score) - (a->score > b->score);
+    return (a->penalty > b->penalty) - (a->penalty < b->penalty);
+}
+
+int main(void) {
+    Record a[100] = {{95,10},{98,20},{95,5}};
+    sort_records(a, 3);
+    return 0;
+}
+~~~
+
+`sort_records` sorts the array in place, **not stably**. Exactly one `Record`
+type and one `record_cmp` rule are supported in a program. Use standard
+`qsort` directly for more specialized multiple-type situations.
+
+`argsort_ints(a,n,order)` does **not modify a**. Instead, it puts the original
+zero-based indexes in sorted order into the user-owned `order[]`. Equal
+values are ordered by their original indexes, deterministically:
+
+~~~c
+int a[] = {8,3,8,2};
+int order[4];
+argsort_ints(a, 4, order); /* order = {3,1,0,2} */
+~~~
+
+The `order` buffer must be a true array with at least n elements. The source
+and destination must **not overlap**. For one unsorted original-index lookup,
+prefer `find_ints(a,n,key)` (first occurrence or -1), without sorting.
+
+`first_true_int(begin,end,predicate)` uses a half-open `[begin,end)` range,
+where the predicate must be monotone from false to true. It returns the first
+satisfying integer, or **end if none exists**:
+
+~~~c
+bool enough(int x) { return x >= 10; }
+int answer = first_true_int(0, 100, enough); /* 10 */
+~~~
+
+The callback is `bool predicate(int)`. An empty range returns `end`, and
+negative / extreme int bounds are supported without midpoint overflow.
 
 ## Strings
 
 Byte-oriented C strings (not Unicode code points): `str_reverse`, `str_lower`, `str_upper`, `str_trim`, `str_is_palindrome`, `str_count_char`, `str_count_substr(s,needle,overlapping)`, `str_longest_char_run`, `str_insert`, `str_erase`, `str_replace_char`, `str_remove_char`, `str_replace_all`, `str_sort_chars`, `str_unique_chars`.
 
 `str_insert` and `str_replace_all` change length, so they use auto-capacity macros. `str_replace_all` replaces non-overlapping matches. Their text/needle/replacement arguments must **not point into the destination string buffer**. For standard operations still use `strlen`, `strcmp`, `strstr` and `snprintf`.
+
+### Fixed-width string lists: split and join
+
+~~~c
+char words[100][50];
+int n = str_split("apple,,orange,", ",", words);
+/* words = {"apple", "", "orange", ""}, n == 4 */
+char result[300];
+str_join(words, n, ",", result); /* "apple,,orange," */
+~~~
+
+- `str_split(text,separator,words)` treats the separator as a **literal nonempty
+  string** (so `"::"` works), preserves empty fields, and returns one empty
+  field for an empty input string.
+- `str_split_whitespace(text,words)` splits on runs of whitespace, omits empty
+  fields and returns zero fields for all-whitespace input.
+- `str_join(words,n,separator,result)` joins exactly the first n rows, inserts
+  separators only **between** fields, and returns no value. For n=0 the output
+  is an empty string.
+
+Both 2D input/output macros infer the number of rows and fixed field width
+from `char words[ROWS][WIDTH]`. The join output must be a separately declared
+real `char result[CAPACITY]` array. They check the number of rows, each field
+width, and the joined output capacity; overflow terminates with a message.
+They are **byte-oriented**, not Unicode-aware. Input/source and output buffers
+must not overlap. For true array parameters/pointers, explicit-capacity
+functions `str_split_into`, `str_split_whitespace_into`, and `str_join_into`
+are available.
+
 
 ## Math, bits, dates, complex
 
@@ -103,6 +191,6 @@ Both enumerate ordered 0-based indices, with no allocation; `Combination` is uno
 
 ## Not included / next design discussion
 
-**Intentionally excluded for now**: `sort_by`, `argsort_ints`, multi-key record sorting, original-index search, stable generic sorting, string-list/split-join storage interfaces, generic predicate-based integer answer bisection, dynamic container abstractions, ST/RMQ, DFS/grid paths, generalized matrices, heap/deque/map/set and quadratic-equation special outputs.
+**Intentionally excluded for now**: multi-type generic `sort_by`, specialized repeated-query original-index indexes, stable generic record sorting, dynamic StringList/Vector/Matrix containers, ST/RMQ, DFS/grid paths, generalized matrices, heap/deque/map/set, and quadratic-equation special outputs. Multi-key record sorting is covered by `Record` / `record_cmp`.
 
-**Testing:** `python3 tests/test_lightweight_io.py` and `python3 tests/test_lightweight_algorithms.py` compile and run C99 with complete and dependency-selected headers. Windows/MinGW, macOS and Linux are CI targets. Final integration should also use the upstream standalone CLI to initialize and assemble an example.
+**Testing:** `python3 tests/test_lightweight_io.py` and `python3 tests/test_lightweight_algorithms.py` compile and run C99 with complete and dependency-selected headers. Windows/MinGW, macOS and Linux are CI targets. CI also checks the upstream standalone CLI's real initialization, dependency selection, assembly, compile and run behavior.
