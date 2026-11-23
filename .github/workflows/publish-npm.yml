@@ -1,0 +1,104 @@
+name: Publish npm preview (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "DRY_RUN builds only; PUBLISH_NEXT publishes to npm next"
+        type: choice
+        required: true
+        default: DRY_RUN
+        options:
+          - DRY_RUN
+          - PUBLISH_NEXT
+      expected_version:
+        description: "Must exactly match the checked-out prerelease package.json"
+        type: string
+        required: true
+        default: "0.6.4-next.0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-next-publish
+  cancel-in-progress: false
+
+jobs:
+  pack:
+    name: Build and validate C Exam Kit preset
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - name: Verify the intended source branch and prerelease version
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/feat/npm-accoding-preset"
+          node - <<'NODE'
+          const fs=require("node:fs");
+          const file="npm/accoding-preset/package.json";
+          const pkg=JSON.parse(fs.readFileSync(file,"utf8"));
+          if(pkg.name!=="@annouimo/c-exam-kit-preset") throw Error("Unexpected package name");
+          if(pkg.repository?.url!=="git+https://github.com/Annouimo/c-exam-kit.git") throw Error("GitHub provenance repository mismatch");
+          if(pkg.version!==process.env.EXPECTED_VERSION || !/^\d+\.\d+\.\d+-next\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a next prerelease");
+          delete pkg.private; // Only the runner copy becomes publishable.
+          fs.writeFileSync(file,JSON.stringify(pkg,null,2)+"\n");
+          NODE
+      - name: Validate and pack the data-only C99 preset
+        working-directory: npm/accoding-preset
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/npm-dist"
+          npm pack --pack-destination "$RUNNER_TEMP/npm-dist"
+          test -f preset/manifest.json
+          node - <<'NODE'
+          const fs=require("node:fs");
+          const manifest=JSON.parse(fs.readFileSync("preset/manifest.json","utf8"));
+          if(manifest.schemaVersion!==1 || manifest.language!=="c" || manifest.standard!=="c99" || !Array.isArray(manifest.components) || manifest.components.length<1) throw Error("Invalid C99 data package");
+          for(const c of manifest.components) {
+            if(!/^components\/[A-Za-z0-9_/-]+\.h$/.test(c.source) || c.source.includes("..") || !fs.existsSync("preset/"+c.source)) throw Error("Missing or unsafe component "+c.id);
+          }
+          console.log("Validated",manifest.components.length,"C99 components");
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-preview-tarball
+          path: ${{ runner.temp }}/npm-dist/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish C Exam Kit preset to npm next
+    needs: pack
+    if: ${{ inputs.mode == 'PUBLISH_NEXT' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+      - name: Ensure OIDC compatible npm CLI
+        run: npm install --global "npm@^11.21.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-preview-tarball
+          path: ./release
+      - name: Publish approved prerelease package with npm OIDC
+        run: |
+          set -euo pipefail
+          tarball="$(find release -type f -name '*.tgz' -print -quit)"
+          test -n "$tarball"
+          npm publish "$tarball" --tag next --access public
