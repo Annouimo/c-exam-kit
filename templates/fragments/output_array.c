@@ -1,7 +1,0 @@
-@COMMENT:output_array_0@
-const char *array_separator = SEPARATOR_LITERAL;
-for (int i = 0; i < n; i++) {
-    if (i > 0) fputs(array_separator, stdout);
-    printf(VALUE_PRINT, a[i]);
-}
-putchar('\n');

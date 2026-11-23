@@ -1,6 +1,6 @@
 # @annouimo/c-exam-kit-preset
 
-This npm package contains **C99 header/template data only**. It does not run code on installation, download assets at runtime, or replace the independent C Exam Kit project.
+This npm package contains **C99 component data and a versioned Chinese reference manual** for [Accoding Companion](https://github.com/Annouimo/accoding-companion).
 
 ## Build locally
 
@@ -15,6 +15,6 @@ The `prepack` step reads the maintained C99 headers in `scaffold/presets/exam-io
 
 The package carries the manifest and component fragments. Accoding Companion assembles the full IDE header once per workspace version and performs a separate dependency traversal for each submission.
 
-Accoding Companion's external installer downloads this package into an explicitly versioned, user-owned data directory. Existing exercise snapshots are never changed just because a new version was downloaded.
+The Companion launcher installs the package through npm. When a course or exercise adopts a preset version, Companion saves that version in the workspace.
 
 The release workflow validates and publishes the packed package to npm.

@@ -1,4 +1,0 @@
-int main(void) {
-@BODY@
-    return 0;
-}
