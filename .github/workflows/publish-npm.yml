@@ -1,9 +1,6 @@
 name: Publish npm preview (manual)
 
 on:
-  push:
-    branches:
-      - feat/fine-grained-preset
   workflow_dispatch:
     inputs:
       mode:
@@ -43,7 +40,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Verify the intended source branch and prerelease version
         env:
-          EXPECTED_VERSION: ${{ inputs.expected_version || '0.6.4-next.1' }}
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/feat/fine-grained-preset"
@@ -83,7 +80,7 @@ jobs:
   publish:
     name: Publish C Exam Kit preset to npm next
     needs: pack
-    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'PUBLISH_NEXT') || (github.event_name == 'push' && github.event.head_commit.message == 'Release npm next 0.6.4-next.1') }}
+    if: ${{ inputs.mode == 'PUBLISH_NEXT' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
