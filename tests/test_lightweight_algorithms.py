@@ -217,6 +217,73 @@ int main(void) {
                 self.run_c(code, data, selected, expect_error=True)
 
 
+    def test_dates_times_typed_arrays_and_digit_operations(self):
+        source = r"""
+int main(void) {
+    Date leap=date_new(2024,2,29);
+    Date next=date_add_days(leap,1);
+    Date start=date_from_serial(0);
+    if(!date_is_leap(2024) || date_is_leap(2100) ||
+       next.month!=3 || next.day!=1 || next.year!=2024 ||
+       start.year!=1 || start.month!=1 || start.day!=1 ||
+       date_diff(leap,next)!=1) return 1;
+    Time t=time_new(23,59,59);
+    Time t2=time_next_second(t);
+    if(t2.hour!=0 || t2.minute!=0 || t2.second!=0 ||
+       time_diff(time_new(1,0,0),time_new(2,0,0))!=3600) return 2;
+    long long large[5];
+    fill_lls(large,5,-7);
+    large[0]=9;
+    sort_lls(large,5);
+    if(large[0]!=-7 || large[4]!=9 || sum_lls(large,5)!=-19 ||
+       lower_bound_lls(large,5,9)!=4) return 3;
+    double doubles[5];
+    fill_doubles(doubles,5,2.5);
+    doubles[0]=4.0;
+    sort_doubles(doubles,5);
+    if(doubles[4]!=4.0 || sum_doubles(doubles,5)!=14.0 ||
+       find_doubles(doubles,5,4.0)!=4) return 4;
+    int digits[20];
+    int len=int_to_digits(255,16,digits);
+    if(len!=2 || digits[0]!=15 || digits[1]!=15 ||
+       digits_to_int(digits,len,16)!=255 ||
+       int_reverse_digits(-1200)!=-21) return 5;
+    date_print(next," ");
+    time_print(t2,"\n");
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={
+            "date","time","array_ll_basic","array_double_basic",
+            "number_digits_extra"}), "2024-03-01 00:00:00\n")
+
+    def test_bigint_remainders_and_boundaries(self):
+        source=r"""
+int main(void) {
+    BigInt a,b,c,q,r;
+    bigint_from_str(&a,"-100000000000000000000000000000000");
+    bigint_from_str(&b,"3");
+    bigint_divmod(&q,&r,&a,&b);
+    char qs[80],rs[80];
+    bigint_to_str(&q,qs);
+    bigint_to_str(&r,rs);
+    if(strcmp(qs,"-33333333333333333333333333333333") ||
+       strcmp(rs,"-1")) return 1;
+    bigint_from_str(&a,"0000000000");
+    if(a.sign!=0 || a.len!=1) return 2;
+    bigint_from_ll(&b,LLONG_MIN);
+    bigint_to_str(&b,qs);
+    if(strcmp(qs,"-9223372036854775808")) return 3;
+    bigint_factorial(&c,25);
+    bigint_to_str(&c,qs);
+    if(strcmp(qs,"15511210043330985984000000")) return 4;
+    print_int(1,"\n");
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={
+            "bigint_parse","bigint_div","bigint_factorial","print_scalar"
+        }),"1\n")
+
+
 if __name__ == "__main__":
     if not shutil.which(CC):
         raise SystemExit("C compiler not found: " + CC)
