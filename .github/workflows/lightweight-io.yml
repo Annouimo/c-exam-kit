@@ -49,3 +49,41 @@ jobs:
       - name: Test algorithms (GCC)
         shell: msys2 {0}
         run: python3 tests/test_lightweight_algorithms.py
+  standalone-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: exam-kit
+      - uses: actions/checkout@v4
+        with:
+          repository: Annouimo/better-accoding-for-buaaers
+          ref: feat/standalone-cli-foundation
+          path: accoding
+      - uses: oven-sh/setup-bun@v2
+      - name: Initialize, assemble, compile and run using upstream CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd accoding
+          bun src/standalone/cli.ts scaffold init ../sample-problem \
+            --preset ../exam-kit/scaffold/presets/exam-io-c99/manifest.json
+          cat > ../sample-problem/main.c <<'EOF'
+          #include "exam.h"
+          int main(void) {
+              int n = read_int(), a[100];
+              read_ints(a, n);
+              sort_ints(a, n);
+              print_ints(a, n, " ", "\n");
+              return 0;
+          }
+          EOF
+          bun src/standalone/cli.ts scaffold prepare ../sample-problem/main.c --cc gcc
+          test -s ../sample-problem/.accoding/submit.c
+          if grep -q 'typedef struct.*BigInt' ../sample-problem/.accoding/submit.c; then
+            echo 'Unexpected BigInt in submitted source' >&2
+            exit 1
+          fi
+          gcc -std=c99 -O2 ../sample-problem/.accoding/submit.c -o ../sample-problem/program -lm
+          result="$(printf '4 8 2 4 1\n' | ../sample-problem/program)"
+          test "$result" = "1 2 4 8"
