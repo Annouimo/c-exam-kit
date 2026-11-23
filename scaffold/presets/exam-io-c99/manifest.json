@@ -704,6 +704,56 @@
       "requires": [
         "algo_core"
       ]
+    },
+    {
+      "id": "sort_records",
+      "description": "Sort user-defined struct Record using typed record_cmp callback",
+      "symbols": [
+        "sort_records"
+      ],
+      "source": "components/sort_records.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "argsort_ints",
+      "description": "Stable indirect sorting for ints, tie-break by original index",
+      "symbols": [
+        "argsort_ints",
+        "argsort_ints_into"
+      ],
+      "source": "components/argsort_ints.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "first_true",
+      "description": "Find first satisfying integer on a half-open monotone range",
+      "symbols": [
+        "first_true_int"
+      ],
+      "source": "components/first_true.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_split_join",
+      "description": "Split and join fixed-width C string rows without dynamic containers",
+      "symbols": [
+        "str_split",
+        "str_split_into",
+        "str_split_whitespace",
+        "str_split_whitespace_into",
+        "str_join",
+        "str_join_into"
+      ],
+      "source": "components/str_split_join.h",
+      "requires": [
+        "algo_core"
+      ]
     }
   ]
 }
