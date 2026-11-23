@@ -12,7 +12,10 @@
     "ctype.h",
     "errno.h",
     "limits.h",
-    "math.h"
+    "math.h",
+    "string.h",
+    "stdint.h",
+    "float.h"
   ],
   "components": [
     {
@@ -169,6 +172,119 @@
       "source": "components/print_arrays.h",
       "requires": [
         "print_scalar"
+      ]
+    },
+    {
+      "id": "algo_core",
+      "description": "Lightweight C99 algo core",
+      "symbols": [
+        "exam_algo_fail",
+        "exam_check_n"
+      ],
+      "source": "components/algo_core.h",
+      "requires": []
+    },
+    {
+      "id": "math_integer",
+      "description": "Lightweight C99 math integer",
+      "symbols": [
+        "gcd",
+        "lcm",
+        "int_pow",
+        "factorial_basic",
+        "is_prime",
+        "mod_pow"
+      ],
+      "source": "components/math_integer.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "math_real",
+      "description": "Lightweight C99 math real",
+      "symbols": [
+        "nearly_equal",
+        "round_digits"
+      ],
+      "source": "components/math_real.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "prime_sieve",
+      "description": "Lightweight C99 prime sieve",
+      "symbols": [
+        "sieve_primes",
+        "sieve_primes_into"
+      ],
+      "source": "components/prime_sieve.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "bits",
+      "description": "Lightweight C99 bits",
+      "symbols": [
+        "bit_get",
+        "bit_set",
+        "bit_clear",
+        "bit_toggle",
+        "bit_count",
+        "is_power_of_two",
+        "bit_lowest_set_index",
+        "bit_highest_set_index",
+        "bit_rotate_left"
+      ],
+      "source": "components/bits.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "complex",
+      "description": "Lightweight C99 complex",
+      "symbols": [
+        "Complex",
+        "complex_new",
+        "complex_add",
+        "complex_sub",
+        "complex_mul",
+        "complex_div",
+        "complex_abs",
+        "complex_print"
+      ],
+      "source": "components/complex.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "combinations",
+      "description": "Lightweight C99 combinations",
+      "symbols": [
+        "Combination",
+        "combination_new",
+        "combination_next"
+      ],
+      "source": "components/combinations.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "permutations",
+      "description": "Lightweight C99 permutations",
+      "symbols": [
+        "Permutation",
+        "permutation_new",
+        "permutation_next"
+      ],
+      "source": "components/permutations.h",
+      "requires": [
+        "algo_core"
       ]
     }
   ]
