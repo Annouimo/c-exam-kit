@@ -28,6 +28,7 @@ static inline int exam_io_token(char *out, size_t capacity) {
     size_t len = 0;
     do {
         if (len >= capacity - 1) exam_io_fail("input token too long");
+        if (c == 0) exam_io_fail("NUL byte in token");
         out[len++] = (char)c;
         c = exam_io_get();
     } while (c != EOF && !exam_io_space(c));
@@ -54,6 +55,7 @@ static inline int exam_io_line_buffer(char *out, size_t capacity) {
     size_t len = 0;
     while (c != EOF && c != '\n' && c != '\r') {
         if (len >= capacity - 1) exam_io_fail("input line too long");
+        if (c == 0) exam_io_fail("NUL byte in line");
         out[len++] = (char)c;
         c = exam_io_get();
     }
