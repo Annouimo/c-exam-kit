@@ -51,11 +51,12 @@ static inline int str_split_whitespace_into(const char *text,
     }
     return count;
 }
-static inline void str_join_into(const char *rows, int n, size_t width,
+static inline void str_join_into(const char *rows, int n,
+                                 size_t row_capacity, size_t width,
                                  const char *delimiter,
                                  char *output, size_t capacity) {
-    if (n < 0 || !delimiter || !output || capacity == 0 ||
-        width == 0 || (n > 0 && !rows))
+    if (n < 0 || (size_t)n > row_capacity || !delimiter || !output ||
+        capacity == 0 || width == 0 || (n > 0 && !rows))
         exam_algo_fail("invalid str_join arguments");
     size_t separator_length = strlen(delimiter);
     size_t written = 0;
@@ -85,5 +86,6 @@ static inline void str_join_into(const char *rows, int n, size_t width,
                               sizeof(rows) / sizeof((rows)[0]), \
                               sizeof((rows)[0]))
 #define str_join(rows, n, delimiter, output) \
-    str_join_into((const char *)(rows), (n), sizeof((rows)[0]), \
+    str_join_into((const char *)(rows), (n), \
+                  sizeof(rows) / sizeof((rows)[0]), sizeof((rows)[0]), \
                   (delimiter), (output), sizeof(output))
