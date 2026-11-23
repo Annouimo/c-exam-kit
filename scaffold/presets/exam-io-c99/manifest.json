@@ -286,6 +286,118 @@
       "requires": [
         "algo_core"
       ]
+    },
+    {
+      "id": "array_int_build",
+      "description": "Lightweight C99 array int build",
+      "symbols": [
+        "fill_ints",
+        "fill_ints_into",
+        "copy_ints",
+        "copy_ints_into",
+        "values_ints",
+        "values_ints_into",
+        "range_ints",
+        "range_ints_into",
+        "reverse_ints",
+        "swap_ints"
+      ],
+      "source": "components/array_int_build.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_sort",
+      "description": "Lightweight C99 array int sort",
+      "symbols": [
+        "sort_ints",
+        "sort_ints_desc",
+        "bubble_sort_ints",
+        "unique_sorted_ints",
+        "unique_ints"
+      ],
+      "source": "components/array_int_sort.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_search",
+      "description": "Lightweight C99 array int search",
+      "symbols": [
+        "linear_search_ints",
+        "find_ints",
+        "lower_bound_ints",
+        "upper_bound_ints",
+        "binary_search_ints",
+        "count_ints"
+      ],
+      "source": "components/array_int_search.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_stats",
+      "description": "Lightweight C99 array int stats",
+      "symbols": [
+        "sum_ints",
+        "min_ints",
+        "max_ints",
+        "argmin_ints",
+        "argmax_ints",
+        "mean_ints",
+        "variance_ints",
+        "stddev_ints",
+        "median_ints"
+      ],
+      "source": "components/array_int_stats.h",
+      "requires": [
+        "array_int_sort"
+      ]
+    },
+    {
+      "id": "array_int_sequences",
+      "description": "Lightweight C99 array int sequences",
+      "symbols": [
+        "max_subarray_sum_ints",
+        "longest_equal_run_ints",
+        "longest_plus_one_run_ints",
+        "max_forward_diff_ints"
+      ],
+      "source": "components/array_int_sequences.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_prefix",
+      "description": "Lightweight C99 array prefix",
+      "symbols": [
+        "build_prefix_ints",
+        "build_prefix_ints_into",
+        "prefix_range_sum"
+      ],
+      "source": "components/array_prefix.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_difference",
+      "description": "Lightweight C99 array difference",
+      "symbols": [
+        "build_diff_ints",
+        "build_diff_ints_into",
+        "diff_range_add",
+        "diff_to_lls",
+        "diff_to_lls_into"
+      ],
+      "source": "components/array_difference.h",
+      "requires": [
+        "algo_core"
+      ]
     }
   ]
 }
