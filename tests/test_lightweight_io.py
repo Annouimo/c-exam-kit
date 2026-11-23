@@ -155,7 +155,7 @@ int main(void) {
     print_int(raw == ' ', "\n");
     return 0;
 }"""
-        self.assertEqual(self.run_c(main, "3 1 2 3 10 20 1.25 2.5\nX Y\n",
+        self.assertEqual(self.run_c(main, "3 1 2 3 10 20 1.24 2.5\nX Y\n",
                                     {"io_ints", "io_lls", "io_doubles",
                                      "io_char", "print_arrays"}),
                          "1,2,3|10,20|1.2,2.5\nX|1\n")
@@ -177,12 +177,13 @@ int main(void) {
         self.assertEqual(self.run_c(main, "A\n\nB",
                                     {"io_line", "print_scalar"}), "A||B|3\n")
         bad = r'int main(void){int x=read_int();print_int(x,"\n");}'
-        for data in ("12abc\n", "2147483648\n", "-2147483649\n", ""):
+        for data in ("12abc\n", "2147483648\n", "-2147483649\n", "12\x00abc", ""):
             self.run_c(bad, data, {"io_int", "print_scalar"}, expect_failure=True)
         overlong = r'int main(void){char s[4];read_word(s);}'
         self.run_c(overlong, "abcdefgh", {"io_word"}, expect_failure=True)
         line_long = r'int main(void){char s[3];read_line(s);}'
         self.run_c(line_long, "hello\n", {"io_line"}, expect_failure=True)
+        self.run_c(line_long, "a\x00b", {"io_line"}, expect_failure=True)
 
 
 if __name__ == "__main__":
