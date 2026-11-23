@@ -349,6 +349,149 @@ int main(void) {
                          str(math.factorial(500))+"\n")
 
 
+    def test_record_sort_and_stable_argsort(self):
+        source = r"""
+struct Record {
+    char name[20];
+    int score;
+    int penalty;
+};
+int record_cmp(const Record *a, const Record *b) {
+    if (a->score != b->score) return (a->score < b->score) - (a->score > b->score);
+    if (a->penalty != b->penalty) return (a->penalty > b->penalty) - (a->penalty < b->penalty);
+    return strcmp(a->name, b->name);
+}
+int main(void) {
+    Record records[]={{"J",90,5},{"A",100,20},{"C",100,10},{"B",100,10}};
+    sort_records(records,4);
+    if(strcmp(records[0].name,"B") || strcmp(records[1].name,"C") ||
+       strcmp(records[2].name,"A") || strcmp(records[3].name,"J")) return 1;
+    int values[]={8,3,8,2}, order[4];
+    argsort_ints(values,4,order);
+    if(order[0]!=3 || order[1]!=1 || order[2]!=0 || order[3]!=2) return 2;
+    if(values[0]!=8 || values[1]!=3 || values[2]!=8 || values[3]!=2) return 3;
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={"sort_records", "argsort_ints"}), "")
+
+    def test_split_and_join_strict_rectangular_arrays(self):
+        source = r"""
+int main(void) {
+    char words[8][20], out[128];
+    int n=str_split("a,,b,",",",words);
+    if(n!=4 || strcmp(words[0],"a") || strcmp(words[1],"") ||
+       strcmp(words[2],"b") || strcmp(words[3],"")) return 1;
+    str_join(words,n,",",out);
+    if(strcmp(out,"a,,b,")) return 2;
+    n=str_split("one::two::::","::",words);
+    if(n!=4 || strcmp(words[0],"one") || strcmp(words[1],"two") ||
+       strcmp(words[2],"") || strcmp(words[3],"")) return 3;
+    str_join(words,n,"::",out);
+    if(strcmp(out,"one::two::::")) return 4;
+    n=str_split_whitespace("  red\tblue\n green  ",words);
+    if(n!=3 || strcmp(words[0],"red") || strcmp(words[1],"blue") ||
+       strcmp(words[2],"green")) return 5;
+    str_join(words,n,"/",out);
+    if(strcmp(out,"red/blue/green")) return 6;
+    n=str_split("",",",words);
+    if(n!=1 || strcmp(words[0],"")) return 7;
+    n=str_split_whitespace(" \n\t  ",words);
+    if(n!=0) return 8;
+    str_join(words,0,",",out);
+    if(strcmp(out,"")) return 9;
+    print_text("ok","\n");
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={
+            "str_split_join", "print_scalar"}), "ok\n")
+
+    def test_first_true_range_and_extremes(self):
+        source = r"""
+static bool predicate(int x) { return x >= 7; }
+static bool never(int x) { (void)x; return false; }
+static bool always(int x) { (void)x; return true; }
+int main(void) {
+    if(first_true_int(0,10,predicate)!=7) return 1;
+    if(first_true_int(-10,10,predicate)!=7) return 2;
+    if(first_true_int(-10,10,never)!=10) return 3;
+    if(first_true_int(-10,10,always)!=-10) return 4;
+    if(first_true_int(INT_MIN,INT_MAX,predicate)!=7) return 5;
+    if(first_true_int(2,2,predicate)!=2) return 6;
+    if(first_true_int(INT_MIN,INT_MIN,predicate)!=INT_MIN) return 7;
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={"first_true"}), "")
+
+    def test_long_long_and_double_complete_core(self):
+        source = r"""
+int main(void) {
+    long long a[12], original[12];
+    int n=values_lls(a,7LL,5LL,5LL,3LL);
+    if(n!=4 || mean_lls(a,n)!=5 || variance_lls(a,n)!=2 ||
+       fabs(stddev_lls(a,n)-sqrt(2.0))>1e-12) return 1;
+    copy_lls(original,a,n);
+    if(argmin_lls(a,n)!=3 || argmax_lls(a,n)!=0 ||
+       count_lls(a,n,5LL)!=2 || median_lls(a,n)!=5) return 2;
+    sort_lls(a,n);
+    if(binary_search_lls(a,n,5)!=1 || lower_bound_lls(a,n,5)!=1 ||
+       upper_bound_lls(a,n,5)!=3) return 3;
+    n=unique_sorted_lls(a,n);
+    if(n!=3 || a[0]!=3 || a[1]!=5 || a[2]!=7) return 4;
+    sort_lls_desc(a,n);
+    if(a[0]!=7 || a[2]!=3 || unique_lls(a,n)!=3) return 5;
+    n=range_lls(a,-5,6,3);
+    if(n!=4 || a[0]!=-5 || a[1]!=-2 || a[2]!=1 || a[3]!=4) return 6;
+    n=range_lls(a,LLONG_MAX-1,LLONG_MAX,LLONG_MAX);
+    if(n!=1 || a[0]!=LLONG_MAX-1) return 7;
+    n=range_lls(a,LLONG_MIN+1,LLONG_MIN,LLONG_MIN);
+    if(n!=1 || a[0]!=LLONG_MIN+1) return 8;
+    double d[12];
+    n=values_doubles(d,2.0,1.0,2.0,3.0);
+    if(n!=4 || count_doubles(d,n,2.0)!=2 ||
+       argmin_doubles(d,n)!=1 || argmax_doubles(d,n)!=3 ||
+       median_doubles(d,n)!=2.0 || variance_doubles(d,n)!=.5 ||
+       fabs(stddev_doubles(d,n)-sqrt(.5))>1e-12) return 9;
+    sort_doubles(d,n);
+    if(binary_search_doubles(d,n,2.0)!=1 ||
+       lower_bound_doubles(d,n,2)!=1 || upper_bound_doubles(d,n,2)!=3) return 10;
+    n=unique_sorted_doubles(d,n);
+    if(n!=3 || d[0]!=1 || d[1]!=2 || d[2]!=3) return 11;
+    sort_doubles_desc(d,n);
+    if(d[0]!=3 || d[2]!=1 || unique_doubles(d,n)!=3) return 12;
+    if(values_doubles(d,1.5,2.5)!=2 || d[0]!=1.5 || d[1]!=2.5) return 13;
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={
+            "array_ll_extra", "array_double_extra"}), "")
+
+    def test_new_capacity_checks_and_input_validation(self):
+        cases = [
+            (r'int main(void){int a[2]={4,3};int order[1];argsort_ints(a,2,order);}',
+             {"argsort_ints"}),
+            (r'int main(void){char rows[2][3];str_split("a,b,c",",",rows);}',
+             {"str_split_join"}),
+            (r'int main(void){char rows[2][3];str_split("abcdef",",",rows);}',
+             {"str_split_join"}),
+            (r'int main(void){char rows[1][4]={{"abc"}};char result[3];str_join(rows,1,":",result);}',
+             {"str_split_join"}),
+            (r'int main(void){char rows[1][4]={{"a"}};char result[8];str_join(rows,2,":",result);}',
+             {"str_split_join"}),
+            (r'int main(void){char rows[3][4];str_split("hi","",rows);}',
+             {"str_split_join"}),
+            (r'int main(void){first_true_int(4,3,NULL);}',
+             {"first_true"}),
+            (r'int main(void){long long a[2];values_lls(a,1LL,2LL,3LL);}',
+             {"array_ll_extra"}),
+            (r'int main(void){double a[1];values_doubles(a,1.0,2.0);}',
+             {"array_double_extra"}),
+            (r'int main(void){double a[2]={1.0,NAN};sort_doubles_desc(a,2);}',
+             {"array_double_extra"}),
+        ]
+        for source, selected in cases:
+            with self.subTest(source=source):
+                self.run_c(source, selected=selected, expect_error=True)
+
+
 if __name__ == "__main__":
     if not shutil.which(CC):
         raise SystemExit("C compiler not found: " + CC)
