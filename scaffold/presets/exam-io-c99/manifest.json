@@ -670,6 +670,40 @@
       "requires": [
         "algo_core"
       ]
+    },
+    {
+      "id": "array_frequency",
+      "description": "Lightweight C99 array frequency",
+      "symbols": [
+        "frequency_ints",
+        "frequency_ints_into"
+      ],
+      "source": "components/array_frequency.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "polynomial",
+      "description": "Lightweight C99 polynomial",
+      "symbols": [
+        "poly_eval_lls"
+      ],
+      "source": "components/polynomial.h",
+      "requires": [
+        "math_integer"
+      ]
+    },
+    {
+      "id": "bisect_root",
+      "description": "Lightweight C99 bisect root",
+      "symbols": [
+        "bisect_root"
+      ],
+      "source": "components/bisect_root.h",
+      "requires": [
+        "algo_core"
+      ]
     }
   ]
 }
