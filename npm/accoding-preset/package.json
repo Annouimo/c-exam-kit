@@ -1,0 +1,28 @@
+{
+  "name": "@annouimo/c-exam-kit-preset",
+  "version": "0.6.4",
+  "description": "Versioned C99 data-only presets for Accoding Companion",
+  "private": true,
+  "license": "MIT-0",
+  "files": [
+    "preset/",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepack": "node scripts/build-preset.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Annouimo/c-exam-kit.git",
+    "directory": "npm/accoding-preset"
+  },
+  "keywords": [
+    "accoding",
+    "c99",
+    "scaffold",
+    "data-only"
+  ]
+}

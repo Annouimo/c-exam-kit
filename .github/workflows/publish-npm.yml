@@ -1,27 +1,27 @@
-name: Publish npm preview (manual)
+name: Publish npm stable release
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "DRY_RUN builds only; PUBLISH_NEXT publishes to npm next"
+        description: "DRY_RUN builds only; PUBLISH_LATEST publishes to npm latest"
         type: choice
         required: true
         default: DRY_RUN
         options:
           - DRY_RUN
-          - PUBLISH_NEXT
+          - PUBLISH_LATEST
       expected_version:
-        description: "Must exactly match the checked-out prerelease package.json"
+        description: "Must exactly match the checked-out stable package.json"
         type: string
         required: true
-        default: "0.6.4-next.0"
+        default: "0.6.4"
 
 permissions:
   contents: read
 
 concurrency:
-  group: npm-next-publish
+  group: npm-latest-publish
   cancel-in-progress: false
 
 jobs:
@@ -38,22 +38,26 @@ jobs:
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
-      - name: Verify the intended source branch and prerelease version
+      - name: Verify the intended source branch and stable version
         env:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = "refs/heads/feat/npm-accoding-preset"
+          test "$GITHUB_REF" = "refs/heads/feat/fine-grained-preset"
           node - <<'NODE'
           const fs=require("node:fs");
           const file="npm/accoding-preset/package.json";
           const pkg=JSON.parse(fs.readFileSync(file,"utf8"));
           if(pkg.name!=="@annouimo/c-exam-kit-preset") throw Error("Unexpected package name");
           if(pkg.repository?.url!=="git+https://github.com/Annouimo/c-exam-kit.git") throw Error("GitHub provenance repository mismatch");
-          if(pkg.version!==process.env.EXPECTED_VERSION || !/^\d+\.\d+\.\d+-next\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a next prerelease");
+          if(pkg.version!==process.env.EXPECTED_VERSION || !/^\d+\.\d+\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a stable version");
           delete pkg.private; // Only the runner copy becomes publishable.
           fs.writeFileSync(file,JSON.stringify(pkg,null,2)+"\n");
           NODE
+      - name: Test C99 preset
+        run: |
+          python3 tests/test_lightweight_io.py
+          python3 tests/test_lightweight_algorithms.py
       - name: Validate and pack the data-only C99 preset
         working-directory: npm/accoding-preset
         run: |
@@ -72,15 +76,15 @@ jobs:
           NODE
       - uses: actions/upload-artifact@v4
         with:
-          name: npm-preview-tarball
+          name: npm-release-tarball
           path: ${{ runner.temp }}/npm-dist/*.tgz
           if-no-files-found: error
           retention-days: 7
 
   publish:
-    name: Publish C Exam Kit preset to npm next
+    name: Publish C Exam Kit preset to npm latest
     needs: pack
-    if: ${{ inputs.mode == 'PUBLISH_NEXT' }}
+    if: ${{ inputs.mode == 'PUBLISH_LATEST' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -94,12 +98,12 @@ jobs:
         run: npm install --global "npm@^11.21.0"
       - uses: actions/download-artifact@v4
         with:
-          name: npm-preview-tarball
+          name: npm-release-tarball
           path: ./release
-      - name: Publish approved prerelease package with npm OIDC
+      - name: Publish stable package with npm OIDC
         run: |
           set -euo pipefail
           tarball="$(find release -type f -name '*.tgz' -print -quit)"
           test -n "$tarball"
           # npm must receive an explicit filesystem path, not a package/Git spec.
-          npm publish "$(realpath "$tarball")" --tag next --access public
+          npm publish "$(realpath "$tarball")" --tag latest --access public
