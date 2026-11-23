@@ -101,4 +101,5 @@ jobs:
           set -euo pipefail
           tarball="$(find release -type f -name '*.tgz' -print -quit)"
           test -n "$tarball"
-          npm publish "$tarball" --tag next --access public
+          # npm must receive an explicit filesystem path, not a package/Git spec.
+          npm publish "$(realpath "$tarball")" --tag next --access public
