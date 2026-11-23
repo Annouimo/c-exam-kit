@@ -80,10 +80,11 @@ jobs:
           EOF
           bun src/standalone/cli.ts scaffold prepare ../sample-problem/main.c --cc gcc
           test -s ../sample-problem/.accoding/submit.c
-          if grep -q 'typedef struct.*BigInt' ../sample-problem/.accoding/submit.c; then
+          if grep -q 'EXAM_BIGINT_CAP' ../sample-problem/.accoding/submit.c; then
             echo 'Unexpected BigInt in submitted source' >&2
             exit 1
           fi
+          grep -q 'static inline void sort_ints' ../sample-problem/.accoding/submit.c
           gcc -std=c99 -O2 ../sample-problem/.accoding/submit.c -o ../sample-problem/program -lm
           result="$(printf '4 8 2 4 1\n' | ../sample-problem/program)"
           test "$result" = "1 2 4 8"
