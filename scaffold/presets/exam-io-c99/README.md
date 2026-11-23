@@ -1,18 +1,12 @@
 # C99 lightweight scaffold preset
 
-**Review branch only**. Designed for the [standalone CLI manifest v1](https://github.com/Annouimo/better-accoding-for-buaaers/tree/feat/standalone-cli-foundation/scaffold). The directory name `exam-io-c99` originated in the IO implementation stage; it now contains independent algorithm components as well. No old templates or dynamic Vector/String/Matrix implementation are copied.
+The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-companion), built and distributed as `@annouimo/c-exam-kit-preset`.
 
 ## Workflow
 
 [中文函数速查手册](manual.zh-CN.md)随 npm preset 一起发布，打包时标注适用版本。新增或修改公开接口时，同步更新手册中的调用方法、返回值和关键前提。
 
-~~~sh
-# From better-accoding-for-buaaers, standalone CLI feature branch:
-bun src/standalone/cli.ts scaffold init ./A --preset /path/to/c-exam-kit/scaffold/presets/exam-io-c99/manifest.json
-bun src/standalone/cli.ts scaffold prepare ./A/main.c
-~~~
-
-Initialization creates `main.c`, a complete local `exam.h` and an immutable per-problem preset snapshot in `.accoding/scaffold/`. Prepare uses referenced public symbols and component dependencies to emit `.accoding/submit.c`, then checks that it compiles. The compiler needs C99 and `-lm`; no installed runtime library is required.
+Follow the [Companion setup and usage guide](https://github.com/Annouimo/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
 
 ## Design conventions
 
