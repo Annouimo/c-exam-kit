@@ -398,6 +398,69 @@
       "requires": [
         "algo_core"
       ]
+    },
+    {
+      "id": "str_basic",
+      "description": "Lightweight C99 str basic",
+      "symbols": [
+        "str_reverse",
+        "str_lower",
+        "str_upper",
+        "str_trim",
+        "str_is_palindrome",
+        "str_count_char",
+        "str_count_substr",
+        "str_longest_char_run"
+      ],
+      "source": "components/str_basic.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_edit",
+      "description": "Lightweight C99 str edit",
+      "symbols": [
+        "str_insert",
+        "str_insert_into",
+        "str_erase",
+        "str_replace_char",
+        "str_remove_char",
+        "str_replace_all",
+        "str_replace_all_into"
+      ],
+      "source": "components/str_edit.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_sort",
+      "description": "Lightweight C99 str sort",
+      "symbols": [
+        "str_sort_chars",
+        "str_unique_chars"
+      ],
+      "source": "components/str_sort.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "number_base",
+      "description": "Lightweight C99 number base",
+      "symbols": [
+        "base_to_int",
+        "int_to_base",
+        "int_to_base_into",
+        "int_digit_count",
+        "int_digit_sum",
+        "int_digit_at"
+      ],
+      "source": "components/number_base.h",
+      "requires": [
+        "algo_core"
+      ]
     }
   ]
 }
