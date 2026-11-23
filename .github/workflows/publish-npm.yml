@@ -15,7 +15,6 @@ on:
         description: "Must exactly match the checked-out stable package.json"
         type: string
         required: true
-        default: "0.6.4"
 
 permissions:
   contents: read
@@ -43,7 +42,7 @@ jobs:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = "refs/heads/feat/fine-grained-preset"
+          test "$GITHUB_REF" = "refs/heads/main"
           node - <<'NODE'
           const fs=require("node:fs");
           const file="npm/accoding-preset/package.json";

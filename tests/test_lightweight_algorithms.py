@@ -366,13 +366,43 @@ int main(void) {
     sort_records(records,4);
     if(strcmp(records[0].name,"B") || strcmp(records[1].name,"C") ||
        strcmp(records[2].name,"A") || strcmp(records[3].name,"J")) return 1;
+    Record key = {"C",100,10};
+    if (binary_search_records_by(records,4,&key,record_cmp)!=1) return 4;
     int values[]={8,3,8,2}, order[4];
     argsort_ints(values,4,order);
     if(order[0]!=3 || order[1]!=1 || order[2]!=0 || order[3]!=2) return 2;
     if(values[0]!=8 || values[1]!=3 || values[2]!=8 || values[3]!=2) return 3;
     return 0;
 }"""
-        self.assertEqual(self.run_c(source, selected={"sort_records", "argsort_ints"}), "")
+        self.assertEqual(self.run_c(source, selected={"sort_records", "argsort_ints",
+                                                     "search_records"}), "")
+
+    def test_record_search_without_sorting_callback(self):
+        source = r"""
+struct Record {
+    char name[20];
+    int id;
+};
+
+static int by_id_desc(const Record *a, const Record *b) {
+    return (a->id < b->id) - (a->id > b->id);
+}
+
+int main(void) {
+    const Record unsorted[] = {{"A",2}, {"B",5}, {"C",2}, {"D",9}};
+    const Record sorted[] = {{"D",9}, {"B",5}, {"A",2}, {"C",2}};
+    const Record key = {.id = 2};
+    if (find_records_by(unsorted, 4, &key, by_id_desc) != 0) return 1;
+    if (binary_search_records_by(sorted, 4, &key, by_id_desc) != 2) return 2;
+    const Record missing = {.id = 6};
+    if (find_records_by(unsorted, 4, &missing, by_id_desc) != -1) return 3;
+    if (binary_search_records_by(sorted, 4, &missing, by_id_desc) != -1) return 4;
+    if (binary_search_records_by(sorted, 4, &(Record){.id = 1}, by_id_desc) != -1) return 5;
+    if (find_records_by(unsorted, 0, &key, by_id_desc) != -1) return 6;
+    if (binary_search_records_by(sorted, 0, &key, by_id_desc) != -1) return 7;
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, selected={"search_records"}), "")
 
     def test_split_and_join_strict_rectangular_arrays(self):
         source = r"""

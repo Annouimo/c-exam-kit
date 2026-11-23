@@ -61,7 +61,7 @@ long long total = sum_ints(a,n);
 
 `find_*` returns the first matching 0-based index or -1. Binary search requires **ascending** input and returns the first match. `lower_bound`/`upper_bound` return insertion positions. `unique_ints` preserves the first occurrence order but takes O(n²) time. `median_ints` does not alter input and may allocate a temporary array.
 
-## Structure sorting, indirect sorting and integer answer search
+## Record sorting and search, indirect sorting and integer answer search
 
 The record type is fixed to `Record` for simplicity. **Define a named struct
 tag**, not an anonymous `typedef struct { ... } Record;`. Include `exam.h`
@@ -86,6 +86,9 @@ int record_cmp(const Record *a, const Record *b) {
 int main(void) {
     Record a[100] = {{95,10},{98,20},{95,5}};
     sort_records(a, 3);
+    Record key = {.score = 95, .penalty = 5};
+    int index = binary_search_records_by(a, 3, &key, record_cmp);
+    printf("%d\n", index);  /* 1 */
     return 0;
 }
 ~~~
@@ -93,6 +96,15 @@ int main(void) {
 `sort_records` sorts the array in place, **not stably**. Exactly one `Record`
 type and one `record_cmp` rule are supported in a program. Use standard
 `qsort` directly for more specialized multiple-type situations.
+
+`find_records_by(a, n, &key, compare)` scans the array in its current order.
+`binary_search_records_by(a, n, &key, compare)` requires the array to be
+ordered according to `compare`. Both return the first matching 0-based index
+or `-1`. The comparator has signature `int compare(const Record *, const Record *)`
+and receives the array element first and the search key second. Use
+`record_cmp` for the same ordering as `sort_records`, or a separate comparator
+for a different search key. Initialize every field the comparator reads.
+Searching alone only requires the comparator passed at the call site.
 
 `argsort_ints(a,n,order)` does **not modify a**. Instead, it puts the original
 zero-based indexes in sorted order into the user-owned `order[]`. Equal
