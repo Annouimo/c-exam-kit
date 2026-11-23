@@ -1,0 +1,75 @@
+static inline void str_insert_into(char *s, int pos, const char *text,
+                                   size_t capacity) {
+    size_t n = strlen(s), add = strlen(text);
+    if (pos < 0 || (size_t)pos > n || n >= capacity ||
+        add > capacity - n - 1)
+        exam_algo_fail("str_insert invalid index or capacity");
+    /* text must not alias s when insertion shifts the buffer. */
+    memmove(s + pos + add, s + pos, n - (size_t)pos + 1);
+    memcpy(s + pos, text, add);
+}
+static inline void str_erase(char *s, int pos, int count) {
+    size_t n = strlen(s);
+    if (pos < 0 || count < 0 || (size_t)pos > n ||
+        (size_t)count > n - (size_t)pos)
+        exam_algo_fail("str_erase invalid range");
+    memmove(s + pos, s + pos + count, n - (size_t)pos - (size_t)count + 1);
+}
+static inline int str_replace_char(char *s, char old_char, char new_char) {
+    if (!old_char || !new_char) exam_algo_fail("NUL cannot be replaced");
+    int count = 0;
+    for (size_t i = 0; s[i]; ++i) if (s[i] == old_char) {
+        s[i] = new_char; ++count;
+    }
+    return count;
+}
+static inline int str_remove_char(char *s, char key) {
+    if (!key) exam_algo_fail("NUL cannot be removed");
+    size_t write = 0;
+    int removed = 0;
+    for (size_t read = 0; s[read]; ++read) {
+        if (s[read] == key) ++removed;
+        else s[write++] = s[read];
+    }
+    s[write] = '\0';
+    return removed;
+}
+/* Non-overlapping replacement; needle and replacement must not alias s. */
+static inline int str_replace_all_into(char *s, const char *needle,
+                                       const char *replacement,
+                                       size_t capacity) {
+    if (!s || !needle || !replacement || capacity == 0)
+        exam_algo_fail("str_replace_all invalid arguments");
+    size_t old_len = strlen(needle), new_len = strlen(replacement);
+    if (!old_len) exam_algo_fail("str_replace_all empty pattern");
+    char *out = (char *)malloc(capacity);
+    if (!out) exam_algo_fail("str_replace_all allocation failed");
+    size_t written = 0;
+    int count = 0;
+    const char *src = s, *match;
+    while ((match = strstr(src, needle)) != NULL) {
+        size_t prefix = (size_t)(match - src);
+        if (prefix > capacity - 1 - written ||
+            new_len > capacity - 1 - written - prefix)
+            { free(out); exam_algo_fail("str_replace_all exceeds capacity"); }
+        memcpy(out + written, src, prefix);
+        written += prefix;
+        memcpy(out + written, replacement, new_len);
+        written += new_len;
+        src = match + old_len;
+        if (count == INT_MAX) { free(out); exam_algo_fail("replace count overflow"); }
+        ++count;
+    }
+    size_t tail = strlen(src);
+    if (tail > capacity - 1 - written) {
+        free(out); exam_algo_fail("str_replace_all exceeds capacity");
+    }
+    memcpy(out+written, src, tail+1);
+    memcpy(s, out, written+tail+1);
+    free(out);
+    return count;
+}
+#define str_insert(array, pos, text) \
+    str_insert_into((array), (pos), (text), sizeof(array))
+#define str_replace_all(array, needle, replacement) \
+    str_replace_all_into((array), (needle), (replacement), sizeof(array))

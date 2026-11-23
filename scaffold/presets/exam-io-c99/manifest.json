@@ -1,0 +1,806 @@
+{
+  "schemaVersion": 1,
+  "id": "exam-io-c99",
+  "language": "c",
+  "standard": "c99",
+  "headerFile": "exam.h",
+  "systemHeaders": [
+    "stdio.h",
+    "stdlib.h",
+    "stddef.h",
+    "stdbool.h",
+    "ctype.h",
+    "errno.h",
+    "limits.h",
+    "math.h",
+    "string.h",
+    "stdint.h",
+    "float.h"
+  ],
+  "components": [
+    {
+      "id": "io_base",
+      "description": "Shared token scanning, line state and errors",
+      "symbols": [
+        "exam_io_fail"
+      ],
+      "source": "components/io_base.h",
+      "requires": []
+    },
+    {
+      "id": "io_int",
+      "description": "int input and EOF-aware reading",
+      "symbols": [
+        "read_int",
+        "try_read_int"
+      ],
+      "source": "components/io_int.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_ll",
+      "description": "long long input and EOF-aware reading",
+      "symbols": [
+        "read_ll",
+        "try_read_ll"
+      ],
+      "source": "components/io_ll.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_double",
+      "description": "double input and EOF-aware reading",
+      "symbols": [
+        "read_double",
+        "try_read_double"
+      ],
+      "source": "components/io_double.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_char",
+      "description": "Character input, skipping whitespace or raw",
+      "symbols": [
+        "read_char",
+        "try_read_char",
+        "read_char_raw",
+        "try_read_char_raw"
+      ],
+      "source": "components/io_char.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_word",
+      "description": "Word input with compile-time array capacity",
+      "symbols": [
+        "read_word",
+        "try_read_word",
+        "read_word_into",
+        "try_read_word_into"
+      ],
+      "source": "components/io_word.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_line",
+      "description": "Full-line, rest-of-line and line skipping",
+      "symbols": [
+        "read_line",
+        "try_read_line",
+        "read_line_into",
+        "try_read_line_into",
+        "read_rest",
+        "try_read_rest",
+        "read_rest_into",
+        "try_read_rest_into",
+        "skip_line"
+      ],
+      "source": "components/io_line.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "io_ints",
+      "description": "Read int arrays with an automatic capacity check",
+      "symbols": [
+        "read_ints",
+        "read_ints_into"
+      ],
+      "source": "components/io_ints.h",
+      "requires": [
+        "io_int"
+      ]
+    },
+    {
+      "id": "io_lls",
+      "description": "Read long long arrays with an automatic capacity check",
+      "symbols": [
+        "read_lls",
+        "read_lls_into"
+      ],
+      "source": "components/io_lls.h",
+      "requires": [
+        "io_ll"
+      ]
+    },
+    {
+      "id": "io_doubles",
+      "description": "Read double arrays with an automatic capacity check",
+      "symbols": [
+        "read_doubles",
+        "read_doubles_into"
+      ],
+      "source": "components/io_doubles.h",
+      "requires": [
+        "io_double"
+      ]
+    },
+    {
+      "id": "print_scalar",
+      "description": "Scalar output with configurable terminator",
+      "symbols": [
+        "print_int",
+        "print_ll",
+        "print_double",
+        "print_char",
+        "print_text"
+      ],
+      "source": "components/print_scalar.h",
+      "requires": [
+        "io_base"
+      ]
+    },
+    {
+      "id": "print_arrays",
+      "description": "Output arrays with separators and terminators",
+      "symbols": [
+        "print_ints",
+        "print_lls",
+        "print_doubles"
+      ],
+      "source": "components/print_arrays.h",
+      "requires": [
+        "print_scalar"
+      ]
+    },
+    {
+      "id": "algo_core",
+      "description": "Lightweight C99 algo core",
+      "symbols": [
+        "exam_algo_fail",
+        "exam_check_n"
+      ],
+      "source": "components/algo_core.h",
+      "requires": []
+    },
+    {
+      "id": "math_integer",
+      "description": "Lightweight C99 math integer",
+      "symbols": [
+        "gcd",
+        "lcm",
+        "int_pow",
+        "factorial_basic",
+        "is_prime",
+        "mod_pow"
+      ],
+      "source": "components/math_integer.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "math_real",
+      "description": "Lightweight C99 math real",
+      "symbols": [
+        "nearly_equal",
+        "round_digits"
+      ],
+      "source": "components/math_real.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "prime_sieve",
+      "description": "Lightweight C99 prime sieve",
+      "symbols": [
+        "sieve_primes",
+        "sieve_primes_into"
+      ],
+      "source": "components/prime_sieve.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "bits",
+      "description": "Lightweight C99 bits",
+      "symbols": [
+        "bit_get",
+        "bit_set",
+        "bit_clear",
+        "bit_toggle",
+        "bit_count",
+        "is_power_of_two",
+        "bit_lowest_set_index",
+        "bit_highest_set_index",
+        "bit_rotate_left"
+      ],
+      "source": "components/bits.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "complex",
+      "description": "Lightweight C99 complex",
+      "symbols": [
+        "Complex",
+        "complex_new",
+        "complex_add",
+        "complex_sub",
+        "complex_mul",
+        "complex_div",
+        "complex_abs",
+        "complex_print"
+      ],
+      "source": "components/complex.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "combinations",
+      "description": "Lightweight C99 combinations",
+      "symbols": [
+        "Combination",
+        "combination_new",
+        "combination_next"
+      ],
+      "source": "components/combinations.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "permutations",
+      "description": "Lightweight C99 permutations",
+      "symbols": [
+        "Permutation",
+        "permutation_new",
+        "permutation_next"
+      ],
+      "source": "components/permutations.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_build",
+      "description": "Lightweight C99 array int build",
+      "symbols": [
+        "fill_ints",
+        "fill_ints_into",
+        "copy_ints",
+        "copy_ints_into",
+        "values_ints",
+        "values_ints_into",
+        "range_ints",
+        "range_ints_into",
+        "reverse_ints",
+        "swap_ints"
+      ],
+      "source": "components/array_int_build.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_sort",
+      "description": "Lightweight C99 array int sort",
+      "symbols": [
+        "sort_ints",
+        "sort_ints_desc",
+        "bubble_sort_ints",
+        "unique_sorted_ints",
+        "unique_ints"
+      ],
+      "source": "components/array_int_sort.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_search",
+      "description": "Lightweight C99 array int search",
+      "symbols": [
+        "linear_search_ints",
+        "find_ints",
+        "lower_bound_ints",
+        "upper_bound_ints",
+        "binary_search_ints",
+        "count_ints"
+      ],
+      "source": "components/array_int_search.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_int_stats",
+      "description": "Lightweight C99 array int stats",
+      "symbols": [
+        "sum_ints",
+        "min_ints",
+        "max_ints",
+        "argmin_ints",
+        "argmax_ints",
+        "mean_ints",
+        "variance_ints",
+        "stddev_ints",
+        "median_ints"
+      ],
+      "source": "components/array_int_stats.h",
+      "requires": [
+        "array_int_sort"
+      ]
+    },
+    {
+      "id": "array_int_sequences",
+      "description": "Lightweight C99 array int sequences",
+      "symbols": [
+        "max_subarray_sum_ints",
+        "longest_equal_run_ints",
+        "longest_plus_one_run_ints",
+        "max_forward_diff_ints"
+      ],
+      "source": "components/array_int_sequences.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_prefix",
+      "description": "Lightweight C99 array prefix",
+      "symbols": [
+        "build_prefix_ints",
+        "build_prefix_ints_into",
+        "prefix_range_sum"
+      ],
+      "source": "components/array_prefix.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_difference",
+      "description": "Lightweight C99 array difference",
+      "symbols": [
+        "build_diff_ints",
+        "build_diff_ints_into",
+        "diff_range_add",
+        "diff_to_lls",
+        "diff_to_lls_into"
+      ],
+      "source": "components/array_difference.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_basic",
+      "description": "Lightweight C99 str basic",
+      "symbols": [
+        "str_reverse",
+        "str_lower",
+        "str_upper",
+        "str_trim",
+        "str_is_palindrome",
+        "str_count_char",
+        "str_count_substr",
+        "str_longest_char_run"
+      ],
+      "source": "components/str_basic.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_edit",
+      "description": "Lightweight C99 str edit",
+      "symbols": [
+        "str_insert",
+        "str_insert_into",
+        "str_erase",
+        "str_replace_char",
+        "str_remove_char",
+        "str_replace_all",
+        "str_replace_all_into"
+      ],
+      "source": "components/str_edit.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_sort",
+      "description": "Lightweight C99 str sort",
+      "symbols": [
+        "str_sort_chars",
+        "str_unique_chars"
+      ],
+      "source": "components/str_sort.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "number_base",
+      "description": "Lightweight C99 number base",
+      "symbols": [
+        "base_to_int",
+        "int_to_base",
+        "int_to_base_into",
+        "int_digit_count",
+        "int_digit_sum",
+        "int_digit_at"
+      ],
+      "source": "components/number_base.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "bigint_core",
+      "description": "Fixed-capacity C99 bigint core",
+      "symbols": [
+        "BigInt",
+        "bigint_zero"
+      ],
+      "source": "components/bigint_core.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "bigint_parse",
+      "description": "Fixed-capacity C99 bigint parse",
+      "symbols": [
+        "bigint_from_str",
+        "bigint_from_ll",
+        "bigint_to_str",
+        "bigint_to_str_into",
+        "bigint_print"
+      ],
+      "source": "components/bigint_parse.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_compare",
+      "description": "Fixed-capacity C99 bigint compare",
+      "symbols": [
+        "bigint_compare"
+      ],
+      "source": "components/bigint_compare.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_add",
+      "description": "Fixed-capacity C99 bigint add",
+      "symbols": [
+        "bigint_add",
+        "bigint_sub"
+      ],
+      "source": "components/bigint_add.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_mul",
+      "description": "Fixed-capacity C99 bigint mul",
+      "symbols": [
+        "bigint_mul"
+      ],
+      "source": "components/bigint_mul.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_div",
+      "description": "Fixed-capacity C99 bigint div",
+      "symbols": [
+        "bigint_divmod"
+      ],
+      "source": "components/bigint_div.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_small",
+      "description": "Fixed-capacity C99 bigint small",
+      "symbols": [
+        "bigint_mul_small",
+        "bigint_div_small"
+      ],
+      "source": "components/bigint_small.h",
+      "requires": [
+        "bigint_core"
+      ]
+    },
+    {
+      "id": "bigint_factorial",
+      "description": "Fixed-capacity C99 bigint factorial",
+      "symbols": [
+        "bigint_factorial"
+      ],
+      "source": "components/bigint_factorial.h",
+      "requires": [
+        "bigint_small"
+      ]
+    },
+    {
+      "id": "bigint_io",
+      "description": "Fixed-capacity C99 bigint io",
+      "symbols": [
+        "read_bigint",
+        "try_read_bigint"
+      ],
+      "source": "components/bigint_io.h",
+      "requires": [
+        "bigint_parse",
+        "io_base"
+      ]
+    },
+    {
+      "id": "date",
+      "description": "Lightweight C99 date",
+      "symbols": [
+        "Date",
+        "date_is_leap",
+        "date_days_in_month",
+        "date_valid",
+        "date_new",
+        "date_day_of_year",
+        "date_to_serial",
+        "date_from_serial",
+        "date_add_days",
+        "date_diff",
+        "date_compare",
+        "date_print"
+      ],
+      "source": "components/date.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "time",
+      "description": "Lightweight C99 time",
+      "symbols": [
+        "Time",
+        "time_valid",
+        "time_new",
+        "time_to_seconds",
+        "time_from_seconds",
+        "time_diff",
+        "time_add_seconds",
+        "time_next_second",
+        "time_next_minute",
+        "time_print"
+      ],
+      "source": "components/time.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_ll_basic",
+      "description": "Lightweight C99 array ll basic",
+      "symbols": [
+        "fill_lls",
+        "fill_lls_into",
+        "copy_lls",
+        "copy_lls_into",
+        "sort_lls",
+        "reverse_lls",
+        "find_lls",
+        "lower_bound_lls",
+        "upper_bound_lls",
+        "sum_lls",
+        "min_lls",
+        "max_lls"
+      ],
+      "source": "components/array_ll_basic.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_double_basic",
+      "description": "Lightweight C99 array double basic",
+      "symbols": [
+        "fill_doubles",
+        "fill_doubles_into",
+        "copy_doubles",
+        "copy_doubles_into",
+        "sort_doubles",
+        "reverse_doubles",
+        "find_doubles",
+        "lower_bound_doubles",
+        "upper_bound_doubles",
+        "sum_doubles",
+        "mean_doubles",
+        "min_doubles",
+        "max_doubles"
+      ],
+      "source": "components/array_double_basic.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "number_digits_extra",
+      "description": "Lightweight C99 number digits extra",
+      "symbols": [
+        "int_to_digits",
+        "int_to_digits_into",
+        "digits_to_int",
+        "int_reverse_digits"
+      ],
+      "source": "components/number_digits_extra.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_frequency",
+      "description": "Lightweight C99 array frequency",
+      "symbols": [
+        "frequency_ints",
+        "frequency_ints_into"
+      ],
+      "source": "components/array_frequency.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "polynomial",
+      "description": "Lightweight C99 polynomial",
+      "symbols": [
+        "poly_eval_lls"
+      ],
+      "source": "components/polynomial.h",
+      "requires": [
+        "math_integer"
+      ]
+    },
+    {
+      "id": "bisect_root",
+      "description": "Lightweight C99 bisect root",
+      "symbols": [
+        "bisect_root"
+      ],
+      "source": "components/bisect_root.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "sort_records",
+      "description": "Sort user-defined struct Record using typed record_cmp callback",
+      "symbols": [
+        "sort_records"
+      ],
+      "source": "components/sort_records.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "argsort_ints",
+      "description": "Stable indirect sorting for ints, tie-break by original index",
+      "symbols": [
+        "argsort_ints",
+        "argsort_ints_into"
+      ],
+      "source": "components/argsort_ints.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "first_true",
+      "description": "Find first satisfying integer on a half-open monotone range",
+      "symbols": [
+        "first_true_int"
+      ],
+      "source": "components/first_true.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "str_split_join",
+      "description": "Split and join fixed-width C string rows without dynamic containers",
+      "symbols": [
+        "str_split",
+        "str_split_into",
+        "str_split_whitespace",
+        "str_split_whitespace_into",
+        "str_join",
+        "str_join_into"
+      ],
+      "source": "components/str_split_join.h",
+      "requires": [
+        "algo_core"
+      ]
+    },
+    {
+      "id": "array_ll_extra",
+      "description": "Long long array values, range, search, statistics and unique",
+      "symbols": [
+        "values_lls",
+        "values_lls_into",
+        "range_lls",
+        "range_lls_into",
+        "sort_lls_desc",
+        "count_lls",
+        "binary_search_lls",
+        "argmin_lls",
+        "argmax_lls",
+        "mean_lls",
+        "variance_lls",
+        "stddev_lls",
+        "median_lls",
+        "unique_sorted_lls",
+        "unique_lls"
+      ],
+      "source": "components/array_ll_extra.h",
+      "requires": [
+        "array_ll_basic"
+      ]
+    },
+    {
+      "id": "array_double_extra",
+      "description": "Double array values, search, statistics and unique",
+      "symbols": [
+        "values_doubles",
+        "values_doubles_into",
+        "sort_doubles_desc",
+        "count_doubles",
+        "binary_search_doubles",
+        "argmin_doubles",
+        "argmax_doubles",
+        "variance_doubles",
+        "stddev_doubles",
+        "median_doubles",
+        "unique_sorted_doubles",
+        "unique_doubles"
+      ],
+      "source": "components/array_double_extra.h",
+      "requires": [
+        "array_double_basic"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+name: Lightweight C99 preset tests
+
+on:
+  push:
+    branches: ['feat/lightweight-io-standalone-preset', 'feat/lightweight-algorithms-phase1']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scaffold/presets/exam-io-c99/**'
+      - 'tests/test_lightweight_io.py'
+      - 'tests/test_lightweight_algorithms.py'
+      - '.github/workflows/lightweight-io.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 tests/test_lightweight_io.py
+      - run: python3 tests/test_lightweight_algorithms.py
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 tests/test_lightweight_io.py
+      - run: python3 tests/test_lightweight_algorithms.py
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-python
+      - name: Test IO preset (GCC)
+        shell: msys2 {0}
+        run: python3 tests/test_lightweight_io.py
+      - name: Test algorithms (GCC)
+        shell: msys2 {0}
+        run: python3 tests/test_lightweight_algorithms.py
+  standalone-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: exam-kit
+      - uses: actions/checkout@v4
+        with:
+          repository: Annouimo/better-accoding-for-buaaers
+          ref: feat/standalone-cli-foundation
+          path: accoding
+      - uses: oven-sh/setup-bun@v2
+      - name: Initialize, assemble, compile and run using upstream CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd accoding
+          bun src/standalone/cli.ts scaffold init ../sample-problem \
+            --preset ../exam-kit/scaffold/presets/exam-io-c99/manifest.json
+          cat > ../sample-problem/main.c <<'EOF'
+          #include "exam.h"
+          int main(void) {
+              int n = read_int(), a[100];
+              read_ints(a, n);
+              sort_ints(a, n);
+              print_ints(a, n, " ", "\n");
+              return 0;
+          }
+          EOF
+          bun src/standalone/cli.ts scaffold prepare ../sample-problem/main.c --cc gcc
+          test -s ../sample-problem/.accoding/submit.c
+          if grep -q 'EXAM_BIGINT_CAP' ../sample-problem/.accoding/submit.c; then
+            echo 'Unexpected BigInt in submitted source' >&2
+            exit 1
+          fi
+          grep -q 'static inline void sort_ints' ../sample-problem/.accoding/submit.c
+          gcc -std=c99 -O2 ../sample-problem/.accoding/submit.c -o ../sample-problem/program -lm
+          result="$(printf '4 8 2 4 1\n' | ../sample-problem/program)"
+          test "$result" = "1 2 4 8"
+
+          # Cover automatic symbol selection for the newly approved APIs.
+          bun src/standalone/cli.ts scaffold init ../advanced-problem \
+            --preset ../exam-kit/scaffold/presets/exam-io-c99/manifest.json
+          cat > ../advanced-problem/main.c <<'EOF'
+          #include "exam.h"
+          struct Record {
+              int score, id;
+          };
+          int record_cmp(const Record *a, const Record *b) {
+              if (a->score != b->score)
+                  return (a->score < b->score) - (a->score > b->score);
+              return (a->id > b->id) - (a->id < b->id);
+          }
+          static bool at_least_three(int x) { return x >= 3; }
+          int main(void) {
+              Record rows[] = {{5,2},{7,1}};
+              sort_records(rows, 2);
+              int a[] = {8,3,8,2}, order[4];
+              argsort_ints(a, 4, order);
+              char words[5][12], joined[60];
+              int count = str_split("ab,,cd,", ",", words);
+              str_join(words, count, ",", joined);
+              printf("%d %d %d %d %d %d %s\n",
+                     rows[0].id, order[0], order[1], order[2], order[3],
+                     first_true_int(0,8,at_least_three), joined);
+              return 0;
+          }
+          EOF
+          bun src/standalone/cli.ts scaffold prepare ../advanced-problem/main.c --cc gcc
+          test -s ../advanced-problem/.accoding/submit.c
+          grep -q 'static inline void exam_sort_records' ../advanced-problem/.accoding/submit.c
+          grep -q 'static inline void argsort_ints_into' ../advanced-problem/.accoding/submit.c
+          grep -q 'static inline int str_split_into' ../advanced-problem/.accoding/submit.c
+          grep -q 'static inline int first_true_int' ../advanced-problem/.accoding/submit.c
+          if grep -q 'EXAM_BIGINT_CAP' ../advanced-problem/.accoding/submit.c; then
+            echo 'Unused BigInt leaked into advanced submission' >&2
+            exit 1
+          fi
+          gcc -std=c99 -O2 -Wall -Wextra -Werror \
+            ../advanced-problem/.accoding/submit.c -o ../advanced-problem/program -lm
+          advanced_output="$(../advanced-problem/program)"
+          test "$advanced_output" = "1 3 1 0 2 3 ab,,cd,"
