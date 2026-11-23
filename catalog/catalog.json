@@ -83,36 +83,36 @@
     {
       "id": "get_bit",
       "source": "templates/pieces/get_bit.c",
-      "details": "函数：int get_bit(unsigned long long x, int pos)\nget_bit：unsigned long long输入；pos从0开始，返回0或1。",
+      "details": "函数：int get_bit(unsigned long long x, int pos)\nget_bit：unsigned long long输入；pos从0开始，返回0或1。\n位号仅支持0..63；越界时读取返回0，修改返回原值。",
       "hint": "取某一位；unsigned long long输入；pos从0开始，返回0或1。",
       "headers": []
     },
     {
       "id": "set_bit",
       "source": "templates/pieces/set_bit.c",
-      "details": "函数：unsigned long long set_bit(unsigned long long x, int pos)\nset_bit：返回修改后的unsigned long long值；使用x=set_bit(x,pos)。",
+      "details": "函数：unsigned long long set_bit(unsigned long long x, int pos)\nset_bit：返回修改后的unsigned long long值；使用x=set_bit(x,pos)。\n位号仅支持0..63；越界时读取返回0，修改返回原值。",
       "hint": "某位置1；返回修改后的unsigned long long值；使用x=set_bit(x,pos)。",
       "headers": []
     },
     {
       "id": "clear_bit",
       "source": "templates/pieces/clear_bit.c",
-      "details": "函数：unsigned long long clear_bit(unsigned long long x, int pos)\nclear_bit：返回修改后的unsigned long long值；使用x=clear_bit(x,pos)。",
+      "details": "函数：unsigned long long clear_bit(unsigned long long x, int pos)\nclear_bit：返回修改后的unsigned long long值；使用x=clear_bit(x,pos)。\n位号仅支持0..63；越界时读取返回0，修改返回原值。",
       "hint": "某位置0；返回修改后的unsigned long long值；使用x=clear_bit(x,pos)。",
       "headers": []
     },
     {
       "id": "toggle_bit",
       "source": "templates/pieces/toggle_bit.c",
-      "details": "函数：unsigned long long toggle_bit(unsigned long long x, int pos)\ntoggle_bit：返回修改后的unsigned long long值；使用x=toggle_bit(x,pos)。",
+      "details": "函数：unsigned long long toggle_bit(unsigned long long x, int pos)\ntoggle_bit：返回修改后的unsigned long long值；使用x=toggle_bit(x,pos)。\n位号仅支持0..63；越界时读取返回0，修改返回原值。",
       "hint": "翻转某位；返回修改后的unsigned long long值；使用x=toggle_bit(x,pos)。",
       "headers": []
     },
     {
       "id": "pow2u",
       "source": "templates/pieces/pow2u.c",
-      "details": "函数：unsigned long long pow2u(int n)\npow2u：返回1ULL<<n；n小于64。",
-      "hint": "2的幂；返回1ULL<<n；n小于64。",
+      "details": "函数：unsigned long long pow2u(int n)\npow2u：n为0..63时返回2的n次幂；超出范围返回0。",
+      "hint": "2的幂；n为0..63，越界返回0。",
       "headers": []
     },
     {
@@ -663,10 +663,10 @@
     {
       "id": "longest_run",
       "source": "templates/pieces/longest_run.c",
-      "details": "函数：int longest_run(int a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
-      "hint": "longest_run(a,n,0)或longest_run(a,n,1)",
+      "details": "函数：int longest_run(int a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。\nlongest_value_run(a,n,target)：返回指定值最长连续段长度；无匹配返回0。",
+      "hint": "longest_run(a,n,0)或longest_run(a,n,1)；longest_value_run(a,n,target)找指定值连续段",
       "wide_source": "templates/pieces/longest_run_wide.c",
-      "wide_details": "函数：int longest_run(long long a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "wide_details": "函数：int longest_run(long long a[], int n, int consecutive)\nlongest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。\nlongest_value_run(a,n,target)：返回指定值最长连续段长度；无匹配返回0。",
       "headers": []
     },
     {
@@ -925,8 +925,8 @@
     {
       "name": "读取、修改二进制位及统计1的个数（64位）",
       "short_name": "读改二进制位/数1",
-      "note": "用unsigned long long存64位非负数；位号0..63，1ULL用于构造掩码。",
-      "help": "get_bit：unsigned输入；pos从0开始，返回0或1。\nset_bit：返回修改后的unsigned值；使用x=set_bit(x,pos)。\nclear_bit：返回修改后的unsigned值；使用x=clear_bit(x,pos)。\ntoggle_bit：返回修改后的unsigned值；使用x=toggle_bit(x,pos)。\npow2u：返回1U<<n；n小于unsigned的位数。\nis_power_of_two：是返回1，否则0；0返回0。\ncount_ones：如count_ones(13U)返回3。",
+      "note": "用unsigned long long存64位非负数；位号0..63，1ULL用于构造掩码。 越界位号：读取返回0，修改返回原值；pow2u越界返回0。",
+      "help": "get_bit：unsigned输入；pos从0开始，返回0或1。\nset_bit：返回修改后的unsigned值；使用x=set_bit(x,pos)。\nclear_bit：返回修改后的unsigned值；使用x=clear_bit(x,pos)。\ntoggle_bit：返回修改后的unsigned值；使用x=toggle_bit(x,pos)。\npow2u：n在0..63时返回2的n次幂，否则返回0。\nis_power_of_two：是返回1，否则0；0返回0。\ncount_ones：如count_ones(13U)返回3。",
       "group": 1,
       "id": "bit_operations",
       "summary": "64位取位、置位、翻转、2的幂和二进制1计数。",
@@ -1221,13 +1221,13 @@
       "value_type": false
     },
     {
-      "name": "找最长相等段或逐项加1的连续段",
-      "short_name": "最长相等段/逐项加1段",
-      "note": "consecutive=0找相等元素连续段，=1找后一项比前一项大1的连续段；0下标。",
-      "help": "longest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。",
+      "name": "找最长相等段、逐项加1段或指定值连续段",
+      "short_name": "最长连续段",
+      "note": "consecutive=0找相等元素连续段，=1找后一项比前一项大1的连续段；0下标。 longest_value_run(a,n,target)查指定值连续段，无匹配返回0。",
+      "help": "longest_run(a,n,0)或longest_run(a,n,1)。修改ok可适配其他相邻关系。 或 longest_value_run(a,n,target)。",
       "group": 4,
       "id": "longest_run",
-      "summary": "相等段或逐项加1的最长连续段。",
+      "summary": "相等段、逐项加1段、指定值连续段。",
       "pieces": [
         "longest_run"
       ],
