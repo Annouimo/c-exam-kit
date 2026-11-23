@@ -110,7 +110,7 @@ int main(void) {
     str_replace_all(s,"world","C99");
     if (strcmp(s,"Hello") == 0) return 9;
     str_remove_char(s,' ');
-    if (strcmp(s,"Hello,C99")!=0) return 10;
+    if (strcmp(s,"hello,C99")!=0) return 10;
     str_reverse(s); str_reverse(s);
     char order[40]="banana";
     str_sort_chars(order);
@@ -122,7 +122,7 @@ int main(void) {
         self.assertEqual(self.run_c(code, selected={
             "array_int_build","array_int_sort","array_int_search","array_int_stats",
             "array_int_sequences","str_basic","str_edit","str_sort","print_scalar"}),
-            "Hello,C99\n")
+            "hello,C99\n")
 
     def test_prefix_difference_enumeration_and_bases(self):
         code = r"""

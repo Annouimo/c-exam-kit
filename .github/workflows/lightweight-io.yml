@@ -1,4 +1,4 @@
-name: Lightweight IO preset tests
+name: Lightweight C99 preset tests
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
     paths:
       - 'scaffold/presets/exam-io-c99/**'
       - 'tests/test_lightweight_io.py'
+      - 'tests/test_lightweight_algorithms.py'
       - '.github/workflows/lightweight-io.yml'
   workflow_dispatch:
 
@@ -24,7 +25,6 @@ jobs:
           python-version: '3.11'
       - run: python3 tests/test_lightweight_io.py
       - run: python3 tests/test_lightweight_algorithms.py
-      - run: python3 tests/test_lightweight_algorithms.py
   macos:
     runs-on: macos-latest
     steps:
@@ -33,6 +33,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python3 tests/test_lightweight_io.py
+      - run: python3 tests/test_lightweight_algorithms.py
   windows:
     runs-on: windows-latest
     steps:
@@ -42,9 +43,9 @@ jobs:
           msystem: UCRT64
           update: true
           install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-python
-      - name: Run C99 tests with GCC in MSYS2
+      - name: Test IO preset (GCC)
         shell: msys2 {0}
         run: python3 tests/test_lightweight_io.py
-      - name: Test algorithm preset
+      - name: Test algorithms (GCC)
         shell: msys2 {0}
         run: python3 tests/test_lightweight_algorithms.py
