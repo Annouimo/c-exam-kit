@@ -17,6 +17,15 @@ static inline void str_insert_into(char *s, int pos, const char *text,
  * @public
  * @requires exam_algo_fail
  */
+/**
+ * @id str_erase
+ * @title 删除一段字符串
+ * @members str_erase
+ * 从下标 pos 起删除 count 个字符，范围必须在字符串内。原地修改。
+ * @example
+ * char s[] = "abcde";
+ * str_erase(s, 1, 2); // ade
+ */
 static inline void str_erase(char *s, int pos, int count) {
     size_t n = strlen(s);
     if (pos < 0 || count < 0 || (size_t)pos > n ||
@@ -27,6 +36,15 @@ static inline void str_erase(char *s, int pos, int count) {
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id str_replace_char
+ * @title 替换字符
+ * @members str_replace_char
+ * 原地将所有 old_char 替换为 new_char，返回替换次数。
+ * @example
+ * char s[] = "banana";
+ * int n = str_replace_char(s, 'a', 'o'); // 3
  */
 static inline int str_replace_char(char *s, char old_char, char new_char) {
     if (!old_char || !new_char) exam_algo_fail("NUL cannot be replaced");
@@ -39,6 +57,15 @@ static inline int str_replace_char(char *s, char old_char, char new_char) {
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id str_remove_char
+ * @title 删除指定字符
+ * @members str_remove_char
+ * 原地删除所有 key 字符，返回删除次数。
+ * @example
+ * char s[] = "banana";
+ * int n = str_remove_char(s, 'a'); // bnn
  */
 static inline int str_remove_char(char *s, char key) {
     if (!key) exam_algo_fail("NUL cannot be removed");
@@ -94,15 +121,30 @@ static inline int str_replace_all_into(char *s, const char *needle,
  * @public
  * @requires str_insert_into
  * @category 字符串
- * @title 插入、删除、替换
- * @members str_insert str_erase str_remove_char str_replace_char str_replace_all
- * `str_insert(s, pos, text)` 在下标 `pos` 前插入。`str_erase(s, pos, count)` 从 `pos` 删除 `count` 个字符，删除范围须在串内。`str_remove_char(s, ch)` 删除所有指定字符。`str_replace_char(s, old, new_ch)` 替换字符。`str_replace_all(s, old, replacement)` 替换非重叠子串并返回次数
+ */
+/**
+ * @id str_insert
+ * @title 插入字符串
+ * @members str_insert str_insert_into
+ * 在下标 pos 前插入 text。pos 可以等于原长度；目标容量包含结束符，text 不能指向目标缓冲区。
+ * @example
+ * char s[20] = "ac";
+ * str_insert(s, 1, "b"); // abc
  */
 #define str_insert(array, pos, text) \
     str_insert_into((array), (pos), (text), sizeof(array))
 /**
  * @public
  * @requires str_replace_all_into
+ */
+/**
+ * @id str_replace_all
+ * @title 替换子串
+ * @members str_replace_all str_replace_all_into
+ * 原地替换所有非重叠匹配，返回替换次数。needle 非空；needle 和 replacement 不可指向目标缓冲区，目标容量须足够。
+ * @example
+ * char s[30] = "a--b--c";
+ * int n = str_replace_all(s, "--", ":"); // a:b:c
  */
 #define str_replace_all(array, needle, replacement) \
     str_replace_all_into((array), (needle), (replacement), sizeof(array))

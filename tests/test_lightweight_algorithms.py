@@ -364,18 +364,21 @@ struct Record {
     int score;
     int penalty;
 };
-int record_cmp(const Record *a, const Record *b) {
+static int cmp_rank(const Record *a, const Record *b) {
     if (a->score != b->score) return (a->score < b->score) - (a->score > b->score);
     if (a->penalty != b->penalty) return (a->penalty > b->penalty) - (a->penalty < b->penalty);
     return strcmp(a->name, b->name);
 }
+static int cmp_name(const Record *a, const Record *b) { return strcmp(a->name,b->name); }
 int main(void) {
     Record records[]={{"J",90,5},{"A",100,20},{"C",100,10},{"B",100,10}};
-    sort_records(records,4);
+    sort_records(records,4,cmp_rank);
     if(strcmp(records[0].name,"B") || strcmp(records[1].name,"C") ||
        strcmp(records[2].name,"A") || strcmp(records[3].name,"J")) return 1;
     Record key = {"C",100,10};
-    if (binary_search_records_by(records,4,&key,record_cmp)!=1) return 4;
+    if (binary_search_records_by(records,4,&key,cmp_rank)!=1) return 4;
+    sort_records(records,4,cmp_name);
+    if(strcmp(records[0].name,"A") || strcmp(records[3].name,"J")) return 5;
     int values[]={8,3,8,2}, order[4];
     argsort_ints(values,4,order);
     if(order[0]!=3 || order[1]!=1 || order[2]!=0 || order[3]!=2) return 2;

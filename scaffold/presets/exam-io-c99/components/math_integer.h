@@ -6,9 +6,15 @@ static inline unsigned long long exam_abs_ull(long long a) {
  * @public
  * @requires exam_abs_ull
  * @category 数学、数位与二分
- * @title 公约数、公倍数、幂
- * @members gcd lcm int_pow mod_pow
- * `gcd(a, b)`、`lcm(a, b)` 返回非负值。`int_pow(x, e)`、`mod_pow(x, e, m)` 的指数取非负整数，模数取正整数
+ */
+/**
+ * @id gcd_lcm
+ * @title 最大公约数与最小公倍数
+ * @members gcd lcm
+ * 返回非负的 unsigned long long 结果。输入可以为负数。
+ * @example
+ * unsigned long long g = gcd(12, 18); // 6
+ * unsigned long long l = lcm(12, 18); // 36
  */
 static inline unsigned long long gcd(long long a, long long b) {
     unsigned long long x = exam_abs_ull(a), y = exam_abs_ull(b);
@@ -46,6 +52,15 @@ static inline long long exam_add_ll(long long a, long long b) {
  * @public
  * @requires exam_mul_ll
  */
+/**
+ * @id integer_power
+ * @title 整数幂与模幂
+ * @members int_pow mod_pow
+ * 指数为非负整数；mod_pow 的模数为正，适合大指数取模。int_pow 的结果必须在 long long 范围内。
+ * @example
+ * long long x = int_pow(2, 10); // 1024
+ * long long y = mod_pow(2, 10, 7); // 2
+ */
 static inline long long int_pow(long long base, unsigned int exponent) {
     long long result = 1;
     while (exponent) {
@@ -59,9 +74,15 @@ static inline long long int_pow(long long base, unsigned int exponent) {
  * @public
  * @requires exam_algo_fail
  * @category 数学、数位与二分
- * @title 阶乘、质数
- * @members factorial_basic is_prime sieve_primes
- * `factorial_basic(n)` 支持 `0..20`。`is_prime(x)` 判断单个数。`sieve_primes(flags, limit)` 一次标记 `0..limit`，`flags` 用容量至少为 `limit + 1` 的 `unsigned char` 数组
+ */
+/**
+ * @id factorial_basic
+ * @title 阶乘
+ * @members factorial_basic
+ * @related bigint_factorial
+ * 计算 n!，n 范围 0..20，返回 long long。更大的阶乘使用 bigint_factorial。
+ * @example
+ * long long f = factorial_basic(5); // 120
  */
 static inline long long factorial_basic(int n) {
     if (n < 0 || n > 20) exam_algo_fail("factorial requires 0 <= n <= 20");
@@ -70,6 +91,15 @@ static inline long long factorial_basic(int n) {
     return result;
 }
 /** @public */
+/**
+ * @id prime_test
+ * @title 质数判断
+ * @members is_prime
+ * @related prime_sieve
+ * 判断单个整数是否为质数，小于 2 返回 false。多次查询可使用筛法。
+ * @example
+ * bool p = is_prime(97);
+ */
 static inline bool is_prime(long long n) {
     if (n < 2) return false;
     if (n % 2 == 0) return n == 2;

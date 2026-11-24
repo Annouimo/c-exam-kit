@@ -3,9 +3,15 @@
 /**
  * @public
  * @category 字符串
- * @title 反转、大小写、去首尾空白
- * @members str_reverse str_lower str_upper str_trim
- * `str_reverse(s)`、`str_lower(s)`、`str_upper(s)`、`str_trim(s)` 均原地修改
+ */
+/**
+ * @id str_reverse
+ * @title 反转字符串
+ * @members str_reverse
+ * 原地反转字符串中的字节，不包含结尾的空字符。
+ * @example
+ * char s[] = "abc";
+ * str_reverse(s); // cba
  */
 static inline void str_reverse(char *s) {
     size_t n = strlen(s);
@@ -14,6 +20,16 @@ static inline void str_reverse(char *s) {
     }
 }
 /** @public */
+/**
+ * @id str_case
+ * @title 大小写转换
+ * @members str_lower str_upper
+ * 原地转换英文字母大小写。
+ * @example
+ * char s[] = "AbC";
+ * str_lower(s); // abc
+ * str_upper(s); // ABC
+ */
 static inline void str_lower(char *s) {
     for (size_t i = 0; s[i]; ++i)
         s[i] = (char)tolower((unsigned char)s[i]);
@@ -24,6 +40,15 @@ static inline void str_upper(char *s) {
         s[i] = (char)toupper((unsigned char)s[i]);
 }
 /** @public */
+/**
+ * @id str_trim
+ * @title 去除首尾空白
+ * @members str_trim
+ * 原地删除首尾空白，保留中间空白。
+ * @example
+ * char s[] = "  a b  ";
+ * str_trim(s); // a b
+ */
 static inline void str_trim(char *s) {
     size_t n = strlen(s), left = 0, right = n;
     while (left < n && isspace((unsigned char)s[left])) ++left;
@@ -34,9 +59,14 @@ static inline void str_trim(char *s) {
 /**
  * @public
  * @category 字符串
- * @title 回文、计数、最长连续段
- * @members str_is_palindrome str_count_char str_count_substr str_longest_char_run
- * `str_is_palindrome(s)` 判断回文。`str_count_char(s, ch)` 数字符。`str_count_substr(s, sub, true)` 允许重叠，传 `false` 统计非重叠匹配。`str_longest_char_run(s, ch)` 返回指定字符的最长连续长度
+ */
+/**
+ * @id str_is_palindrome
+ * @title 判断回文
+ * @members str_is_palindrome
+ * 按字节比较首尾，返回是否为回文；区分大小写。
+ * @example
+ * bool ok = str_is_palindrome("abba");
  */
 static inline bool str_is_palindrome(const char *s) {
     size_t n = strlen(s);
@@ -47,6 +77,14 @@ static inline bool str_is_palindrome(const char *s) {
  * @public
  * @requires exam_algo_fail
  */
+/**
+ * @id str_count_char
+ * @title 统计字符
+ * @members str_count_char
+ * 返回指定字符出现的次数。
+ * @example
+ * int n = str_count_char("banana", 'a'); // 3
+ */
 static inline int str_count_char(const char *s, char key) {
     if (!key) exam_algo_fail("str_count_char does not accept NUL");
     int count = 0;
@@ -56,6 +94,15 @@ static inline int str_count_char(const char *s, char key) {
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id str_count_substr
+ * @title 统计子串
+ * @members str_count_substr
+ * needle 是待匹配子串。overlapping 为 true 时允许重叠匹配，否则只统计不重叠匹配。
+ * @example
+ * int a = str_count_substr("aaaa", "aa", true); // 3
+ * int b = str_count_substr("aaaa", "aa", false); // 2
  */
 static inline int str_count_substr(const char *s, const char *needle,
                                   bool overlapping) {
@@ -73,6 +120,14 @@ static inline int str_count_substr(const char *s, const char *needle,
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id str_longest_char_run
+ * @title 最长连续字符
+ * @members str_longest_char_run
+ * 返回指定字符连续出现的最大长度。
+ * @example
+ * int n = str_longest_char_run("aaabba", 'a'); // 3
  */
 static inline int str_longest_char_run(const char *s, char target) {
     if (!target) exam_algo_fail("NUL cannot be a run target");

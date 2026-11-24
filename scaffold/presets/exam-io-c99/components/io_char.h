@@ -24,6 +24,18 @@ static inline char read_char_raw(void) {
  * @public
  * @requires exam_io_fail exam_io_get exam_io_space exam_io_partial_line
  */
+/**
+ * @id try_read_char
+ * @title 尝试读取字符
+ * @keywords EOF 字符 getchar
+ * @members try_read_char try_read_char_raw
+ * 正常 EOF 返回 false；`try_read_char` 跳过空白，`try_read_char_raw` 保留空白。
+ * @example
+ * char ch;
+ * while (try_read_char_raw(&ch)) {
+ *     print_char(ch, "");
+ * }
+ */
 static inline bool try_read_char(char *value) {
     if (!value) exam_io_fail("null char destination");
     int c;
@@ -37,9 +49,15 @@ static inline bool try_read_char(char *value) {
  * @public
  * @requires try_read_char exam_io_fail
  * @category 输入和输出
+ */
+/**
+ * @id read_char
  * @title 读一个字符
+ * @keywords 字符 空格 换行 getchar
  * @members read_char read_char_raw
- * `read_char()` 跳过空白，`read_char_raw()` 保留空格和换行。两者均有 `try_read_…(&ch)` 版本
+ * `read_char()` 跳过空白；`read_char_raw()` 保留空格和换行。提前遇到 EOF 时结束程序。
+ * @example
+ * char ch = read_char();
  */
 static inline char read_char(void) {
     char value;

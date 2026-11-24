@@ -25,8 +25,15 @@ static inline void read_word_into(char *out, size_t capacity) {
  * @public
  * @requires read_word_into
  * @category 输入和输出
- * @title 读单词或整行
- * @members read_word read_line
- * `read_word(s)` 读一个以空白分隔的单词，`read_line(s)` 读整行并去掉换行。若刚读过数字或单词，`read_line` 会先跳过当前行的剩余部分
+ */
+/**
+ * @id read_word
+ * @title 读一个单词
+ * @keywords 字符串 单词 scanf EOF
+ * @members read_word try_read_word read_word_into try_read_word_into
+ * 跳过前导空白，读取一个不含空白的单词。try 版本在正常 EOF 返回 false。普通宏要求实际字符数组；指针使用 *_into，容量包含结束符。
+ * @example
+ * char word[100];
+ * read_word(word);
  */
 #define read_word(array) read_word_into((array), sizeof(array))

@@ -120,7 +120,7 @@ jobs:
           static bool at_least_three(int x) { return x >= 3; }
           int main(void) {
               Record rows[] = {{5,2},{7,1}};
-              sort_records(rows, 2);
+              sort_records(rows, 2, record_cmp);
               int a[] = {8,3,8,2}, order[4];
               argsort_ints(a, 4, order);
               char words[5][12], joined[60];

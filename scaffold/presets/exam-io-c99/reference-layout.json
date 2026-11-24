@@ -1,0 +1,291 @@
+{
+  "notes": [
+    "保留 main.c 中已有的 #include \"exam.h\"。",
+    "库内输入接口不要与 scanf、fgets 混用；可以正常使用 printf。try_read_* 在正常 EOF 返回 false。",
+    "数组下标从 0 开始，区间采用 [l, r)。n 表示参与操作的元素数量。",
+    "自动容量接口必须传入实际数组；指针或数组形参使用 *_into，并显式传入容量。",
+    "非法参数、容量不足或溢出通常会报告错误并结束程序。字符串接口按字节处理。"
+  ],
+  "sections": [
+    {
+      "title": "输入与输出",
+      "children": [
+        {
+          "title": "数字读写",
+          "entries": [
+            "read_number",
+            "try_read_number",
+            "print_number"
+          ]
+        },
+        {
+          "title": "字符读写",
+          "entries": [
+            "read_char",
+            "try_read_char",
+            "print_char"
+          ]
+        },
+        {
+          "title": "字符串读写",
+          "entries": [
+            "read_word",
+            "read_line",
+            "read_rest",
+            "skip_line",
+            "print_text"
+          ]
+        },
+        {
+          "title": "数组读写",
+          "entries": [
+            "read_arrays",
+            "print_arrays"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "数组与结构体",
+      "children": [
+        {
+          "title": "构造与修改",
+          "children": [
+            {
+              "title": "构造与复制",
+              "entries": [
+                "fill_arrays",
+                "copy_arrays",
+                "values_arrays",
+                "range_arrays"
+              ]
+            },
+            {
+              "title": "原地修改",
+              "entries": [
+                "reverse_arrays",
+                "swap_ints"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "排序与查找",
+          "children": [
+            {
+              "title": "排序与去重",
+              "entries": [
+                "sort_arrays",
+                "bubble_sort_ints",
+                "argsort_ints",
+                "unique_arrays"
+              ]
+            },
+            {
+              "title": "查找",
+              "entries": [
+                "find_arrays",
+                "linear_search_ints",
+                "binary_search_arrays"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "统计与连续段",
+          "children": [
+            {
+              "title": "统计量",
+              "entries": [
+                "sum_mean_arrays",
+                "extrema_arrays",
+                "variance_arrays",
+                "median_arrays"
+              ]
+            },
+            {
+              "title": "计数",
+              "entries": [
+                "count_arrays",
+                "frequency_ints"
+              ]
+            },
+            {
+              "title": "连续段",
+              "entries": [
+                "longest_runs",
+                "max_subarray_sum_ints",
+                "max_forward_diff_ints"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "区间计算",
+          "entries": [
+            "prefix_sum",
+            "difference_array"
+          ]
+        },
+        {
+          "title": "结构体",
+          "entries": [
+            "record_type",
+            "sort_records",
+            "find_records_by"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "字符串",
+      "children": [
+        {
+          "title": "基本操作",
+          "entries": [
+            "str_reverse",
+            "str_case",
+            "str_trim",
+            "str_is_palindrome"
+          ]
+        },
+        {
+          "title": "统计与查找",
+          "entries": [
+            "str_count_char",
+            "str_count_substr",
+            "str_longest_char_run"
+          ]
+        },
+        {
+          "title": "编辑与修改",
+          "entries": [
+            "str_insert",
+            "str_erase",
+            "str_replace_char",
+            "str_remove_char",
+            "str_replace_all"
+          ]
+        },
+        {
+          "title": "排序与去重",
+          "entries": [
+            "str_sort_chars",
+            "str_unique_chars"
+          ]
+        },
+        {
+          "title": "拆分与拼接",
+          "entries": [
+            "str_split",
+            "str_split_whitespace",
+            "str_join"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "数学计算",
+      "children": [
+        {
+          "title": "整数与数论",
+          "entries": [
+            "gcd_lcm",
+            "integer_power",
+            "factorial_basic",
+            "prime_test",
+            "prime_sieve"
+          ]
+        },
+        {
+          "title": "进制与数位",
+          "children": [
+            {
+              "title": "进制转换与数位",
+              "entries": [
+                "base_conversion",
+                "digit_stats",
+                "digit_array",
+                "int_reverse_digits"
+              ]
+            },
+            {
+              "title": "位运算",
+              "entries": [
+                "bit_edit",
+                "bit_stats",
+                "bit_rotate_left"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "实数计算",
+          "entries": [
+            "nearly_equal",
+            "round_digits",
+            "bisect_root"
+          ]
+        },
+        {
+          "title": "复数与多项式",
+          "entries": [
+            "complex_create",
+            "complex_arithmetic",
+            "complex_output",
+            "poly_eval_lls"
+          ]
+        },
+        {
+          "title": "大整数",
+          "children": [
+            {
+              "title": "构造与读写",
+              "entries": [
+                "bigint_create",
+                "bigint_io"
+              ]
+            },
+            {
+              "title": "运算",
+              "entries": [
+                "bigint_arithmetic",
+                "bigint_mul",
+                "bigint_div",
+                "bigint_compare",
+                "bigint_factorial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "其他算法与工具",
+      "children": [
+        {
+          "title": "排列与组合",
+          "entries": [
+            "combinations",
+            "permutations"
+          ]
+        },
+        {
+          "title": "通用二分",
+          "entries": [
+            "first_true_int"
+          ]
+        },
+        {
+          "title": "日期与时间",
+          "entries": [
+            "date_create",
+            "date_arithmetic",
+            "time_create",
+            "time_arithmetic"
+          ]
+        }
+      ]
+    }
+  ]
+}

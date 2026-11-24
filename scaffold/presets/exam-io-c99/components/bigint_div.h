@@ -4,6 +4,17 @@
  * @public
  * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize exam_bigint_cmp_abs exam_bigint_sub_abs_inplace
  */
+/**
+ * @id bigint_div
+ * @title 大整数除法
+ * @members bigint_divmod bigint_div_small
+ * 除数非零。商向零截断，余数与被除数同号或为零。divmod 的商和余数输出必须是不同变量；div_small 的除数和余数为 int。
+ * @example
+ * BigInt a, b, q, r;
+ * bigint_from_ll(&a, -17);
+ * bigint_from_ll(&b, 5);
+ * bigint_divmod(&q, &r, &a, &b); // -3, -2
+ */
 static inline void bigint_divmod(BigInt *quotient, BigInt *remainder,
                                  const BigInt *a, const BigInt *b) {
     if (!quotient || !remainder || !a || !b || quotient == remainder)

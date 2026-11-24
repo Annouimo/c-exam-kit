@@ -3,9 +3,14 @@
  * @public
  * @requires exam_algo_fail
  * @category 数学、数位与二分
- * @title 浮点数、多项式
- * @members nearly_equal round_digits poly_eval_lls
- * `nearly_equal(a, b, abs_tol, rel_tol)` 按绝对和相对误差判断。`round_digits(x, digits)` 四舍五入。`poly_eval_lls(coef, n, x)` 计算多项式，`coef[0]` 是常数项
+ */
+/**
+ * @id nearly_equal
+ * @title 浮点数比较
+ * @members nearly_equal
+ * 用绝对误差和相对误差容限判断两个数是否近似相等；容限为非负数。
+ * @example
+ * bool same = nearly_equal(0.1 + 0.2, 0.3, 1e-9, 1e-9);
  */
 static inline bool nearly_equal(double a, double b,
                                 double absolute_tolerance,
@@ -21,6 +26,14 @@ static inline bool nearly_equal(double a, double b,
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id round_digits
+ * @title 四舍五入
+ * @members round_digits
+ * 将数舍入到指定小数位数，返回 double。输出固定小数位仍需 printf 或 print_double。
+ * @example
+ * double x = round_digits(3.14159, 2); // 3.14
  */
 static inline double round_digits(double value, int digits) {
     if (!isfinite(value) || digits < -15 || digits > 15)

@@ -3,6 +3,15 @@
  * @public
  * @requires exam_algo_fail
  */
+/**
+ * @id max_subarray_sum_ints
+ * @title 最大连续子段和
+ * @members max_subarray_sum_ints
+ * 返回最大非空连续子段和，n > 0。
+ * @example
+ * int a[] = {-2, 3, 4, -1};
+ * long long s = max_subarray_sum_ints(a, 4); // 7
+ */
 static inline long long max_subarray_sum_ints(const int *a, int n) {
     if (n <= 0) exam_algo_fail("max_subarray_sum_ints requires nonempty array");
     long long best = a[0], running = a[0];
@@ -16,9 +25,16 @@ static inline long long max_subarray_sum_ints(const int *a, int n) {
  * @public
  * @requires exam_check_n
  * @category 数组
- * @title 连续段
- * @members longest_equal_run_ints longest_plus_one_run_ints max_subarray_sum_ints max_forward_diff_ints
- * `longest_equal_run_ints(a, n)` 和 `longest_plus_one_run_ints(a, n)` 返回最长相等段和逐项加一段的长度。`max_subarray_sum_ints(a, n)` 返回最大非空连续子段和。`max_forward_diff_ints(a, n)` 求 `i < j` 时 `a[i] - a[j]` 的最大值
+ */
+/**
+ * @id longest_runs
+ * @title 最长连续段
+ * @members longest_equal_run_ints longest_plus_one_run_ints
+ * 分别返回最长相等连续段和逐项增加 1 的连续段长度。
+ * @example
+ * int a[] = {1, 1, 1, 2, 3};
+ * int eq = longest_equal_run_ints(a, 5); // 3
+ * int inc = longest_plus_one_run_ints(a, 5); // 3
  */
 static inline int longest_equal_run_ints(const int *a, int n) {
     exam_check_n(n);
@@ -47,6 +63,15 @@ static inline int longest_plus_one_run_ints(const int *a, int n) {
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id max_forward_diff_ints
+ * @title 前项减后项的最大差
+ * @members max_forward_diff_ints
+ * 求 i < j 时 a[i] - a[j] 的最大值，至少两项。
+ * @example
+ * int a[] = {5, 2, 4};
+ * long long d = max_forward_diff_ints(a, 3); // 3
  */
 static inline long long max_forward_diff_ints(const int *a, int n) {
     if (n < 2) exam_algo_fail("max_forward_diff_ints requires at least 2 values");

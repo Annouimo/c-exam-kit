@@ -3,6 +3,18 @@
  * @public
  * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize
  */
+/**
+ * @id bigint_mul
+ * @title 大整数乘法
+ * @members bigint_mul bigint_mul_small
+ * 将乘积写入第一个参数。bigint_mul_small 的第二个操作数是 int；结果可与输入别名。
+ * @example
+ * BigInt a, b, c;
+ * bigint_from_ll(&a, 123);
+ * bigint_from_ll(&b, 456);
+ * bigint_mul(&c, &a, &b);
+ * bigint_mul_small(&c, &c, 2);
+ */
 static inline void bigint_mul(BigInt *out, const BigInt *a,
                                const BigInt *b) {
     if (!out || !a || !b) exam_algo_fail("null BigInt multiplication operand");

@@ -6,9 +6,6 @@
  * @public
  * @requires EXAM_ENUM_CAP
  * @category 大整数、枚举及其他类型
- * @title 枚举组合、排列
- * @members Combination combination_new combination_next Permutation permutation_new permutation_next
- * `Combination it = combination_new(n, r)`，用 `while (combination_next(&it))` 逐个取，当前结果在 `it.indices[0..r-1]`。排列对应 `Permutation`、`permutation_new`、`permutation_next`。枚举的是 `0..n-1` 的下标，默认 `n <= 64`
  */
 typedef struct {
     int n, r, started, finished;
@@ -17,6 +14,18 @@ typedef struct {
 /**
  * @public
  * @requires Combination EXAM_ENUM_CAP exam_algo_fail
+ */
+/**
+ * @id combinations
+ * @title 枚举组合
+ * @members Combination combination_new combination_next
+ * @related permutations
+ * 从 0..n-1 中无序选 r 项。初始化迭代器，每次 next 返回 true 时读取 indices[0..r-1]。默认 n <= 64；r=0 枚举一次空组合。
+ * @example
+ * Combination it = combination_new(5, 3);
+ * while (combination_next(&it)) {
+ *     print_ints(it.indices, it.r, " ", "\n");
+ * }
  */
 static inline Combination combination_new(int n, int r) {
     if (n < 0 || n > EXAM_ENUM_CAP || r < 0 || r > n)

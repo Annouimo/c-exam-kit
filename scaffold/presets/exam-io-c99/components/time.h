@@ -2,9 +2,6 @@
 /**
  * @public
  * @category 大整数、枚举及其他类型
- * @title 时刻
- * @members Time time_add_seconds time_diff time_to_seconds time_from_seconds time_print
- * `Time t = time_new(h, m, s)`。`time_add_seconds(t, k)` 按 24 小时循环，`time_diff(a, b)` 直接返回 `b - a` 的秒数。另有 `time_to_seconds(t)`、`time_from_seconds(s)`、`time_print(t, end)`
  */
 typedef struct { int hour, minute, second; } Time;
 /**
@@ -18,6 +15,16 @@ static inline bool time_valid(Time t) {
 /**
  * @public
  * @requires Time time_valid exam_algo_fail
+ */
+/**
+ * @id time_create
+ * @title 时刻构造与合法性
+ * @members Time time_new time_valid time_to_seconds time_from_seconds
+ * Time 表示一天中的时刻。time_to_seconds 转为从午夜开始的秒数，time_from_seconds 转回 24 小时时刻。
+ * @example
+ * Time t = time_new(12, 30, 0);
+ * bool ok = time_valid(t);
+ * int s = time_to_seconds(t);
  */
 static inline Time time_new(int h, int m, int s) {
     Time t={h,m,s};
@@ -50,6 +57,16 @@ static inline int time_diff(Time a, Time b) {
 /**
  * @public
  * @requires Time time_to_seconds time_from_seconds
+ */
+/**
+ * @id time_arithmetic
+ * @title 时刻计算
+ * @members time_add_seconds time_diff time_next_second time_next_minute time_print
+ * 加秒、下一秒和下一分钟按 24 小时循环。time_diff(a,b) 返回 b-a 的秒数，不自动跨日。
+ * @example
+ * Time a = time_new(23, 59, 59);
+ * Time b = time_next_second(a);
+ * time_print(b, "\n");
  */
 static inline Time time_add_seconds(Time t, int delta) {
     long long sum=(long long)time_to_seconds(t)+delta;

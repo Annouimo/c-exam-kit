@@ -8,9 +8,6 @@
  * @public
  * @requires EXAM_BIGINT_CAP
  * @category 大整数、枚举及其他类型
- * @title 大整数输入输出
- * @members BigInt read_bigint try_read_bigint bigint_from_str bigint_from_ll bigint_print bigint_to_str
- * `BigInt a;` 后用 `read_bigint(&a)`、`try_read_bigint(&a)`、`bigint_from_str(&a, s)` 或 `bigint_from_ll(&a, x)` 赋值。`bigint_print(&a, "\n")` 输出。`bigint_to_str(&a, out)` 写入字符串。默认最多 2048 个十进制数位
  */
 typedef struct {
     int sign; /* -1, 0, +1; 0 is represented by sign=0,len=1,d[0]=0 */
@@ -20,6 +17,17 @@ typedef struct {
 /**
  * @public
  * @requires BigInt exam_algo_fail
+ */
+/**
+ * @id bigint_create
+ * @title 大整数构造与初始化
+ * @members BigInt bigint_zero bigint_from_str bigint_from_ll
+ * @related bigint_io bigint_arithmetic
+ * BigInt 是固定容量的有符号十进制整数，默认最多 2048 位。先声明变量，再通过 bigint_zero、bigint_from_str 或 bigint_from_ll 初始化；不需要 free。
+ * @example
+ * BigInt a, b;
+ * bigint_from_str(&a, "12345678901234567890");
+ * bigint_from_ll(&b, -15);
  */
 static inline void bigint_zero(BigInt *out) {
     if (!out) exam_algo_fail("null BigInt destination");

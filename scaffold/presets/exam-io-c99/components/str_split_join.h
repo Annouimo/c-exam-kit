@@ -96,9 +96,16 @@ static inline void str_join_into(const char *rows, int n,
  * @public
  * @requires str_split_into
  * @category 字符串
- * @title 拆分、拼接
- * @members str_split str_split_whitespace str_join
- * `str_split(s, ",", words)` 按字面分隔符拆分并保留空字段。`str_split_whitespace(s, words)` 按空白拆分并跳过空字段。两者返回字段数。用 `str_join(words, n, "-", out)` 写入拼接结果，`words` 应是 `char words[行数][每行容量]` 这样的二维数组
+ */
+/**
+ * @id str_split
+ * @title 按分隔符拆分
+ * @members str_split str_split_into
+ * @related str_split_whitespace str_join
+ * 按非空字面分隔符拆分，保留空字段，返回字段数。words 为二维 char 数组，行数和每行容量须足够，不能与输入重叠。
+ * @example
+ * char words[5][20];
+ * int n = str_split("a,,b,", ",", words); // 4
  */
 #define str_split(text, delimiter, rows) \
     str_split_into((text), (delimiter), (char *)(rows), \
@@ -107,6 +114,16 @@ static inline void str_join_into(const char *rows, int n,
  * @public
  * @requires str_split_whitespace_into
  */
+/**
+ * @id str_split_whitespace
+ * @title 按空白拆分
+ * @members str_split_whitespace str_split_whitespace_into
+ * @related str_split str_join
+ * 按连续空白拆分，忽略空字段，返回字段数。全空白输入返回 0。words 为足够大的二维 char 数组。
+ * @example
+ * char words[5][20];
+ * int n = str_split_whitespace(" a  b ", words); // 2
+ */
 #define str_split_whitespace(text, rows) \
     str_split_whitespace_into((text), (char *)(rows), \
                               sizeof(rows) / sizeof((rows)[0]), \
@@ -114,6 +131,17 @@ static inline void str_join_into(const char *rows, int n,
 /**
  * @public
  * @requires str_join_into
+ */
+/**
+ * @id str_join
+ * @title 拼接字符串
+ * @members str_join str_join_into
+ * @related str_split str_split_whitespace
+ * 拼接二维字符数组的前 n 行，分隔符只放在字段之间。输出到独立且足够大的 char 数组。n 为 0 时输出空串。
+ * @example
+ * char words[3][10] = {"a", "b", "c"};
+ * char out[30];
+ * str_join(words, 3, "-", out); // a-b-c
  */
 #define str_join(rows, n, delimiter, output) \
     str_join_into((const char *)(rows), (n), \
