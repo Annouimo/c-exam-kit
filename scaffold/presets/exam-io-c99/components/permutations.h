@@ -12,6 +12,18 @@ typedef struct {
  * @public
  * @requires Permutation EXAM_ENUM_CAP exam_algo_fail
  */
+/**
+ * @id permutations
+ * @title 枚举排列
+ * @members Permutation permutation_new permutation_next
+ * @related combinations
+ * 从 0..n-1 中有序选 r 项。每次 next 返回 true 时读取 indices[0..r-1]。默认 n <= 64；r=0 枚举一次空排列。
+ * @example
+ * Permutation it = permutation_new(5, 3);
+ * while (permutation_next(&it)) {
+ *     print_ints(it.indices, it.r, " ", "\n");
+ * }
+ */
 static inline Permutation permutation_new(int n, int r) {
     if (n < 0 || n > EXAM_ENUM_CAP || r < 0 || r > n)
         exam_algo_fail("invalid permutation dimensions");

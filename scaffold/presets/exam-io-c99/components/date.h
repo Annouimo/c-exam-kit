@@ -3,9 +3,6 @@
 /**
  * @public
  * @category 大整数、枚举及其他类型
- * @title 日期
- * @members Date date_add_days date_diff date_is_leap date_days_in_month date_day_of_year date_print
- * `Date d = date_new(y, m, day)`。`date_add_days(d, k)` 返回移过 `k` 天的日期，`date_diff(a, b)` 返回 `b - a` 的天数。另有 `date_is_leap(y)`、`date_days_in_month(y, m)`、`date_day_of_year(d)`、`date_print(d, end)`
  */
 typedef struct { int year, month, day; } Date;
 /** @public */
@@ -32,6 +29,16 @@ static inline bool date_valid(Date x) {
 /**
  * @public
  * @requires Date date_valid exam_algo_fail
+ */
+/**
+ * @id date_create
+ * @title 日期构造与合法性
+ * @members Date date_new date_valid date_is_leap date_days_in_month date_day_of_year
+ * Date 使用公历 1..9999 年。date_new 构造日期；date_valid 检查合法性；date_day_of_year 返回一年中的第几天。
+ * @example
+ * Date d = date_new(2024, 2, 29);
+ * bool ok = date_valid(d);
+ * int day = date_day_of_year(d); // 60
  */
 static inline Date date_new(int year, int month, int day) {
     Date x = {year,month,day};
@@ -82,6 +89,17 @@ static inline Date date_from_serial(int serial) {
 /**
  * @public
  * @requires Date date_to_serial exam_date_start_of_year exam_algo_fail date_from_serial
+ */
+/**
+ * @id date_arithmetic
+ * @title 日期计算
+ * @members date_add_days date_diff date_compare date_to_serial date_from_serial date_print
+ * date_add_days 返回偏移指定天数的日期；date_diff(a,b) 返回 b-a 的天数。compare 比较日期先后；serial 接口转换为连续日序号。
+ * @example
+ * Date a = date_new(2024, 2, 28);
+ * Date b = date_add_days(a, 2);
+ * int n = date_diff(a, b); // 2
+ * date_print(b, "\n");
  */
 static inline Date date_add_days(Date x, int delta) {
     long long serial=(long long)date_to_serial(x)+delta;

@@ -3,9 +3,19 @@
  * @public
  * @requires BigInt exam_algo_fail exam_bigint_add_abs exam_bigint_cmp_abs bigint_zero exam_bigint_sub_abs
  * @category 大整数、枚举及其他类型
- * @title 大整数计算
- * @members bigint_add bigint_sub bigint_mul bigint_divmod bigint_compare bigint_factorial
- * `bigint_add(&c, &a, &b)`、`bigint_sub(&c, &a, &b)`、`bigint_mul(&c, &a, &b)` 均把结果写入第一个参数。`bigint_divmod(&q, &r, &a, &b)` 求商和余数，商向零截断。`bigint_compare(&a, &b)` 返回 `-1`、`0` 或 `1`。`bigint_factorial(&c, n)` 求阶乘
+ */
+/**
+ * @id bigint_arithmetic
+ * @title 大整数加减法
+ * @members bigint_add bigint_sub
+ * @related bigint_mul bigint_div
+ * 结果写入第一个参数，允许结果与操作数别名。结果超出容量时报告错误。
+ * @example
+ * BigInt a, b, c;
+ * bigint_from_str(&a, "12345678901234567890");
+ * bigint_from_ll(&b, -15);
+ * bigint_add(&c, &a, &b);
+ * bigint_print(&c, "\n");
  */
 static inline void bigint_add(BigInt *out, const BigInt *a,
                                const BigInt *b) {
