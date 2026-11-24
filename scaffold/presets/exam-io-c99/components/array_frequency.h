@@ -23,9 +23,15 @@ static inline void frequency_ints_into(const int *values, int n,
  * @public
  * @requires frequency_ints_into
  * @category 数组
- * @title 频数、排序后的下标
- * @members frequency_ints argsort_ints
- * `frequency_ints(a, n, freq, max_value)` 统计 `0..max_value`，`freq` 至少有 `max_value + 1` 项。`argsort_ints(a, n, order)` 把升序所对应的原下标写入 `order`，相等项保持原顺序
+ */
+/**
+ * @id frequency_ints
+ * @title 统计频数
+ * @members frequency_ints frequency_ints_into
+ * 统计整数 0..max_value 出现的次数，freq 至少 max_value+1 项；函数初始化计数数组。
+ * @example
+ * int a[] = {1, 2, 1, 3}, freq[4];
+ * frequency_ints(a, 4, freq, 3); // 0, 2, 1, 1
  */
 #define frequency_ints(values,n,frequency,max_value) \
     frequency_ints_into((values),(n),(frequency),(max_value), \

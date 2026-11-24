@@ -3,9 +3,6 @@
 /**
  * @public
  * @requires exam_algo_fail
- * @title 多次区间加值
- * @members build_diff_ints build_diff_ints_into diff_range_add diff_to_lls diff_to_lls_into
- * 先用 build_diff_ints 建差分表（n + 1 项），再用 diff_range_add 更新 [l, r)。最后用 diff_to_lls 还原到长度为 n 的数组。
  */
 static inline void build_diff_ints_into(const int *a, int n,
                                         long long *difference, size_t capacity) {
@@ -44,6 +41,19 @@ static inline void diff_to_lls_into(const long long *difference, int n,
 /**
  * @public
  * @requires build_diff_ints_into
+ */
+/**
+ * @id difference_array
+ * @title 多次区间加值（差分）
+ * @members build_diff_ints diff_range_add diff_to_lls build_diff_ints_into diff_to_lls_into
+ * @related prefix_sum
+ * 差分表至少 n+1 项 long long。先建表，再对 [l,r) 加 delta，最后还原到 n 项 long long 数组。区间更新 O(1)。
+ * @example
+ * int a[] = {2, 4, 6, 8};
+ * long long diff[5], out[4];
+ * build_diff_ints(a, 4, diff);
+ * diff_range_add(diff, 4, 1, 3, 10);
+ * diff_to_lls(diff, 4, out); // 2, 14, 16, 8
  */
 #define build_diff_ints(a,n,difference) \
     build_diff_ints_into((a),(n),(difference),sizeof(difference)/sizeof((difference)[0]))

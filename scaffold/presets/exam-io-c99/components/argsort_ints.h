@@ -41,5 +41,15 @@ static inline void argsort_ints_into(const int *a, int n, int *order,
  * @public
  * @requires argsort_ints_into
  */
+/**
+ * @id argsort_ints
+ * @title 间接排序（原下标）
+ * @members argsort_ints argsort_ints_into
+ * @related sort_arrays
+ * 不修改 a，把升序排列对应的原下标写入 order；相等值按原下标排序。order 至少 n 项，不能与 a 重叠。
+ * @example
+ * int a[] = {8, 3, 8, 2}, order[4];
+ * argsort_ints(a, 4, order); // 3, 1, 0, 2
+ */
 #define argsort_ints(a, n, order) \
     argsort_ints_into((a), (n), (order), sizeof(order) / sizeof((order)[0]))

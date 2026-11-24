@@ -2,13 +2,6 @@
 /**
  * @public
  * @requires exam_algo_fail
- * @title 多次区间求和
- * @members build_prefix_ints build_prefix_ints_into prefix_range_sum
- * 先建前缀和，再用 prefix_range_sum(prefix, l, r) 查询 [l, r)。prefix 需要 n + 1 项。
- * @example int a[] = {2, 4, 6, 8};
- * @example long long prefix[5];
- * @example build_prefix_ints(a, 4, prefix);
- * @example long long sum = prefix_range_sum(prefix, 1, 3); // 4 + 6
  */
 static inline void build_prefix_ints_into(const int *a, int n, long long *prefix,
                                            size_t capacity) {
@@ -30,6 +23,18 @@ static inline long long prefix_range_sum(const long long *prefix, int begin,
 /**
  * @public
  * @requires build_prefix_ints_into
+ */
+/**
+ * @id prefix_sum
+ * @title 多次区间求和（前缀和）
+ * @members build_prefix_ints prefix_range_sum build_prefix_ints_into
+ * @related difference_array
+ * 先建表，再查询 [l,r)（不含 r）。prefix 是至少 n+1 项的 long long 数组。建表 O(n)，单次查询 O(1)。
+ * @example
+ * int a[] = {2, 4, 6, 8};
+ * long long prefix[5];
+ * build_prefix_ints(a, 4, prefix);
+ * long long s = prefix_range_sum(prefix, 1, 3); // 10
  */
 #define build_prefix_ints(a, n, prefix) \
     build_prefix_ints_into((a), (n), (prefix), sizeof(prefix)/sizeof((prefix)[0]))
