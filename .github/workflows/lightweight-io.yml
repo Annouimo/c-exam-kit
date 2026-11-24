@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'scaffold/presets/exam-io-c99/**'
+      - 'npm/accoding-preset/**'
       - 'tests/test_lightweight_io.py'
       - 'tests/test_lightweight_algorithms.py'
       - '.github/workflows/lightweight-io.yml'
@@ -20,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -29,6 +33,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -38,10 +45,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
           update: true
+          path-type: inherit
           install: mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-python
       - name: Test IO preset (GCC)
         shell: msys2 {0}
@@ -57,17 +68,21 @@ jobs:
           path: exam-kit
       - uses: actions/checkout@v4
         with:
-          repository: Annouimo/better-accoding-for-buaaers
-          ref: feat/standalone-cli-foundation
+          repository: Annouimo/accoding-companion
+          ref: main
           path: accoding
-      - uses: oven-sh/setup-bun@v2
-      - name: Initialize, assemble, compile and run using upstream CLI
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Initialize, assemble, compile and run using Companion CLI
         shell: bash
         run: |
           set -euo pipefail
+          node exam-kit/npm/accoding-preset/scripts/build-preset.mjs
           cd accoding
-          bun src/standalone/cli.ts scaffold init ../sample-problem \
-            --preset ../exam-kit/scaffold/presets/exam-io-c99/manifest.json
+          npm install --no-audit --no-fund
+          node --import tsx src/standalone/cli.ts scaffold init ../sample-problem \
+            --preset ../exam-kit/npm/accoding-preset/preset/manifest.json
           cat > ../sample-problem/main.c <<'EOF'
           #include "exam.h"
           int main(void) {
@@ -78,7 +93,7 @@ jobs:
               return 0;
           }
           EOF
-          bun src/standalone/cli.ts scaffold prepare ../sample-problem/main.c --cc gcc
+          node --import tsx src/standalone/cli.ts scaffold prepare ../sample-problem/main.c --cc gcc
           test -s ../sample-problem/.accoding/submit.c
           if grep -q 'EXAM_BIGINT_CAP' ../sample-problem/.accoding/submit.c; then
             echo 'Unexpected BigInt in submitted source' >&2
@@ -90,8 +105,8 @@ jobs:
           test "$result" = "1 2 4 8"
 
           # Cover automatic symbol selection for the newly approved APIs.
-          bun src/standalone/cli.ts scaffold init ../advanced-problem \
-            --preset ../exam-kit/scaffold/presets/exam-io-c99/manifest.json
+          node --import tsx src/standalone/cli.ts scaffold init ../advanced-problem \
+            --preset ../exam-kit/npm/accoding-preset/preset/manifest.json
           cat > ../advanced-problem/main.c <<'EOF'
           #include "exam.h"
           struct Record {
@@ -117,7 +132,7 @@ jobs:
               return 0;
           }
           EOF
-          bun src/standalone/cli.ts scaffold prepare ../advanced-problem/main.c --cc gcc
+          node --import tsx src/standalone/cli.ts scaffold prepare ../advanced-problem/main.c --cc gcc
           test -s ../advanced-problem/.accoding/submit.c
           grep -q 'static inline void exam_sort_records' ../advanced-problem/.accoding/submit.c
           grep -q 'static inline void argsort_ints_into' ../advanced-problem/.accoding/submit.c

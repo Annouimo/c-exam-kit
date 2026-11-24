@@ -1,9 +1,18 @@
+/** @category 数学、数位与二分 */
 static inline int exam_digit_value(int c) {
     if (c >= '0' && c <= '9') return c-'0';
     if (c >= 'a' && c <= 'z') return c-'a'+10;
     if (c >= 'A' && c <= 'Z') return c-'A'+10;
     return -1;
 }
+/**
+ * @public
+ * @requires exam_algo_fail exam_digit_value
+ * @category 数学、数位与二分
+ * @title 进制、数位
+ * @members base_to_int int_to_base int_digit_count int_digit_sum int_digit_at
+ * `base_to_int(s, base)` 返回 `long long`，`int_to_base(x, base, out)` 写入字符串，进制均为 `2..36`。`int_digit_count(x, base)` 和 `int_digit_sum(x, base)` 返回位数、数位和。`int_digit_at(x, base, pos)` 从最低位按 `0` 开始取位
+ */
 static inline long long base_to_int(const char *s, int base) {
     if (base < 2 || base > 36) exam_algo_fail("base must be 2..36");
     bool negative = false;
@@ -24,6 +33,10 @@ static inline long long base_to_int(const char *s, int base) {
     }
     return (long long)magnitude;
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline void int_to_base_into(long long value, int base,
                                     char *out, size_t capacity) {
     static const char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -43,6 +56,10 @@ static inline void int_to_base_into(long long value, int base,
     for (size_t i = 0; i < len; ++i) out[i] = reversed[len-1-i];
     out[len] = '\0';
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int int_digit_count(long long n, int base) {
     if (base < 2 || base > 36) exam_algo_fail("base must be 2..36");
     unsigned long long x = n < 0 ? 0ULL-(unsigned long long)n : (unsigned long long)n;
@@ -50,6 +67,10 @@ static inline int int_digit_count(long long n, int base) {
     while (x >= (unsigned)base) { x /= (unsigned)base; ++count; }
     return count;
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int int_digit_sum(long long n, int base) {
     if (base < 2 || base > 36) exam_algo_fail("base must be 2..36");
     unsigned long long x = n < 0 ? 0ULL-(unsigned long long)n : (unsigned long long)n;
@@ -57,6 +78,10 @@ static inline int int_digit_sum(long long n, int base) {
     do { total += (int)(x % (unsigned)base); x /= (unsigned)base; } while (x);
     return total;
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int int_digit_at(long long n, int base, int position) {
     if (base < 2 || base > 36 || position < 0)
         exam_algo_fail("invalid digit position/base");
@@ -64,5 +89,9 @@ static inline int int_digit_at(long long n, int base, int position) {
     while (position-- && x) x /= (unsigned)base;
     return (int)(x % (unsigned)base);
 }
+/**
+ * @public
+ * @requires int_to_base_into
+ */
 #define int_to_base(value, base, array) \
     int_to_base_into((value),(base),(array),sizeof(array))

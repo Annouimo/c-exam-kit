@@ -4,7 +4,10 @@ The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-com
 
 ## Workflow
 
-[中文函数速查手册](manual.zh-CN.md)随 npm preset 一起发布，打包时标注适用版本。新增或修改公开接口时，同步更新手册中的调用方法、返回值和关键前提。
+中文函数速查由 `components/*.h` 的声明注释生成，随 npm preset 一起发布。
+文件顶部用 `@category` 标记分类。公开声明用 `@public`，函数、宏和类型的直接依赖统一写在相邻的 `@requires` 行上。
+用 `@title` 和可选的 `@members` 创建速查条目，普通注释行写说明，`@example` 写示例代码，每个示例代码行加一次标记。
+本地运行 `node npm/accoding-preset/scripts/build-preset.mjs` 可生成清单和 TUI 数据。
 
 Follow the [Companion setup and usage guide](https://github.com/Annouimo/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
 

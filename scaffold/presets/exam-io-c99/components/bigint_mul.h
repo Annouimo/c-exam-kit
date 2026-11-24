@@ -1,3 +1,8 @@
+/** @category 大整数、枚举及其他类型 */
+/**
+ * @public
+ * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize
+ */
 static inline void bigint_mul(BigInt *out, const BigInt *a,
                                const BigInt *b) {
     if (!out || !a || !b) exam_algo_fail("null BigInt multiplication operand");

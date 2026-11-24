@@ -1,3 +1,4 @@
+/** @category 数组 */
 /* Stable indirect sorting: order[i] is an ORIGINAL, zero-based index.
  * The input array is never modified. Equal values use original index order.
  */
@@ -5,6 +6,7 @@ typedef struct {
     int value;
     int index;
 } ExamIntIndexPair;
+/** @requires ExamIntIndexPair */
 static inline int exam_int_index_compare(const void *left, const void *right) {
     const ExamIntIndexPair *a = (const ExamIntIndexPair *)left;
     const ExamIntIndexPair *b = (const ExamIntIndexPair *)right;
@@ -12,6 +14,10 @@ static inline int exam_int_index_compare(const void *left, const void *right) {
         return (a->value > b->value) - (a->value < b->value);
     return (a->index > b->index) - (a->index < b->index);
 }
+/**
+ * @public
+ * @requires exam_algo_fail ExamIntIndexPair exam_int_index_compare
+ */
 static inline void argsort_ints_into(const int *a, int n, int *order,
                                      size_t capacity) {
     if (n < 0 || (size_t)n > capacity)
@@ -31,5 +37,9 @@ static inline void argsort_ints_into(const int *a, int n, int *order,
     for (int i = 0; i < n; ++i) order[i] = pairs[i].index;
     free(pairs);
 }
+/**
+ * @public
+ * @requires argsort_ints_into
+ */
 #define argsort_ints(a, n, order) \
     argsort_ints_into((a), (n), (order), sizeof(order) / sizeof((order)[0]))

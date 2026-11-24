@@ -1,0 +1,20 @@
+{
+  "id": "exam-io-c99",
+  "language": "c",
+  "standard": "c99",
+  "headerFile": "exam.h",
+  "systemHeaders": [
+    "stdio.h",
+    "stdlib.h",
+    "stddef.h",
+    "stdbool.h",
+    "ctype.h",
+    "errno.h",
+    "limits.h",
+    "math.h",
+    "string.h",
+    "stdint.h",
+    "float.h"
+  ],
+  "languageId": "c99"
+}

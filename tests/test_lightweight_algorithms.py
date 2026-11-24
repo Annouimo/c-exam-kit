@@ -11,7 +11,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PRESET = ROOT / "scaffold" / "presets" / "exam-io-c99"
+PRESET = ROOT / "npm" / "accoding-preset" / "preset"
+subprocess.run(["node", str(PRESET.parent / "scripts" / "build-preset.mjs")], check=True)
 MANIFEST = json.loads((PRESET/"manifest.json").read_text(encoding="utf-8"))
 COMPONENTS = {x["id"]: x for x in MANIFEST["components"]}
 CC = os.environ.get("CC", "cc")
@@ -33,7 +34,7 @@ def header(selected=None):
         selected = expanded
     lines = ["#ifndef EXAM_H", "#define EXAM_H"]
     lines.extend("#include <{}>".format(h) for h in MANIFEST["systemHeaders"])
-    lines.extend((PRESET/c["source"]).read_text(encoding="utf-8")
+    lines.extend(c["code"]
                  for c in MANIFEST["components"] if c["id"] in selected)
     lines.append("#endif")
     return "\n".join(lines) + "\n"
@@ -41,10 +42,10 @@ def header(selected=None):
 
 class Algorithms(unittest.TestCase):
     def test_record_search_manual_example(self):
-        manual = (PRESET / "manual.zh-CN.md").read_text(encoding="utf-8")
-        example = re.search(r'(?m)^\x60{3}c\n#include "exam\.h"\n([\s\S]*?)^\x60{3}$', manual)
-        self.assertIsNotNone(example)
-        self.assertEqual(self.run_c(example[1]), "0\n1\n")
+        reference = json.loads((PRESET / "reference.json").read_text(encoding="utf-8"))
+        example = next(entry["example"] for category in reference["categories"]
+                       for entry in category["entries"] if entry["id"] == "find_records_by")
+        self.assertEqual(self.run_c(example), "0\n1\n")
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="algorithms-c99-")
@@ -52,7 +53,7 @@ class Algorithms(unittest.TestCase):
         self.folder = Path(self.temp.name)
 
     def run_c(self, source, data="", selected=None, expect_error=False):
-        (self.folder/"exam.h").write_text(header(selected), encoding="utf-8")
+        (self.folder/"exam.h").write_text(header(set(re.findall(r"[A-Za-z_]\w*", source)) & COMPONENTS.keys() if selected is not None else None), encoding="utf-8")
         (self.folder/"main.c").write_text('#include "exam.h"\n'+source,
                                           encoding="utf-8")
         executable = self.folder/("test.exe" if os.name=="nt" else "test")

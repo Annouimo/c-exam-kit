@@ -1,3 +1,8 @@
+/** @category 大整数、枚举及其他类型 */
+/**
+ * @public
+ * @requires BigInt exam_algo_fail bigint_zero bigint_mul_small
+ */
 static inline void bigint_factorial(BigInt *out, int n) {
     if (!out || n < 0) exam_algo_fail("invalid BigInt factorial");
     BigInt result;

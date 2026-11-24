@@ -1,3 +1,8 @@
+/** @category 字符串 */
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline void str_insert_into(char *s, int pos, const char *text,
                                    size_t capacity) {
     size_t n = strlen(s), add = strlen(text);
@@ -8,6 +13,10 @@ static inline void str_insert_into(char *s, int pos, const char *text,
     memmove(s + pos + add, s + pos, n - (size_t)pos + 1);
     memcpy(s + pos, text, add);
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline void str_erase(char *s, int pos, int count) {
     size_t n = strlen(s);
     if (pos < 0 || count < 0 || (size_t)pos > n ||
@@ -15,6 +24,10 @@ static inline void str_erase(char *s, int pos, int count) {
         exam_algo_fail("str_erase invalid range");
     memmove(s + pos, s + pos + count, n - (size_t)pos - (size_t)count + 1);
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int str_replace_char(char *s, char old_char, char new_char) {
     if (!old_char || !new_char) exam_algo_fail("NUL cannot be replaced");
     int count = 0;
@@ -23,6 +36,10 @@ static inline int str_replace_char(char *s, char old_char, char new_char) {
     }
     return count;
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int str_remove_char(char *s, char key) {
     if (!key) exam_algo_fail("NUL cannot be removed");
     size_t write = 0;
@@ -35,6 +52,10 @@ static inline int str_remove_char(char *s, char key) {
     return removed;
 }
 /* Non-overlapping replacement; needle and replacement must not alias s. */
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int str_replace_all_into(char *s, const char *needle,
                                        const char *replacement,
                                        size_t capacity) {
@@ -69,7 +90,19 @@ static inline int str_replace_all_into(char *s, const char *needle,
     free(out);
     return count;
 }
+/**
+ * @public
+ * @requires str_insert_into
+ * @category 字符串
+ * @title 插入、删除、替换
+ * @members str_insert str_erase str_remove_char str_replace_char str_replace_all
+ * `str_insert(s, pos, text)` 在下标 `pos` 前插入。`str_erase(s, pos, count)` 从 `pos` 删除 `count` 个字符，删除范围须在串内。`str_remove_char(s, ch)` 删除所有指定字符。`str_replace_char(s, old, new_ch)` 替换字符。`str_replace_all(s, old, replacement)` 替换非重叠子串并返回次数
+ */
 #define str_insert(array, pos, text) \
     str_insert_into((array), (pos), (text), sizeof(array))
+/**
+ * @public
+ * @requires str_replace_all_into
+ */
 #define str_replace_all(array, needle, replacement) \
     str_replace_all_into((array), (needle), (replacement), sizeof(array))

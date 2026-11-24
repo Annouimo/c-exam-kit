@@ -1,4 +1,9 @@
+/** @category 大整数、枚举及其他类型 */
 /* Quotient truncates toward zero; remainder keeps dividend sign. */
+/**
+ * @public
+ * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize exam_bigint_cmp_abs exam_bigint_sub_abs_inplace
+ */
 static inline void bigint_divmod(BigInt *quotient, BigInt *remainder,
                                  const BigInt *a, const BigInt *b) {
     if (!quotient || !remainder || !a || !b || quotient == remainder)

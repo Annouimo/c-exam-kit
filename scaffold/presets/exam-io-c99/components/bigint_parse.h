@@ -1,3 +1,8 @@
+/** @category 大整数、枚举及其他类型 */
+/**
+ * @public
+ * @requires BigInt exam_algo_fail EXAM_BIGINT_CAP bigint_zero exam_bigint_normalize
+ */
 static inline void bigint_from_str(BigInt *out, const char *text) {
     if (!text || !out) exam_algo_fail("null BigInt string/destination");
     bool negative = false;
@@ -17,6 +22,10 @@ static inline void bigint_from_str(BigInt *out, const char *text) {
     exam_bigint_normalize(&temp);
     *out = temp;
 }
+/**
+ * @public
+ * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP
+ */
 static inline void bigint_from_ll(BigInt *out, long long value) {
     if (!out) exam_algo_fail("null BigInt destination");
     BigInt temp;
@@ -33,6 +42,10 @@ static inline void bigint_from_ll(BigInt *out, long long value) {
     temp.sign = value == 0 ? 0 : (value < 0 ? -1 : 1);
     *out = temp;
 }
+/**
+ * @public
+ * @requires BigInt exam_algo_fail
+ */
 static inline void bigint_to_str_into(const BigInt *a, char *out,
                                       size_t capacity) {
     if (!a || !out) exam_algo_fail("null BigInt string/destination");
@@ -43,6 +56,10 @@ static inline void bigint_to_str_into(const BigInt *a, char *out,
     for (int i = a->len - 1; i >= 0; --i) out[pos++] = (char)('0'+a->d[i]);
     out[pos] = '\0';
 }
+/**
+ * @public
+ * @requires BigInt exam_algo_fail
+ */
 static inline void bigint_print(const BigInt *a, const char *end) {
     if (!a || !end) exam_algo_fail("null BigInt/terminator");
     if (a->sign < 0 && putchar('-') == EOF) exam_algo_fail("BigInt output error");
@@ -50,5 +67,9 @@ static inline void bigint_print(const BigInt *a, const char *end) {
         if (putchar('0' + a->d[i]) == EOF) exam_algo_fail("BigInt output error");
     if (fputs(end, stdout) == EOF) exam_algo_fail("BigInt output error");
 }
+/**
+ * @public
+ * @requires bigint_to_str_into
+ */
 #define bigint_to_str(a, array) \
     bigint_to_str_into((a), (array), sizeof(array))
