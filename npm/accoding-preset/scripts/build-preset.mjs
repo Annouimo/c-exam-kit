@@ -71,7 +71,6 @@ const definitions = new Map();
 const referenceEntries = [];
 for (const file of files) {
   const input = await fs.readFile(path.join(componentDirectory, file), "utf8");
-  let category;
   for (const entry of declarations(input, file)) {
     if (definitions.has(entry.name)) throw Error("Duplicate declaration: " + entry.name);
     let required = [], publiclyAvailable = false;
@@ -85,7 +84,7 @@ for (const file of files) {
         switch (tag) {
           case "public": publiclyAvailable = true; break;
           case "requires": required = value.split(/\s+/).filter(Boolean); break;
-          case "category": category = value; break;
+          case "category": break; // Legacy source annotation; navigation owns classification.
           case "id": id = value; break;
           case "title": title = value; break;
           case "keywords": keywords = value.split(/\s+/).filter(Boolean); break;
@@ -115,16 +114,15 @@ for (const file of files) {
           default: throw Error("Unknown annotation @" + tag + " in " + file);
         }
       }
-      if (title) referenceEntries.push({ id, category, title, keywords, related,
+      if (title) referenceEntries.push({ id, title, keywords, related,
         members: members ?? (variants.length ? [] : [entry.name]),
         description: details.join("\n").trim(),
         example: (examples.get("") ?? []).join("\n").trimEnd(),
         variants, examples, notes });
     }
-    if (!category) throw Error("Missing category in " + file);
     if (publiclyAvailable && entry.callback) throw Error("Callback declaration marked public: " + entry.name);
     definitions.set(entry.name, { id: entry.name, symbols: publiclyAvailable ? [entry.name] : [],
-      requires: required, code: entry.code, category, signature: entry.signature });
+      requires: required, code: entry.code, signature: entry.signature });
   }
 }
 
@@ -145,7 +143,6 @@ for (const id of definitions.keys()) visit(id);
 const layout = JSON.parse(await fs.readFile(path.join(source, "reference-layout.json"), "utf8"));
 const covered = new Set();
 const documents = new Map();
-const categories = ["输入和输出", "数组", "字符串", "数学、数位与二分", "大整数、枚举及其他类型"];
 const typeNames = { int: "int", ll: "long long", double: "double" };
 function signature(name, id) {
   const declaration = definitions.get(name);
@@ -175,7 +172,7 @@ for (const entry of referenceEntries) {
   const advancedSignatures = entry.members.filter(name=>name.endsWith("_into")).map(name=>definitions.get(name).signature);
   const example = variants[0]?.example ?? entry.example;
   if (!example || variants.some(v=>!v.example)) console.warn("Missing example: " + entry.id);
-  documents.set(entry.id, { id: entry.id, category: entry.category, title: entry.title,
+  documents.set(entry.id, { id: entry.id, title: entry.title,
     description: entry.description, keywords: entry.keywords, related: entry.related,
     advancedSignatures,
     signatures: [...signatures, ...variants.flatMap(v => v.signatures)], example,
@@ -197,6 +194,7 @@ function navigation(nodes) {
     if (node.children) return { title: node.title, children: navigation(node.children) };
     const ids = node.entries;
     if (!Array.isArray(ids) || !ids.length) throw Error("Empty section: " + node.title);
+    if (ids.length > 5) console.warn("More than five entries: " + node.title);
     for (const id of ids) {
       if (!documents.has(id)) throw Error("Unknown document: " + id);
       used.add(id);
@@ -208,8 +206,10 @@ const sections = navigation(layout.sections);
 for (const id of documents.keys()) if (!used.has(id)) throw Error("Document not in navigation: " + id);
 console.log("Reference: " + documents.size + " documented operations, " + covered.size + " public symbols.");
 // Preserve v1 categories for readers shipped with older Companion versions.
-const reference = categories.map(title => ({title, entries: [...documents.values()]
-  .filter(d => d.category === title).map(({category, ...d})=>d)})).filter(c=>c.entries.length);
+const included = new Set();
+function idsIn(node) { return node.entries ?? node.children.flatMap(idsIn); }
+const reference = sections.map(node => ({title: node.title, entries: idsIn(node)
+  .filter(id=>!included.has(id) && included.add(id)).map(id=>documents.get(id))})).filter(c=>c.entries.length);
 const notes = layout.notes.join("\n\n");
 await fs.rm(output, { recursive: true, force: true });
 await fs.mkdir(output, { recursive: true });

@@ -50,25 +50,45 @@
       "children": [
         {
           "title": "构造与修改",
-          "entries": [
-            "fill_arrays",
-            "copy_arrays",
-            "values_arrays",
-            "range_arrays",
-            "reverse_arrays",
-            "swap_ints"
+          "children": [
+            {
+              "title": "构造与复制",
+              "entries": [
+                "fill_arrays",
+                "copy_arrays",
+                "values_arrays",
+                "range_arrays"
+              ]
+            },
+            {
+              "title": "原地修改",
+              "entries": [
+                "reverse_arrays",
+                "swap_ints"
+              ]
+            }
           ]
         },
         {
           "title": "排序与查找",
-          "entries": [
-            "sort_arrays",
-            "bubble_sort_ints",
-            "argsort_ints",
-            "find_arrays",
-            "linear_search_ints",
-            "binary_search_arrays",
-            "unique_arrays"
+          "children": [
+            {
+              "title": "排序与去重",
+              "entries": [
+                "sort_arrays",
+                "bubble_sort_ints",
+                "argsort_ints",
+                "unique_arrays"
+              ]
+            },
+            {
+              "title": "查找",
+              "entries": [
+                "find_arrays",
+                "linear_search_ints",
+                "binary_search_arrays"
+              ]
+            }
           ]
         },
         {
@@ -181,7 +201,7 @@
           "title": "进制与数位",
           "children": [
             {
-              "title": "进制与数位",
+              "title": "进制转换与数位",
               "entries": [
                 "base_conversion",
                 "digit_stats",

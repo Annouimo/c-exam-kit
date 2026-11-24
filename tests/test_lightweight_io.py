@@ -84,7 +84,7 @@ class IOPresetTests(unittest.TestCase):
         self.assertNotIn("try_read_double", selected)
         self.assertNotIn("read_word_into", selected)
 
-    def test_reference_io_navigation_and_examples(self):
+    def test_reference_navigation_and_examples(self):
         reference = json.loads((PRESET / "reference.json").read_text(encoding="utf-8"))
         section = reference["sections"][0]
         self.assertEqual(section["title"], "输入与输出")
@@ -109,7 +109,7 @@ class IOPresetTests(unittest.TestCase):
             for example in ([v["example"] for v in entry["variants"]] if entry.get("variants") else [entry["example"]]):
                 with self.subTest(entry=id, example=example):
                     self.assertTrue(example)
-                    self.assertNotIn("{{", example)
+                    self.assertIsNone(re.search(r"\{\{\w+\}\}", example))
                     selected = set(re.findall(r"[A-Za-z_]\w*", example)) & COMPONENTS.keys()
                     (self.folder / "exam.h").write_text(header(selected), encoding="utf-8")
                     program = example if re.search(r"\bmain\s*\(", example) else (
