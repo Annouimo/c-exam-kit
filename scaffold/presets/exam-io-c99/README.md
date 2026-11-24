@@ -6,7 +6,7 @@ The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-com
 
 中文函数速查由 `components/*.h` 的声明注释生成，随 npm preset 一起发布。
 文件顶部用 `@category` 标记分类。公开声明用 `@public`，函数、宏和类型的直接依赖统一写在相邻的 `@requires` 行上。
-用 `@title` 和可选的 `@members` 创建速查条目，普通注释行写说明，`@example` 写示例代码，每个示例代码行加一次标记。
+用 `@title` 和可选的 `@id`、`@members` 创建条目；`@variant int fn1 fn2`（类型键 int / ll / double）声明类型变体，`@example` 后写多行示例，支持 {{type}}、{{fn1}} 等简单占位符，`@example double` 和 `@note double` 覆盖示例或追加说明。目录维护在 `reference-layout.json`。迁移期间输入输出分类严格检查覆盖率，其他分类仍保留旧条目。
 本地运行 `node npm/accoding-preset/scripts/build-preset.mjs` 可生成清单和 TUI 数据。
 
 Follow the [Companion setup and usage guide](https://github.com/Annouimo/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
@@ -64,10 +64,9 @@ long long total = sum_ints(a,n);
 
 The record type is fixed to `Record` for simplicity. **Define a named struct
 tag**, not an anonymous `typedef struct { ... } Record;`. Include `exam.h`
-first, then define the fields and implement the **non-static**
-`record_cmp(const Record *, const Record *)`. The comparator returns negative,
-zero or positive for less-than, equal or greater-than ordering. The library
-adapts this typed comparator to C99 `qsort`:
+first, then define the fields and define a comparator with signature
+`int compare(const Record *, const Record *)` (static is allowed). The comparator returns negative,
+zero or positive for less-than, equal or greater-than ordering. Pass the typed comparator explicitly to the C99 heapsort:
 
 ~~~c
 #include "exam.h"
@@ -84,7 +83,7 @@ int record_cmp(const Record *a, const Record *b) {
 
 int main(void) {
     Record a[100] = {{95,10},{98,20},{95,5}};
-    sort_records(a, 3);
+    sort_records(a, 3, record_cmp);
     Record key = {.score = 95, .penalty = 5};
     int index = binary_search_records_by(a, 3, &key, record_cmp);
     printf("%d\n", index);  /* 1 */
@@ -92,8 +91,7 @@ int main(void) {
 }
 ~~~
 
-`sort_records` sorts the array in place, **not stably**. Exactly one `Record`
-type and one `record_cmp` rule are supported in a program. Use standard
+`sort_records` sorts the array in place, **not stably**. Exactly one `Record` type is supported; multiple comparison rules are allowed. Use standard
 `qsort` directly for more specialized multiple-type situations.
 
 `find_records_by(a, n, &key, compare)` scans the array in its current order.

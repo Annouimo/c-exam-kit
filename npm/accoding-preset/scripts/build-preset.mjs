@@ -52,9 +52,11 @@ function* declarations(code, file) {
     const documentation = [...code.slice(gap, start).matchAll(/\/\*\*([\s\S]*?)\*\//g)]
       .map(match => match[1].split("\n").map(line => line.replace(/^\s*\* ?/, "").trimEnd())
         .join("\n").trim());
-    const signature = body.startsWith("#") || typeDefinition(body)
-      ? code.slice(start, end).split("\n")[0].trim()
-      : code.slice(start, start + body.search(/[;{]/)).trim().replace(/^static\s+(?:inline\s+)?/, "") + ";";
+    const raw = code.slice(start, end);
+    const macro = /^#define\s+\w+\([^\n]*?\)/.exec(raw);
+    const signature = macro ? macro[0].replace(/^#define\s+/, "") :
+      body.startsWith("#") ? name : typeDefinition(body) ? raw.trim() :
+      code.slice(start, start + body.search(/[;{]/)).trim().replace(/^static\s+(?:inline\s+)?/, "") + ";";
     yield { name, callback, documentation, signature, code: code.slice(start, end).trimEnd() + "\n" };
   }
 }
@@ -75,24 +77,48 @@ for (const file of files) {
     let required = [], publiclyAvailable = false;
     for (const block of entry.documentation) {
       const lines = block.split("\n");
-      let title, members;
-      const details = [], example = [];
+      let title, members, id = entry.name, keywords = [];
+      const details = [], examples = new Map(), variants = [], notes = new Map();
+      let section = details;
       for (const line of lines) {
         const [, tag, value = ""] = /^@(\w+)(?: (.*))?$/.exec(line) ?? [];
         switch (tag) {
           case "public": publiclyAvailable = true; break;
           case "requires": required = value.split(/\s+/).filter(Boolean); break;
           case "category": category = value; break;
+          case "id": id = value; break;
           case "title": title = value; break;
+          case "keywords": keywords = value.split(/\s+/).filter(Boolean); break;
           case "members": members = value.split(/\s+/).filter(Boolean); break;
-          case "example": example.push(value); break;
-          case undefined: details.push(line); break;
+          case "variant": {
+            const [key, ...names] = value.trim().split(/\s+/);
+            if (!key || !names.length || variants.some(v => v.key === key)) throw Error("Invalid variant in " + id);
+            variants.push({key, names});
+            break;
+          }
+          case "example": {
+            // Legacy @example code lines and the new multiline blocks both work.
+            const key = variants.some(v => v.key === value) ? value : "";
+            if (!examples.has(key)) examples.set(key, []);
+            section = examples.get(key);
+            if (value && !key) section.push(value);
+            break;
+          }
+          case "note": {
+            if (!variants.some(v => v.key === value)) throw Error("Unknown note variant in " + id);
+            section = notes.get(value) ?? [];
+            notes.set(value, section);
+            break;
+          }
+          case undefined: section.push(line); break;
           default: throw Error("Unknown annotation @" + tag + " in " + file);
         }
       }
-      if (title) referenceEntries.push({ id: entry.name, category, title,
-        members: members ?? [entry.name], description: details.join("\n").trim(),
-        example: example.join("\n") });
+      if (title) referenceEntries.push({ id, category, title, keywords,
+        members: members ?? (variants.length ? [] : [entry.name]),
+        description: details.join("\n").trim(),
+        example: (examples.get("") ?? []).join("\n").trimEnd(),
+        variants, examples, notes });
     }
     if (!category) throw Error("Missing category in " + file);
     if (publiclyAvailable && entry.callback) throw Error("Callback declaration marked public: " + entry.name);
@@ -115,34 +141,80 @@ function visit(id) {
 }
 for (const id of definitions.keys()) visit(id);
 
+const layout = JSON.parse(await fs.readFile(path.join(source, "reference-layout.json"), "utf8"));
+const strict = new Set(layout.strictCategories);
 const covered = new Set();
+const documents = new Map();
 const categories = ["输入和输出", "数组", "字符串", "数学、数位与二分", "大整数、枚举及其他类型"];
-for (const entry of referenceEntries) {
-  for (const name of entry.members) {
-    if (!definitions.get(name)?.symbols.length) throw Error("Unknown public function in " + entry.id + ": " + name);
-    covered.add(name);
-  }
+const typeNames = { int: "int", ll: "long long", double: "double" };
+function signature(name, id) {
+  const declaration = definitions.get(name);
+  if (!declaration?.symbols.length) throw Error("Unknown public function in " + id + ": " + name);
+  covered.add(name);
+  return declaration.signature;
 }
+function expand(template, variant, id) {
+  const values = { type: typeNames[variant.key] ?? variant.key,
+    ...Object.fromEntries(variant.names.map((name, i) => ["fn" + (i + 1), name])) };
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    if (!Object.hasOwn(values, key)) throw Error("Unknown placeholder " + key + " in " + id);
+    return values[key];
+  });
+}
+for (const entry of referenceEntries) {
+  if (!entry.id || documents.has(entry.id)) throw Error("Duplicate or empty document id: " + entry.id);
+  if (strict.has(entry.category) && !entry.description) throw Error("Missing description: " + entry.id);
+  const variants = entry.variants.map(v => ({
+    key: v.key, label: typeNames[v.key] ?? v.key,
+    symbols: v.names, signatures: v.names.map(name => signature(name, entry.id)),
+    note: (entry.notes.get(v.key) ?? []).join("\n").trim(),
+    example: expand((entry.examples.get(v.key) ?? []).join("\n").trimEnd() || entry.example, v, entry.id)
+  }));
+  const signatures = entry.members.map(name => signature(name, entry.id));
+  const example = variants[0]?.example ?? entry.example;
+  if (strict.has(entry.category) && !example) console.warn("Missing example: " + entry.id);
+  documents.set(entry.id, { id: entry.id, category: entry.category, title: entry.title,
+    description: entry.description, keywords: entry.keywords,
+    signatures: [...signatures, ...variants.flatMap(v => v.signatures)], example,
+    ...(variants.length ? { variants, commonSignatures: signatures } : {}) });
+}
+const pending = [];
 for (const declaration of definitions.values()) {
   if (!declaration.symbols.length || covered.has(declaration.id)) continue;
-  referenceEntries.push({ id: declaration.id, category: declaration.category, title: declaration.id,
-    members: [declaration.id], description: "", example: "" });
+  if (strict.has(declaration.category)) throw Error("Undocumented public symbol: " + declaration.id);
+  pending.push(declaration.id);
+  documents.set(declaration.id, { id: declaration.id, category: declaration.category,
+    title: declaration.id, description: "", example: "", keywords: [], signatures: [declaration.signature] });
 }
-const reference = categories.map(title => ({ title, entries: referenceEntries
-  .filter(entry => entry.category === title)
-  .sort((a, b) => Number(a.title === a.id) - Number(b.title === b.id))
-  .map(({id, title, members, description, example}) => ({id, title, description, example,
-    signatures: members.map(name => definitions.get(name).signature)}))
-})).filter(category => category.entries.length);
-const notes = "读取同一份输入时统一使用这些读入接口，输出可照常用 printf。下标从 0 开始，区间 [l, r) 包含 l、排除 r。保留 main.c 中已有的头文件引用。"
-  + "数组作为参数传入自定义函数后会变成指针，此时可用对应的 *_into 接口显式传入容量。";
+const used = new Set();
+function navigation(nodes) {
+  if (nodes.length > 5) console.warn("More than five categories: " + nodes.map(n=>n.title).join(", "));
+  return nodes.map(node => {
+    if (node.children) return { title: node.title, children: navigation(node.children) };
+    const ids = node.entries ?? [...documents.values()].filter(d => d.category === node.legacyCategory)
+      .sort((a,b) => Number(a.title===a.id)-Number(b.title===b.id)).map(d=>d.id);
+    if (!ids.length) throw Error("Empty section: " + node.title);
+    for (const id of ids) {
+      if (!documents.has(id)) throw Error("Unknown document: " + id);
+      used.add(id);
+    }
+    return { title: node.title, entries: ids };
+  });
+}
+const sections = navigation(layout.sections);
+for (const id of documents.keys()) if (!used.has(id)) throw Error("Document not in navigation: " + id);
+if (pending.length) console.warn("Documentation migration pending for " + pending.length + " public symbols outside migrated categories.");
+// Preserve v1 categories for readers shipped with older Companion versions.
+const reference = categories.map(title => ({title, entries: [...documents.values()]
+  .filter(d => d.category === title).map(({category, ...d})=>d)})).filter(c=>c.entries.length);
+const notes = layout.notes.join("\n\n");
 await fs.rm(output, { recursive: true, force: true });
 await fs.mkdir(output, { recursive: true });
 await fs.writeFile(path.join(output, "manifest.json"), JSON.stringify({
   schemaVersion: 2, ...config,
   components: [...ordered.values()].map(({ id, symbols, requires, code }) => ({ id, symbols, requires, code }))
 }, null, 2) + "\n");
-await fs.writeFile(path.join(output, "reference.json"), JSON.stringify({ schemaVersion: 1, version, notes, categories: reference }, null, 2) + "\n");
+await fs.writeFile(path.join(output, "reference.json"), JSON.stringify({ schemaVersion: 1, version, notes, categories: reference, sections }, null, 2) + "\n");
 await fs.copyFile(path.resolve(packageDir, "../../LICENSES/CC-BY-4.0.txt"), path.join(output, "CC-BY-4.0.txt"));
 await fs.copyFile(path.resolve(packageDir, "../../LICENSES/MIT-0.txt"), path.join(packageDir, "LICENSE"));
 console.log("Packed " + ordered.size + " C declarations into manifest v2.");
