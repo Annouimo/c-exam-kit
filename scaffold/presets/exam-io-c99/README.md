@@ -22,8 +22,9 @@ Follow the [Companion setup and usage guide](https://github.com/Annouimo/accodin
 
 ## IO
 
+Keep the generated scaffold include at the top of `main.c`. The following examples omit that workspace-specific line; paste a full program below it or adapt a call fragment inside your existing program.
+
 ~~~c
-#include "exam.h"
 int main(void) {
     int a,b;
     while (try_read_int(&a)) {
@@ -63,13 +64,12 @@ long long total = sum_ints(a,n);
 ## Record sorting and search, indirect sorting and integer answer search
 
 The record type is fixed to `Record` for simplicity. **Define a named struct
-tag**, not an anonymous `typedef struct { ... } Record;`. Include `exam.h`
-first, then define the fields and define a comparator with signature
+tag**, not an anonymous `typedef struct { ... } Record;`. Keep the generated
+scaffold include in the question template, then define the fields and a comparator with signature
 `int compare(const Record *, const Record *)` (static is allowed). The comparator returns negative,
 zero or positive for less-than, equal or greater-than ordering. Pass the typed comparator explicitly to the C99 heapsort:
 
 ~~~c
-#include "exam.h"
 
 struct Record {
     int score, penalty;
@@ -99,7 +99,7 @@ int main(void) {
 ordered according to `compare`. Both return the first matching 0-based index
 or `-1`. The comparator has signature `int compare(const Record *, const Record *)`
 and receives the array element first and the search key second. Use
-`record_cmp` for the same ordering as `sort_records`, or a separate comparator
+the same comparator for the same ordering as `sort_records`, or a separate comparator
 for a different search key. Initialize every field the comparator reads.
 Searching alone only requires the comparator passed at the call site.
 
@@ -200,6 +200,6 @@ Both enumerate ordered 0-based indices, with no allocation; `Combination` is uno
 
 ## Not included / next design discussion
 
-**Intentionally excluded for now**: multi-type generic `sort_by`, specialized repeated-query original-index indexes, stable generic record sorting, dynamic StringList/Vector/Matrix containers, ST/RMQ, DFS/grid paths, generalized matrices, heap/deque/map/set, and quadratic-equation special outputs. Multi-key record sorting is covered by `Record` / `record_cmp`.
+**Intentionally excluded for now**: multi-type generic `sort_by`, specialized repeated-query original-index indexes, stable generic record sorting, dynamic StringList/Vector/Matrix containers, ST/RMQ, DFS/grid paths, generalized matrices, heap/deque/map/set, and quadratic-equation special outputs. Multi-key record sorting is covered by `Record` and the explicit typed comparator.
 
 **Testing:** `python3 tests/test_lightweight_io.py` and `python3 tests/test_lightweight_algorithms.py` compile and run C99 with complete and dependency-selected headers. Windows/MinGW, macOS and Linux are CI targets. CI also checks the upstream standalone CLI's real initialization, dependency selection, assembly, compile and run behavior.

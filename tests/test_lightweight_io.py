@@ -86,6 +86,8 @@ class IOPresetTests(unittest.TestCase):
 
     def test_reference_navigation_and_examples(self):
         reference = json.loads((PRESET / "reference.json").read_text(encoding="utf-8"))
+        self.assertNotIn("exam.h", json.dumps(reference, ensure_ascii=False))
+        self.assertEqual(reference["notes"].count("## "), 5)
         section = reference["sections"][0]
         self.assertEqual(section["title"], "输入与输出")
         self.assertLessEqual(len(section["children"]), 5)

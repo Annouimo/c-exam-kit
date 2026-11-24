@@ -11,7 +11,6 @@
  * @members bisect_root
  * 在连续函数的异号区间 [left,right] 内二分求根，端点为根也可。tolerance 为正的误差容限，iterations 为最大迭代次数。
  * @example
- * #include "exam.h"
  * static double f(double x) { return x*x - 2; }
  * int main(void) {
  *     double x = bisect_root(f, 1, 2, 1e-8, 100);
