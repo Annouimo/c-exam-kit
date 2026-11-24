@@ -104,10 +104,10 @@ class IOPresetTests(unittest.TestCase):
                 with self.subTest(entry=id, example=example):
                     self.assertTrue(example)
                     self.assertNotIn("{{", example)
-                    selected = set(re.findall(r"[A-Za-z_]\\w*", example)) & COMPONENTS.keys()
+                    selected = set(re.findall(r"[A-Za-z_]\w*", example)) & COMPONENTS.keys()
                     (self.folder / "exam.h").write_text(header(selected), encoding="utf-8")
                     (self.folder / "example.c").write_text(
-                        '#include "exam.h"\\nint main(void) {\\n' + example + '\\nreturn 0;\\n}\\n',
+                        '#include "exam.h"\nint main(void) {\n' + example + '\nreturn 0;\n}\n',
                         encoding="utf-8")
                     cp = subprocess.run([CC, "-std=c99", "-Werror=implicit-function-declaration",
                                          str(self.folder / "example.c"), "-o",
