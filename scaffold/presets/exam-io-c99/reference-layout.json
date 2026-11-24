@@ -47,22 +47,225 @@
     },
     {
       "title": "数组与结构体",
-      "legacyCategory": "数组"
+      "children": [
+        {
+          "title": "构造与修改",
+          "entries": [
+            "fill_arrays",
+            "copy_arrays",
+            "values_arrays",
+            "range_arrays",
+            "reverse_arrays",
+            "swap_ints"
+          ]
+        },
+        {
+          "title": "排序与查找",
+          "entries": [
+            "sort_arrays",
+            "bubble_sort_ints",
+            "argsort_ints",
+            "find_arrays",
+            "linear_search_ints",
+            "binary_search_arrays",
+            "unique_arrays"
+          ]
+        },
+        {
+          "title": "统计与连续段",
+          "children": [
+            {
+              "title": "统计量",
+              "entries": [
+                "sum_mean_arrays",
+                "extrema_arrays",
+                "variance_arrays",
+                "median_arrays"
+              ]
+            },
+            {
+              "title": "计数",
+              "entries": [
+                "count_arrays",
+                "frequency_ints"
+              ]
+            },
+            {
+              "title": "连续段",
+              "entries": [
+                "longest_runs",
+                "max_subarray_sum_ints",
+                "max_forward_diff_ints"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "区间计算",
+          "entries": [
+            "prefix_sum",
+            "difference_array"
+          ]
+        },
+        {
+          "title": "结构体",
+          "entries": [
+            "record_type",
+            "sort_records",
+            "find_records_by"
+          ]
+        }
+      ]
     },
     {
       "title": "字符串",
-      "legacyCategory": "字符串"
+      "children": [
+        {
+          "title": "基本操作",
+          "entries": [
+            "str_reverse",
+            "str_case",
+            "str_trim",
+            "str_is_palindrome"
+          ]
+        },
+        {
+          "title": "统计与查找",
+          "entries": [
+            "str_count_char",
+            "str_count_substr",
+            "str_longest_char_run"
+          ]
+        },
+        {
+          "title": "编辑与修改",
+          "entries": [
+            "str_insert",
+            "str_erase",
+            "str_replace_char",
+            "str_remove_char",
+            "str_replace_all"
+          ]
+        },
+        {
+          "title": "排序与去重",
+          "entries": [
+            "str_sort_chars",
+            "str_unique_chars"
+          ]
+        },
+        {
+          "title": "拆分与拼接",
+          "entries": [
+            "str_split",
+            "str_split_whitespace",
+            "str_join"
+          ]
+        }
+      ]
     },
     {
       "title": "数学计算",
-      "legacyCategory": "数学、数位与二分"
+      "children": [
+        {
+          "title": "整数与数论",
+          "entries": [
+            "gcd_lcm",
+            "integer_power",
+            "factorial_basic",
+            "prime_test",
+            "prime_sieve"
+          ]
+        },
+        {
+          "title": "进制与数位",
+          "children": [
+            {
+              "title": "进制与数位",
+              "entries": [
+                "base_conversion",
+                "digit_stats",
+                "digit_array",
+                "int_reverse_digits"
+              ]
+            },
+            {
+              "title": "位运算",
+              "entries": [
+                "bit_edit",
+                "bit_stats",
+                "bit_rotate_left"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "实数计算",
+          "entries": [
+            "nearly_equal",
+            "round_digits",
+            "bisect_root"
+          ]
+        },
+        {
+          "title": "复数与多项式",
+          "entries": [
+            "complex_create",
+            "complex_arithmetic",
+            "complex_output",
+            "poly_eval_lls"
+          ]
+        },
+        {
+          "title": "大整数",
+          "children": [
+            {
+              "title": "构造与读写",
+              "entries": [
+                "bigint_create",
+                "bigint_io"
+              ]
+            },
+            {
+              "title": "运算",
+              "entries": [
+                "bigint_arithmetic",
+                "bigint_mul",
+                "bigint_div",
+                "bigint_compare",
+                "bigint_factorial"
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "title": "其他算法与工具",
-      "legacyCategory": "大整数、枚举及其他类型"
+      "children": [
+        {
+          "title": "排列与组合",
+          "entries": [
+            "combinations",
+            "permutations"
+          ]
+        },
+        {
+          "title": "通用二分",
+          "entries": [
+            "first_true_int"
+          ]
+        },
+        {
+          "title": "日期与时间",
+          "entries": [
+            "date_create",
+            "date_arithmetic",
+            "time_create",
+            "time_arithmetic"
+          ]
+        }
+      ]
     }
-  ],
-  "strictCategories": [
-    "输入和输出"
   ]
 }

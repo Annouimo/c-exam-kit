@@ -77,7 +77,7 @@ for (const file of files) {
     let required = [], publiclyAvailable = false;
     for (const block of entry.documentation) {
       const lines = block.split("\n");
-      let title, members, id = entry.name, keywords = [];
+      let title, members, id = entry.name, keywords = [], related = [];
       const details = [], examples = new Map(), variants = [], notes = new Map();
       let section = details;
       for (const line of lines) {
@@ -89,6 +89,7 @@ for (const file of files) {
           case "id": id = value; break;
           case "title": title = value; break;
           case "keywords": keywords = value.split(/\s+/).filter(Boolean); break;
+          case "related": related = value.split(/\s+/).filter(Boolean); break;
           case "members": members = value.split(/\s+/).filter(Boolean); break;
           case "variant": {
             const [key, ...names] = value.trim().split(/\s+/);
@@ -114,7 +115,7 @@ for (const file of files) {
           default: throw Error("Unknown annotation @" + tag + " in " + file);
         }
       }
-      if (title) referenceEntries.push({ id, category, title, keywords,
+      if (title) referenceEntries.push({ id, category, title, keywords, related,
         members: members ?? (variants.length ? [] : [entry.name]),
         description: details.join("\n").trim(),
         example: (examples.get("") ?? []).join("\n").trimEnd(),
@@ -142,7 +143,6 @@ function visit(id) {
 for (const id of definitions.keys()) visit(id);
 
 const layout = JSON.parse(await fs.readFile(path.join(source, "reference-layout.json"), "utf8"));
-const strict = new Set(layout.strictCategories);
 const covered = new Set();
 const documents = new Map();
 const categories = ["输入和输出", "数组", "字符串", "数学、数位与二分", "大整数、枚举及其他类型"];
@@ -163,37 +163,40 @@ function expand(template, variant, id) {
 }
 for (const entry of referenceEntries) {
   if (!entry.id || documents.has(entry.id)) throw Error("Duplicate or empty document id: " + entry.id);
-  if (strict.has(entry.category) && !entry.description) throw Error("Missing description: " + entry.id);
+  if (!entry.description) throw Error("Missing description: " + entry.id);
   const variants = entry.variants.map(v => ({
     key: v.key, label: typeNames[v.key] ?? v.key,
     symbols: v.names, signatures: v.names.map(name => signature(name, entry.id)),
+    advancedSignatures: v.names.filter(name=>name.endsWith("_into")).map(name=>definitions.get(name).signature),
     note: (entry.notes.get(v.key) ?? []).join("\n").trim(),
     example: expand((entry.examples.get(v.key) ?? []).join("\n").trimEnd() || entry.example, v, entry.id)
   }));
   const signatures = entry.members.map(name => signature(name, entry.id));
+  const advancedSignatures = entry.members.filter(name=>name.endsWith("_into")).map(name=>definitions.get(name).signature);
   const example = variants[0]?.example ?? entry.example;
-  if (strict.has(entry.category) && !example) console.warn("Missing example: " + entry.id);
+  if (!example || variants.some(v=>!v.example)) console.warn("Missing example: " + entry.id);
   documents.set(entry.id, { id: entry.id, category: entry.category, title: entry.title,
-    description: entry.description, keywords: entry.keywords,
+    description: entry.description, keywords: entry.keywords, related: entry.related,
+    advancedSignatures,
     signatures: [...signatures, ...variants.flatMap(v => v.signatures)], example,
     ...(variants.length ? { variants, commonSignatures: signatures } : {}) });
 }
-const pending = [];
 for (const declaration of definitions.values()) {
-  if (!declaration.symbols.length || covered.has(declaration.id)) continue;
-  if (strict.has(declaration.category)) throw Error("Undocumented public symbol: " + declaration.id);
-  pending.push(declaration.id);
-  documents.set(declaration.id, { id: declaration.id, category: declaration.category,
-    title: declaration.id, description: "", example: "", keywords: [], signatures: [declaration.signature] });
+  if (declaration.symbols.length && !covered.has(declaration.id))
+    throw Error("Undocumented public symbol: " + declaration.id);
+}
+for (const doc of documents.values()) {
+  for (const id of doc.related) {
+    if (id === doc.id || !documents.has(id)) throw Error("Invalid related entry " + id + " in " + doc.id);
+  }
 }
 const used = new Set();
 function navigation(nodes) {
   if (nodes.length > 5) console.warn("More than five categories: " + nodes.map(n=>n.title).join(", "));
   return nodes.map(node => {
     if (node.children) return { title: node.title, children: navigation(node.children) };
-    const ids = node.entries ?? [...documents.values()].filter(d => d.category === node.legacyCategory)
-      .sort((a,b) => Number(a.title===a.id)-Number(b.title===b.id)).map(d=>d.id);
-    if (!ids.length) throw Error("Empty section: " + node.title);
+    const ids = node.entries;
+    if (!Array.isArray(ids) || !ids.length) throw Error("Empty section: " + node.title);
     for (const id of ids) {
       if (!documents.has(id)) throw Error("Unknown document: " + id);
       used.add(id);
@@ -203,7 +206,7 @@ function navigation(nodes) {
 }
 const sections = navigation(layout.sections);
 for (const id of documents.keys()) if (!used.has(id)) throw Error("Document not in navigation: " + id);
-if (pending.length) console.warn("Documentation migration pending for " + pending.length + " public symbols outside migrated categories.");
+console.log("Reference: " + documents.size + " documented operations, " + covered.size + " public symbols.");
 // Preserve v1 categories for readers shipped with older Companion versions.
 const reference = categories.map(title => ({title, entries: [...documents.values()]
   .filter(d => d.category === title).map(({category, ...d})=>d)})).filter(c=>c.entries.length);

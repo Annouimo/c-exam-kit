@@ -97,8 +97,14 @@ class IOPresetTests(unittest.TestCase):
         self.assertEqual(variants[1]["example"], "long long x = read_ll();")
         self.assertIn("read_ints(array, count)", entries["read_arrays"]["variants"][0]["signatures"])
         self.assertIn("print_double(3.14159", entries["print_number"]["variants"][2]["example"])
-        for id in ids:
-            entry = entries[id]
+        def walk(nodes):
+            for node in nodes:
+                if "children" in node:
+                    yield from walk(node["children"])
+                else:
+                    yield from node["entries"]
+        self.assertEqual(set(walk(reference["sections"])), set(entries))
+        for id, entry in entries.items():
             self.assertTrue(entry["description"])
             for example in ([v["example"] for v in entry["variants"]] if entry.get("variants") else [entry["example"]]):
                 with self.subTest(entry=id, example=example):
@@ -106,9 +112,11 @@ class IOPresetTests(unittest.TestCase):
                     self.assertNotIn("{{", example)
                     selected = set(re.findall(r"[A-Za-z_]\w*", example)) & COMPONENTS.keys()
                     (self.folder / "exam.h").write_text(header(selected), encoding="utf-8")
-                    (self.folder / "example.c").write_text(
-                        '#include "exam.h"\nint main(void) {\n' + example + '\nreturn 0;\n}\n',
-                        encoding="utf-8")
+                    program = example if re.search(r"\bmain\s*\(", example) else (
+                        "int main(void) {\n" + example + "\nreturn 0;\n}\n")
+                    if '#include "exam.h"' not in program:
+                        program = '#include "exam.h"\n' + program
+                    (self.folder / "example.c").write_text(program, encoding="utf-8")
                     cp = subprocess.run([CC, "-std=c99", "-Werror=implicit-function-declaration",
                                          str(self.folder / "example.c"), "-o",
                                          str(self.folder / ("example.exe" if os.name=="nt" else "example")), "-lm"],

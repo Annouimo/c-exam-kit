@@ -6,7 +6,7 @@ The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-com
 
 中文函数速查由 `components/*.h` 的声明注释生成，随 npm preset 一起发布。
 文件顶部用 `@category` 标记分类。公开声明用 `@public`，函数、宏和类型的直接依赖统一写在相邻的 `@requires` 行上。
-用 `@title` 和可选的 `@id`、`@members` 创建条目；`@variant int fn1 fn2`（类型键 int / ll / double）声明类型变体，`@example` 后写多行示例，支持 {{type}}、{{fn1}} 等简单占位符，`@example double` 和 `@note double` 覆盖示例或追加说明。目录维护在 `reference-layout.json`。迁移期间输入输出分类严格检查覆盖率，其他分类仍保留旧条目。
+用 `@title` 和可选的 `@id`、`@members` 创建条目；`@variant int fn1 fn2`（类型键 int / ll / double）声明类型变体，`@example` 后写多行示例，支持 {{type}}、{{fn1}} 等简单占位符，`@example double` 和 `@note double` 覆盖示例或追加说明。目录维护在 `reference-layout.json`。所有公开符号必须归属于有用途说明的条目，目录必须覆盖所有条目；构建检查引用，CI 编译所有示例。`@related` 引用其他文档 ID；`*_into` 接口自动放入扩展接口区域。注释内示例不要使用嵌套块注释，使用 `//`。
 本地运行 `node npm/accoding-preset/scripts/build-preset.mjs` 可生成清单和 TUI 数据。
 
 Follow the [Companion setup and usage guide](https://github.com/Annouimo/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
