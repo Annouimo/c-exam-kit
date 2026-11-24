@@ -46,7 +46,6 @@ static inline void exam_sort_records(Record *records, int n, size_t element_size
  * @related record_type find_records_by
  * 定义命名结构体 struct Record，再传入比较函数。负数表示 a 排在 b 前面，正数表示排在后面，0 表示相等。原地排序，不保证稳定，最坏 O(n log n)。
  * @example
- * #include "exam.h"
  * struct Record { int id; };
  * static int cmp_id(const Record *a, const Record *b) {
  *     return (a->id > b->id) - (a->id < b->id);

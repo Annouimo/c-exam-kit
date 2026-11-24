@@ -13,7 +13,6 @@
  * @members first_true_int
  * 在 [begin,end) 内寻找第一个满足 predicate 的整数，条件必须从 false 单调变为 true。全不满足返回 end。
  * @example
- * #include "exam.h"
  * static bool check(int x) { return x >= 10; }
  * int main(void) {
  *     int ans = first_true_int(0, 100, check);
