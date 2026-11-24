@@ -5,7 +5,7 @@
 ## 使用
 
 - [下载 Companion 启动包](https://github.com/Annouimo/accoding-companion/releases/latest)。启动器负责安装或更新 Companion 和 preset。
-- [查看中文函数速查手册](scaffold/presets/exam-io-c99/manual.zh-CN.md)。手册随 npm 包分发，在 Companion 中按 `H` 可定位工作区内对应版本的手册。
+- 在 Companion 中按 `H` 打开工作区内对应版本的中文函数速查。
 - [查看 preset 的接口说明](scaffold/presets/exam-io-c99/README.md)和 [npm 包](https://www.npmjs.com/package/@annouimo/c-exam-kit-preset)。
 
 ## 开发

@@ -1,4 +1,13 @@
+/** @category 数学、数位与二分 */
 /* Bisection on [left,right]; continuous f with opposite endpoint signs. */
+/**
+ * @public
+ * @requires exam_algo_fail
+ * @category 数学、数位与二分
+ * @title 二分求根
+ * @members bisect_root
+ * `bisect_root(f, l, r, tol, max_iter)` 返回近似根，`f` 是 `double f(double x)`。取连续函数的异号区间，端点恰好为根也可以
+ */
 static inline double bisect_root(double (*f)(double), double left,
                                  double right, double tolerance, int iterations) {
     if(!f || !isfinite(left) || !isfinite(right) || left>=right ||

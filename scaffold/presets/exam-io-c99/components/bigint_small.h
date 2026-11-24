@@ -1,3 +1,8 @@
+/** @category 大整数、枚举及其他类型 */
+/**
+ * @public
+ * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize
+ */
 static inline void bigint_mul_small(BigInt *out, const BigInt *a, int factor) {
     if (!out || !a) exam_algo_fail("null BigInt multiplication operand");
     if (factor == 0 || !a->sign) { bigint_zero(out); return; }
@@ -18,6 +23,10 @@ static inline void bigint_mul_small(BigInt *out, const BigInt *a, int factor) {
     exam_bigint_normalize(&result);
     *out = result;
 }
+/**
+ * @public
+ * @requires BigInt exam_algo_fail bigint_zero exam_bigint_normalize
+ */
 static inline void bigint_div_small(BigInt *quotient, int *remainder,
                                     const BigInt *a, int divisor) {
     if (!quotient || !remainder || !a || divisor == 0)

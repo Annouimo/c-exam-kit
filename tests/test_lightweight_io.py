@@ -1,6 +1,7 @@
 """Compile-and-run tests for the standalone manifest-v1 lightweight IO preset."""
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -8,7 +9,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PRESET = ROOT / "scaffold" / "presets" / "exam-io-c99"
+PRESET = ROOT / "npm" / "accoding-preset" / "preset"
+subprocess.run(["node", str(PRESET.parent / "scripts" / "build-preset.mjs")], check=True)
 MANIFEST = json.loads((PRESET / "manifest.json").read_text(encoding="utf-8"))
 COMPONENTS = {item["id"]: item for item in MANIFEST["components"]}
 CC = os.environ.get("CC", "cc")
@@ -31,7 +33,7 @@ def header(selected=None):
         selected = result
     content = ["#ifndef EXAM_TEST_H", "#define EXAM_TEST_H"]
     content.extend("#include <{}>".format(h) for h in MANIFEST["systemHeaders"])
-    content.extend((PRESET / item["source"]).read_text(encoding="utf-8")
+    content.extend(item["code"]
                    for item in MANIFEST["components"] if item["id"] in selected)
     content.append("#endif")
     return "\n".join(content) + "\n"
@@ -44,7 +46,7 @@ class IOPresetTests(unittest.TestCase):
         self.folder = Path(self.tmp.name)
 
     def run_c(self, main, stdin="", selected=None, expect_failure=False):
-        (self.folder / "exam.h").write_text(header(selected), encoding="utf-8")
+        (self.folder / "exam.h").write_text(header(set(re.findall(r"[A-Za-z_]\w*", main)) & COMPONENTS.keys() if selected is not None else None), encoding="utf-8")
         (self.folder / "main.c").write_text(
             '#include "exam.h"\n' + main + "\n", encoding="utf-8")
         executable = self.folder / ("program.exe" if os.name == "nt" else "program")
@@ -62,24 +64,47 @@ class IOPresetTests(unittest.TestCase):
         return finished.stdout
 
     def test_manifest_and_dependencies(self):
-        self.assertEqual(MANIFEST["schemaVersion"], 1)
+        self.assertEqual(MANIFEST["schemaVersion"], 2)
         self.assertEqual(MANIFEST["language"], "c")
         self.assertEqual(MANIFEST["standard"], "c99")
         self.assertEqual(MANIFEST["headerFile"], "exam.h")
         symbols = set()
         for item in MANIFEST["components"]:
-            self.assertTrue((PRESET / item["source"]).is_file())
+            self.assertTrue(item["code"].strip())
+            self.assertNotIn("source", item)
             self.assertTrue(set(item["requires"]) <= set(COMPONENTS))
             for sym in item["symbols"]:
                 self.assertNotIn(sym, symbols)
                 symbols.add(sym)
-            self.assertNotIn("#include", (PRESET / item["source"]).read_text())
-        selected = header({"io_ints", "print_scalar"})
+            self.assertNotIn("#include", item["code"])
+        selected = header({"read_ints", "print_int"})
         self.assertIn("read_ints_into", selected)
         self.assertIn("try_read_int", selected)
         self.assertNotIn("read_doubles_into", selected)
         self.assertNotIn("try_read_double", selected)
         self.assertNotIn("read_word_into", selected)
+
+    def test_numeric_variants_are_independent(self):
+        for name, suffixes in [("read_int", ("ll", "double")),
+                               ("read_ll", ("int", "double")),
+                               ("read_double", ("int", "ll"))]:
+            with self.subTest(name=name):
+                generated = header({name})
+                self.assertIn("try_" + name + "(", generated)
+                for suffix in suffixes:
+                    self.assertNotIn("read_" + suffix + "(", generated)
+                self.assertEqual(self.run_c("int main(void) { return " + name + "() != 42; }",
+                                            "42", {name}), "")
+
+    def test_each_public_declaration_compiles_with_only_its_dependencies(self):
+        for name, component in COMPONENTS.items():
+            if not component["symbols"]:
+                continue
+            with self.subTest(symbol=name):
+                result = subprocess.run(
+                    [CC, "-std=c99", "-Werror=implicit-function-declaration", "-fsyntax-only", "-x", "c", "-"],
+                    input=header({name}), capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_eof_and_t_groups(self):
         main = r"""

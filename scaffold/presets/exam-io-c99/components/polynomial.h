@@ -1,5 +1,10 @@
+/** @category 数学、数位与二分 */
 /* Coefficients from constant term to highest degree.
  * All intermediate signed operations are checked. */
+/**
+ * @public
+ * @requires exam_algo_fail exam_mul_ll exam_add_checked_ll
+ */
 static inline long long poly_eval_lls(const long long *coefficients,
                                       int count, long long x) {
     if(count<=0)exam_algo_fail("poly_eval_lls needs at least one coefficient");

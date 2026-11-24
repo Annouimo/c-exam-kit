@@ -1,3 +1,4 @@
+/** @category 输入和输出 */
 /* Lightweight C99 IO: shared internal helpers. No allocation per token. */
 static inline void exam_io_fail(const char *message) {
     fprintf(stderr, "exam io: %s\n", message);
@@ -10,16 +11,19 @@ static inline int *exam_io_partial_line(void) {
     static int partial = 0;
     return &partial;
 }
+/** @requires exam_io_fail */
 static inline int exam_io_get(void) {
     int c = fgetc(stdin);
     if (c == EOF && ferror(stdin)) exam_io_fail("input stream error");
     return c;
 }
+/** @requires exam_io_fail */
 static inline void exam_io_unget(int c) {
     if (c != EOF && ungetc(c, stdin) == EOF)
         exam_io_fail("cannot restore input delimiter");
 }
 /* Return 0 only on clean EOF before a token. Keep the delimiter unread. */
+/** @requires exam_io_fail exam_io_get exam_io_space exam_io_unget exam_io_partial_line */
 static inline int exam_io_token(char *out, size_t capacity) {
     if (!capacity) exam_io_fail("zero-sized input buffer");
     int c;
@@ -38,6 +42,7 @@ static inline int exam_io_token(char *out, size_t capacity) {
     return 1;
 }
 /* Consume the current line, including LF, CRLF or CR. */
+/** @requires exam_io_get exam_io_unget exam_io_partial_line */
 static inline void exam_io_skip_current_line(void) {
     int c;
     do { c = exam_io_get(); } while (c != EOF && c != '\n' && c != '\r');
@@ -48,6 +53,7 @@ static inline void exam_io_skip_current_line(void) {
     *exam_io_partial_line() = 0;
 }
 /* Read exactly the remainder of the current line; retain real empty lines. */
+/** @requires exam_io_fail exam_io_get exam_io_unget exam_io_partial_line */
 static inline int exam_io_line_buffer(char *out, size_t capacity) {
     if (!capacity) exam_io_fail("zero-sized line buffer");
     int c = exam_io_get();
@@ -67,6 +73,7 @@ static inline int exam_io_line_buffer(char *out, size_t capacity) {
     *exam_io_partial_line() = 0;
     return 1;
 }
+/** @requires exam_io_fail */
 static inline void exam_io_write(const char *s) {
     if (fputs(s, stdout) == EOF) exam_io_fail("output stream error");
 }

@@ -1,4 +1,9 @@
+/** @category 数组 */
 /* Count nonnegative values in [0,max_value] using user-owned storage. */
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline void frequency_ints_into(const int *values, int n,
                                        int *frequency, int max_value,
                                        size_t capacity) {
@@ -14,6 +19,14 @@ static inline void frequency_ints_into(const int *values, int n,
         ++frequency[x];
     }
 }
+/**
+ * @public
+ * @requires frequency_ints_into
+ * @category 数组
+ * @title 频数、排序后的下标
+ * @members frequency_ints argsort_ints
+ * `frequency_ints(a, n, freq, max_value)` 统计 `0..max_value`，`freq` 至少有 `max_value + 1` 项。`argsort_ints(a, n, order)` 把升序所对应的原下标写入 `order`，相等项保持原顺序
+ */
 #define frequency_ints(values,n,frequency,max_value) \
     frequency_ints_into((values),(n),(frequency),(max_value), \
                          sizeof(frequency)/sizeof((frequency)[0]))

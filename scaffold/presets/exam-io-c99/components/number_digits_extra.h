@@ -1,3 +1,8 @@
+/** @category 数学、数位与二分 */
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline int int_to_digits_into(long long value,int base,
                                       int *out,size_t capacity) {
     if(base<2 || base>36)exam_algo_fail("base must be 2..36");
@@ -11,6 +16,10 @@ static inline int int_to_digits_into(long long value,int base,
     for(int i=0;i<n;++i)out[i]=reversed[n-1-i];
     return n;
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline long long digits_to_int(const int *digits,int n,int base) {
     if(base<2 || base>36 || n<=0)exam_algo_fail("invalid digit input");
     unsigned long long value=0;
@@ -23,6 +32,10 @@ static inline long long digits_to_int(const int *digits,int n,int base) {
     }
     return (long long)value;
 }
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline long long int_reverse_digits(long long n) {
     bool negative=n<0;
     unsigned long long x=negative?0ULL-(unsigned long long)n:(unsigned long long)n;
@@ -38,5 +51,13 @@ static inline long long int_reverse_digits(long long n) {
     if(negative && result==(unsigned long long)LLONG_MAX+1ULL)return LLONG_MIN;
     return negative?-(long long)result:(long long)result;
 }
+/**
+ * @public
+ * @requires int_to_digits_into
+ * @category 数学、数位与二分
+ * @title 拆分与合并数位
+ * @members int_to_digits digits_to_int int_reverse_digits
+ * `int_to_digits(x, base, a)` 按高位到低位写入并返回位数。`digits_to_int(a, n, base)` 按同一顺序合并。`int_reverse_digits(x)` 反转十进制数位
+ */
 #define int_to_digits(value,base,array) \
     int_to_digits_into((value),(base),(array),sizeof(array)/sizeof((array)[0]))

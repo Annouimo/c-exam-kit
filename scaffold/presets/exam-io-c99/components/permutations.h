@@ -1,11 +1,17 @@
-#ifndef EXAM_ENUM_CAP
-#define EXAM_ENUM_CAP 64
-#endif
+/** @category 大整数、枚举及其他类型 */
+/**
+ * @public
+ * @requires EXAM_ENUM_CAP
+ */
 typedef struct {
     int n, r, started, finished;
     int indices[EXAM_ENUM_CAP];
     int pool[EXAM_ENUM_CAP], cycles[EXAM_ENUM_CAP];
 } Permutation;
+/**
+ * @public
+ * @requires Permutation EXAM_ENUM_CAP exam_algo_fail
+ */
 static inline Permutation permutation_new(int n, int r) {
     if (n < 0 || n > EXAM_ENUM_CAP || r < 0 || r > n)
         exam_algo_fail("invalid permutation dimensions");
@@ -15,6 +21,10 @@ static inline Permutation permutation_new(int n, int r) {
     for (int i = 0; i < r; ++i) it.cycles[i] = n - i;
     return it;
 }
+/**
+ * @public
+ * @requires Permutation exam_algo_fail
+ */
 static inline bool permutation_next(Permutation *it) {
     if (!it) exam_algo_fail("null permutation iterator");
     if (it->finished) return false;

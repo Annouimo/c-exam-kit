@@ -1,3 +1,8 @@
+/** @category 数学、数位与二分 */
+/**
+ * @public
+ * @requires exam_algo_fail
+ */
 static inline void sieve_primes_into(unsigned char *flags, int limit,
                                      size_t capacity) {
     if (limit < 0 || (size_t)limit >= capacity || !flags)
@@ -11,5 +16,9 @@ static inline void sieve_primes_into(unsigned char *flags, int limit,
         }
     }
 }
+/**
+ * @public
+ * @requires sieve_primes_into
+ */
 #define sieve_primes(array, limit) \
     sieve_primes_into((array), (limit), sizeof(array) / sizeof((array)[0]))
