@@ -2,9 +2,6 @@
 /**
  * @public
  * @category 大整数、枚举及其他类型
- * @title 复数
- * @members Complex complex_add complex_sub complex_mul complex_div complex_abs complex_print
- * `Complex z = complex_new(real, imag)`。`complex_add(a, b)`、`complex_sub(a, b)`、`complex_mul(a, b)`、`complex_div(a, b)` 返回复数。`complex_abs(z)` 返回模，`complex_print(z, digits, end)` 输出
  */
 typedef struct {
     double re, im;
@@ -13,6 +10,15 @@ typedef struct {
  * @public
  * @requires Complex
  */
+/**
+ * @id complex_create
+ * @title 构造复数
+ * @members Complex complex_new
+ * @related complex_arithmetic complex_output
+ * Complex 是包含实部 re 和虚部 im 的值类型。complex_new(real, imaginary) 构造复数。
+ * @example
+ * Complex z = complex_new(3, 4);
+ */
 static inline Complex complex_new(double real, double imaginary) {
     Complex z = {real, imaginary};
     return z;
@@ -20,6 +26,16 @@ static inline Complex complex_new(double real, double imaginary) {
 /**
  * @public
  * @requires Complex complex_new
+ */
+/**
+ * @id complex_arithmetic
+ * @title 复数四则运算
+ * @members complex_add complex_sub complex_mul complex_div
+ * 接收两个 Complex 值，返回运算结果，不修改原值。除数不能为零。
+ * @example
+ * Complex a = complex_new(1, 2), b = complex_new(3, 4);
+ * Complex c = complex_add(a, b);
+ * Complex d = complex_mul(a, b);
  */
 static inline Complex complex_add(Complex a, Complex b) {
     return complex_new(a.re + b.re, a.im + b.im);
@@ -56,6 +72,16 @@ static inline Complex complex_div(Complex a, Complex b) {
 /**
  * @public
  * @requires Complex
+ */
+/**
+ * @id complex_output
+ * @title 复数模长与输出
+ * @members complex_abs complex_print
+ * complex_abs 返回模；complex_print 指定小数位数 digits 和结束字符串 end。
+ * @example
+ * Complex z = complex_new(3, 4);
+ * double m = complex_abs(z); // 5
+ * complex_print(z, 2, "\n");
  */
 static inline double complex_abs(Complex z) {
     return hypot(z.re, z.im);

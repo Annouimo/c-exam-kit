@@ -8,14 +8,29 @@ static inline int exam_cmp_unsigned_char(const void *x, const void *y) {
  * @public
  * @requires exam_cmp_unsigned_char
  * @category 字符串
- * @title 排序、去重
- * @members str_sort_chars str_unique_chars
- * `str_sort_chars(s)` 按字节值升序。`str_unique_chars(s)` 保留首次出现的顺序并返回新长度
+ */
+/**
+ * @id str_sort_chars
+ * @title 字符排序
+ * @members str_sort_chars
+ * 原地按无符号字节值升序排列。
+ * @example
+ * char s[] = "cab";
+ * str_sort_chars(s); // abc
  */
 static inline void str_sort_chars(char *s) {
     qsort(s, strlen(s), sizeof(char), exam_cmp_unsigned_char);
 }
 /** @public */
+/**
+ * @id str_unique_chars
+ * @title 字符去重
+ * @members str_unique_chars
+ * 原地去除重复字符，保留首次出现顺序，返回新长度。
+ * @example
+ * char s[] = "banana";
+ * int n = str_unique_chars(s); // ban
+ */
 static inline int str_unique_chars(char *s) {
     bool seen[256] = {false};
     size_t write = 0, length = strlen(s);

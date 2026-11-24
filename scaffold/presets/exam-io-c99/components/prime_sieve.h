@@ -20,5 +20,16 @@ static inline void sieve_primes_into(unsigned char *flags, int limit,
  * @public
  * @requires sieve_primes_into
  */
+/**
+ * @id prime_sieve
+ * @title 质数筛法
+ * @members sieve_primes sieve_primes_into
+ * @related prime_test
+ * 标记 0..limit 是否为质数，flags 为至少 limit+1 项 unsigned char 数组。
+ * @example
+ * unsigned char flags[101];
+ * sieve_primes(flags, 100);
+ * if (flags[97]) print_text("prime", "\n");
+ */
 #define sieve_primes(array, limit) \
     sieve_primes_into((array), (limit), sizeof(array) / sizeof((array)[0]))

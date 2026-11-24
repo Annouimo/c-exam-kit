@@ -36,6 +36,14 @@ static inline long long digits_to_int(const int *digits,int n,int base) {
  * @public
  * @requires exam_algo_fail
  */
+/**
+ * @id int_reverse_digits
+ * @title 反转十进制数位
+ * @members int_reverse_digits
+ * 反转十进制数位，返回整数，前导零自然消失。
+ * @example
+ * long long n = int_reverse_digits(120); // 21
+ */
 static inline long long int_reverse_digits(long long n) {
     bool negative=n<0;
     unsigned long long x=negative?0ULL-(unsigned long long)n:(unsigned long long)n;
@@ -55,9 +63,16 @@ static inline long long int_reverse_digits(long long n) {
  * @public
  * @requires int_to_digits_into
  * @category 数学、数位与二分
- * @title 拆分与合并数位
- * @members int_to_digits digits_to_int int_reverse_digits
- * `int_to_digits(x, base, a)` 按高位到低位写入并返回位数。`digits_to_int(a, n, base)` 按同一顺序合并。`int_reverse_digits(x)` 反转十进制数位
+ */
+/**
+ * @id digit_array
+ * @title 整数与数位数组转换
+ * @members int_to_digits digits_to_int int_to_digits_into
+ * int_to_digits 按最高位到最低位写入数位并返回个数；digits_to_int 按同一顺序合并，base 为 2..36。
+ * @example
+ * int a[64];
+ * int n = int_to_digits(123, 10, a);
+ * long long x = digits_to_int(a, n, 10); // 123
  */
 #define int_to_digits(value,base,array) \
     int_to_digits_into((value),(base),(array),sizeof(array)/sizeof((array)[0]))

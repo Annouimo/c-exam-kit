@@ -9,9 +9,16 @@ static inline int exam_digit_value(int c) {
  * @public
  * @requires exam_algo_fail exam_digit_value
  * @category 数学、数位与二分
- * @title 进制、数位
- * @members base_to_int int_to_base int_digit_count int_digit_sum int_digit_at
- * `base_to_int(s, base)` 返回 `long long`，`int_to_base(x, base, out)` 写入字符串，进制均为 `2..36`。`int_digit_count(x, base)` 和 `int_digit_sum(x, base)` 返回位数、数位和。`int_digit_at(x, base, pos)` 从最低位按 `0` 开始取位
+ */
+/**
+ * @id base_conversion
+ * @title 进制转换
+ * @members base_to_int int_to_base int_to_base_into
+ * base 为 2..36。base_to_int 将字符串解析为 long long；int_to_base 将整数写成指定进制的字符串，目标容量包含结束符。
+ * @example
+ * long long n = base_to_int("1010", 2); // 10
+ * char out[70];
+ * int_to_base(n, 16, out); // A
  */
 static inline long long base_to_int(const char *s, int base) {
     if (base < 2 || base > 36) exam_algo_fail("base must be 2..36");
@@ -59,6 +66,16 @@ static inline void int_to_base_into(long long value, int base,
 /**
  * @public
  * @requires exam_algo_fail
+ */
+/**
+ * @id digit_stats
+ * @title 数位统计与取位
+ * @members int_digit_count int_digit_sum int_digit_at
+ * 按指定进制统计数位数、数位和，或取指定数位。pos 从最低位开始编号 0。
+ * @example
+ * int n = int_digit_count(123, 10); // 3
+ * int s = int_digit_sum(123, 10); // 6
+ * int d = int_digit_at(123, 10, 0); // 3
  */
 static inline int int_digit_count(long long n, int base) {
     if (base < 2 || base > 36) exam_algo_fail("base must be 2..36");
