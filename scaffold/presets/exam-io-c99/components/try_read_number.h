@@ -17,7 +17,7 @@
  * @example
  * {{type}} x;
  * while ({{fn1}}(&x)) {
- *     /* 使用 x */
+ *     // 使用 x
  * }
  */
 static inline bool try_read_int(int *value) {
