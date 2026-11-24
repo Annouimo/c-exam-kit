@@ -36,7 +36,7 @@ static inline int exam_binary_search_records_by(const Record *records, int n,
  * @category 数组
  * @title 结构体查找
  * @members find_records_by binary_search_records_by
- * `find_records_by(a, n, &key, compare)` 按当前顺序扫描。`binary_search_records_by(a, n, &key, compare)` 要求数组已按 `compare` 排序。 两者返回首个匹配的下标，找不到返回 `-1`。比较函数接收数组元素和查找键，类型均为 `const Record *`。初始化比较函数会读到的所有字段。排序与查找规则相同时，可以直接传入 `record_cmp`。
+ * `find_records_by(a, n, &key, compare)` 按当前顺序扫描。`binary_search_records_by(a, n, &key, compare)` 要求数组已按 `compare` 排序。 两者返回首个匹配的下标，找不到返回 `-1`。比较函数接收数组元素和查找键，类型均为 `const Record *`。初始化比较函数会读到的所有字段。排序与查找规则相同时，传入同一个比较函数。
  * @example struct Record { int id; };
  * @example
  * @example int record_cmp(const Record *a, const Record *b) {
@@ -47,7 +47,7 @@ static inline int exam_binary_search_records_by(const Record *records, int n,
  * @example     Record a[] = {{30}, {10}, {30}};
  * @example     Record key = {30};
  * @example     print_int(find_records_by(a, 3, &key, record_cmp), "\n");  // 0
- * @example     sort_records(a, 3);
+ * @example     sort_records(a, 3, record_cmp);
  * @example     print_int(binary_search_records_by(a, 3, &key, record_cmp), "\n");  // 1
  * @example     return 0;
  * @example }

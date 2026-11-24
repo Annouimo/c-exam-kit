@@ -5,13 +5,20 @@
  * @public
  * @requires exam_io_fail exam_io_token
  * @category 输入和输出
+ */
+/**
+ * @id try_read_number
  * @title 尝试读取一个数
- * @members try_read_int try_read_ll try_read_double
- * `try_read_int(&x)`、`try_read_ll(&x)`、`try_read_double(&x)`。读到返回 `true`，正常 EOF 返回 `false`
- * @example int x;
- * @example while (try_read_int(&x)) {
- * @example     print_int(x, "\n");
- * @example }
+ * @keywords EOF 循环 输入
+ * @variant int try_read_int
+ * @variant ll try_read_ll
+ * @variant double try_read_double
+ * 读到数时返回 `true`，正常 EOF 返回 `false`。传入存放结果的变量地址。输入无效时结束程序。
+ * @example
+ * {{type}} x;
+ * while ({{fn1}}(&x)) {
+ *     /* 使用 x */
+ * }
  */
 static inline bool try_read_int(int *value) {
     if (!value) exam_io_fail("null int destination");

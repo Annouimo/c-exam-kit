@@ -3,9 +3,19 @@
  * @public
  * @requires exam_io_fail exam_io_write
  * @category 输入和输出
- * @title 输出值
- * @members print_int print_ll print_double print_char print_text
- * `print_int(x, end)`、`print_ll(x, end)`、`print_double(x, digits, end)`、`print_char(ch, end)`、`print_text(s, end)`
+ */
+/**
+ * @id print_number
+ * @title 输出一个数
+ * @keywords 输出 printf 精度
+ * @variant int print_int
+ * @variant ll print_ll
+ * @variant double print_double
+ * 输出数值后追加 end 字符串（例如换行或空格）。double 版本额外指定小数位数。
+ * @example
+ * {{fn1}}(42, "\n");
+ * @example double
+ * print_double(3.14159, 2, "\n");
  */
 static inline void print_int(int value, const char *end) {
     if (printf("%d", value) < 0) exam_io_fail("output stream error");
@@ -32,6 +42,14 @@ static inline void print_double(double value, int digits, const char *end) {
  * @public
  * @requires exam_io_fail exam_io_write
  */
+/**
+ * @id print_char
+ * @title 输出字符
+ * @keywords 输出 字符
+ * 输出一个字符，再追加 end 字符串。
+ * @example
+ * print_char('A', "\n");
+ */
 static inline void print_char(char value, const char *end) {
     if (putchar((unsigned char)value) == EOF) exam_io_fail("output stream error");
     exam_io_write(end);
@@ -39,6 +57,14 @@ static inline void print_char(char value, const char *end) {
 /**
  * @public
  * @requires exam_io_write
+ */
+/**
+ * @id print_text
+ * @title 输出字符串
+ * @keywords 输出 文本
+ * 输出以零结尾的字符串，再追加 end 字符串。
+ * @example
+ * print_text("hello", "\n");
  */
 static inline void print_text(const char *value, const char *end) {
     exam_io_write(value);

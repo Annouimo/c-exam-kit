@@ -4,12 +4,17 @@
  * @public
  * @requires try_read_int exam_io_fail
  * @category 输入和输出
+ */
+/**
+ * @id read_number
  * @title 读一个数
- * @members read_int read_ll read_double
- * 从标准输入读取一个数。提前遇到 EOF 或输入无效时报告错误并结束程序。
- * @example int n = read_int();
- * @example long long total = read_ll();
- * @example double x = read_double();
+ * @keywords 数字 整数 浮点 scanf
+ * @variant int read_int
+ * @variant ll read_ll
+ * @variant double read_double
+ * 从标准输入读取指定类型的一个数。提前遇到 EOF 或输入无效时结束程序。
+ * @example
+ * {{type}} x = {{fn1}}();
  */
 static inline int read_int(void) {
     int value;

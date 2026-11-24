@@ -1,32 +1,59 @@
 /** @category 数组 */
-/* The user defines:
- *   struct Record { ... };
- *   int record_cmp(const Record *a, const Record *b);
- * after including exam.h. sort_records uses qsort; stability is NOT guaranteed.
- */
 /** @requires Record */
-int record_cmp(const Record *a, const Record *b);
-
-/** @requires record_cmp Record */
-static inline int exam_record_qsort_cmp(const void *a, const void *b) {
-    return record_cmp((const Record *)a, (const Record *)b);
+static inline void exam_swap_records(Record *records, int a, int b, size_t size) {
+    unsigned char *bytes = (unsigned char *)records;
+    for (size_t i = 0; i < size; ++i) {
+        unsigned char t = bytes[(size_t)a * size + i];
+        bytes[(size_t)a * size + i] = bytes[(size_t)b * size + i];
+        bytes[(size_t)b * size + i] = t;
+    }
 }
-/** @requires exam_check_n exam_algo_fail exam_record_qsort_cmp */
-static inline void exam_sort_records(void *records, int n, size_t element_size) {
+/** @requires Record exam_swap_records */
+static inline void exam_sift_records(Record *records, int root, int n, size_t size,
+                                     int (*compare)(const Record *, const Record *)) {
+    unsigned char *bytes = (unsigned char *)records;
+    while (root < n / 2) {
+        int child = root * 2 + 1;
+        if (child + 1 < n &&
+            compare((const Record *)(bytes + (size_t)child * size),
+                    (const Record *)(bytes + (size_t)(child + 1) * size)) < 0)
+            ++child;
+        if (compare((const Record *)(bytes + (size_t)root * size),
+                    (const Record *)(bytes + (size_t)child * size)) >= 0) break;
+        exam_swap_records(records, root, child, size);
+        root = child;
+    }
+}
+/** @requires Record exam_check_n exam_algo_fail exam_sift_records exam_swap_records */
+static inline void exam_sort_records(Record *records, int n, size_t element_size,
+                                     int (*compare)(const Record *, const Record *)) {
     exam_check_n(n);
-    if (n > 1) {
-        if (!records || !element_size)
-            exam_algo_fail("invalid record array");
-        qsort(records, (size_t)n, element_size, exam_record_qsort_cmp);
+    if (n < 2) return;
+    if (!records || !element_size || !compare)
+        exam_algo_fail("invalid record array or comparator");
+    for (int i = n / 2; i > 0; --i)
+        exam_sift_records(records, i - 1, n, element_size, compare);
+    for (int i = n - 1; i > 0; --i) {
+        exam_swap_records(records, 0, i, element_size);
+        exam_sift_records(records, 0, i, element_size, compare);
     }
 }
 /**
  * @public
  * @requires exam_sort_records
- * @category 数组
  * @title 结构体排序
- * @members sort_records
- * 定义 `struct Record` 和 `int record_cmp(const Record *a, const Record *b)`，调用 `sort_records(a, n)` 原地排序。若 `a` 应排在 `b` 前面，比较函数返回负数
+ * 定义命名结构体 struct Record，再传入比较函数。负数表示 a 排在 b 前面，正数表示排在后面，0 表示相等。原地排序，不保证稳定，最坏 O(n log n)。
+ * @example
+ * #include "exam.h"
+ * struct Record { int id; };
+ * static int cmp_id(const Record *a, const Record *b) {
+ *     return (a->id > b->id) - (a->id < b->id);
+ * }
+ * int main(void) {
+ *     Record a[] = {{3}, {1}, {2}};
+ *     sort_records(a, 3, cmp_id);
+ *     return 0;
+ * }
  */
-#define sort_records(array, n) \
-    exam_sort_records((array), (n), sizeof((array)[0]))
+#define sort_records(array, n, compare) \
+    exam_sort_records((array), (n), sizeof((array)[0]), (compare))

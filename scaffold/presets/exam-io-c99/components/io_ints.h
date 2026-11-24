@@ -13,9 +13,19 @@ static inline void read_ints_into(int *array, int count, size_t capacity) {
  * @public
  * @requires read_ints_into
  * @category 输入和输出
+ */
+/**
+ * @id read_arrays
  * @title 读数组
- * @members read_ints read_lls read_doubles
- * `read_ints(a, n)`、`read_lls(a, n)`、`read_doubles(a, n)`
+ * @keywords 数组 输入 容量
+ * @variant int read_ints read_ints_into
+ * @variant ll read_lls read_lls_into
+ * @variant double read_doubles read_doubles_into
+ * 连续读取 n 个元素，写入已有数组。n 是读取数量，不是容量。普通接口要求实际数组；指针用显式容量的第二个接口，容量单位为元素。
+ * @example
+ * {{type}} a[100];
+ * int n = read_int();
+ * {{fn1}}(a, n);
  */
 #define read_ints(array, count) \
     read_ints_into((array), (count), sizeof(array) / sizeof((array)[0]))

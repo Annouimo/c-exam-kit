@@ -3,9 +3,21 @@
  * @public
  * @requires exam_io_fail exam_io_write print_int
  * @category 输入和输出
+ */
+/**
+ * @id print_arrays
  * @title 输出数组
- * @members print_ints print_lls print_doubles
- * `print_ints(a, n, sep, end)`、`print_lls(a, n, sep, end)`、`print_doubles(a, n, digits, sep, end)`。空格分隔、末尾换行可传 `" ", "\n"`
+ * @keywords 数组 输出 分隔符 精度
+ * @variant int print_ints
+ * @variant ll print_lls
+ * @variant double print_doubles
+ * 输出前 n 个元素，sep 只放在元素之间，end 在最后输出。double 版本额外指定小数位数。
+ * @example
+ * {{type}} a[] = {1, 2, 3};
+ * {{fn1}}(a, 3, " ", "\n");
+ * @example double
+ * double a[] = {1.5, 2.5};
+ * print_doubles(a, 2, 2, " ", "\n");
  */
 static inline void print_ints(const int *array, int count,
                                    const char *separator, const char *end) {
