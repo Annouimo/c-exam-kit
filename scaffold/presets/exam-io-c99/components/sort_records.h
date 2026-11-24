@@ -1,6 +1,6 @@
 /** @category 数组 */
 /** @requires Record */
-static inline void exam_swap_records(Record *records, int a, int b, size_t size) {
+static inline void exam_swap_records(Record *records, size_t a, size_t b, size_t size) {
     unsigned char *bytes = (unsigned char *)records;
     for (size_t i = 0; i < size; ++i) {
         unsigned char t = bytes[(size_t)a * size + i];
@@ -9,11 +9,11 @@ static inline void exam_swap_records(Record *records, int a, int b, size_t size)
     }
 }
 /** @requires Record exam_swap_records */
-static inline void exam_sift_records(Record *records, int root, int n, size_t size,
+static inline void exam_sift_records(Record *records, size_t root, size_t n, size_t size,
                                      int (*compare)(const Record *, const Record *)) {
     unsigned char *bytes = (unsigned char *)records;
     while (root < n / 2) {
-        int child = root * 2 + 1;
+        size_t child = root * 2 + 1;
         if (child + 1 < n &&
             compare((const Record *)(bytes + (size_t)child * size),
                     (const Record *)(bytes + (size_t)(child + 1) * size)) < 0)
@@ -31,9 +31,10 @@ static inline void exam_sort_records(Record *records, int n, size_t element_size
     if (n < 2) return;
     if (!records || !element_size || !compare)
         exam_algo_fail("invalid record array or comparator");
-    for (int i = n / 2; i > 0; --i)
-        exam_sift_records(records, i - 1, n, element_size, compare);
-    for (int i = n - 1; i > 0; --i) {
+    size_t count = (size_t)n;
+    for (size_t i = count / 2; i > 0; --i)
+        exam_sift_records(records, i - 1, count, element_size, compare);
+    for (size_t i = count - 1; i > 0; --i) {
         exam_swap_records(records, 0, i, element_size);
         exam_sift_records(records, 0, i, element_size, compare);
     }
