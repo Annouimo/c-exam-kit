@@ -84,6 +84,37 @@ class IOPresetTests(unittest.TestCase):
         self.assertNotIn("try_read_double", selected)
         self.assertNotIn("read_word_into", selected)
 
+    def test_reference_io_navigation_and_examples(self):
+        reference = json.loads((PRESET / "reference.json").read_text(encoding="utf-8"))
+        section = reference["sections"][0]
+        self.assertEqual(section["title"], "输入与输出")
+        self.assertLessEqual(len(section["children"]), 5)
+        entries = {e["id"]: e for cat in reference["categories"] for e in cat["entries"]}
+        ids = [i for child in section["children"] for i in child["entries"]]
+        self.assertEqual(len(ids), 13)
+        variants = entries["read_number"]["variants"]
+        self.assertEqual([v["key"] for v in variants], ["int", "ll", "double"])
+        self.assertEqual(variants[1]["example"], "long long x = read_ll();")
+        self.assertIn("read_ints(array, count)", entries["read_arrays"]["variants"][0]["signatures"])
+        self.assertIn("print_double(3.14159", entries["print_number"]["variants"][2]["example"])
+        for id in ids:
+            entry = entries[id]
+            self.assertTrue(entry["description"])
+            for example in ([v["example"] for v in entry["variants"]] if entry.get("variants") else [entry["example"]]):
+                with self.subTest(entry=id, example=example):
+                    self.assertTrue(example)
+                    self.assertNotIn("{{", example)
+                    selected = set(re.findall(r"[A-Za-z_]\\w*", example)) & COMPONENTS.keys()
+                    (self.folder / "exam.h").write_text(header(selected), encoding="utf-8")
+                    (self.folder / "example.c").write_text(
+                        '#include "exam.h"\\nint main(void) {\\n' + example + '\\nreturn 0;\\n}\\n',
+                        encoding="utf-8")
+                    cp = subprocess.run([CC, "-std=c99", "-Werror=implicit-function-declaration",
+                                         str(self.folder / "example.c"), "-o",
+                                         str(self.folder / ("example.exe" if os.name=="nt" else "example")), "-lm"],
+                                        capture_output=True, text=True)
+                    self.assertEqual(cp.returncode, 0, cp.stderr)
+
     def test_numeric_variants_are_independent(self):
         for name, suffixes in [("read_int", ("ll", "double")),
                                ("read_ll", ("int", "double")),
