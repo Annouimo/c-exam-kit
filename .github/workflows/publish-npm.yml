@@ -1,20 +1,8 @@
 name: Publish npm stable release
 
 on:
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: "DRY_RUN builds only; PUBLISH_LATEST publishes to npm latest"
-        type: choice
-        required: true
-        default: DRY_RUN
-        options:
-          - DRY_RUN
-          - PUBLISH_LATEST
-      expected_version:
-        description: "Must exactly match the checked-out stable package.json"
-        type: string
-        required: true
+  push:
+    branches: [publish/preset-0.6.10]
 
 permissions:
   contents: read
@@ -25,6 +13,7 @@ concurrency:
 
 jobs:
   pack:
+    if: ${{ github.event_name == 'push' && github.event.head_commit.message == 'Release npm latest 0.6.10' }}
     name: Build and validate C Exam Kit preset
     runs-on: ubuntu-latest
     permissions:
@@ -39,10 +28,10 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Verify the intended source branch and stable version
         env:
-          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          EXPECTED_VERSION: 0.6.10
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_REF" = "refs/heads/publish/preset-0.6.10"
           node - <<'NODE'
           const fs=require("node:fs");
           const file="npm/accoding-preset/package.json";
@@ -89,7 +78,7 @@ jobs:
   publish:
     name: Publish C Exam Kit preset to npm latest
     needs: pack
-    if: ${{ inputs.mode == 'PUBLISH_LATEST' }}
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
