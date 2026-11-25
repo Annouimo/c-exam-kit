@@ -6,7 +6,7 @@
 static inline bool try_read_bigint(BigInt *out) {
     if (!out) exam_algo_fail("null BigInt destination");
     char buffer[EXAM_BIGINT_CAP+2];
-    if (!exam_io_token(buffer, sizeof buffer)) return false;
+    if (!exam_io_token("try_read_bigint", buffer, sizeof buffer)) return false;
     bigint_from_str(out, buffer);
     return true;
 }

@@ -52,7 +52,7 @@ class Algorithms(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.folder = Path(self.temp.name)
 
-    def run_c(self, source, data="", selected=None, expect_error=False):
+    def run_c(self, source, data="", selected=None, expect_error=False, diagnostic=()):
         (self.folder/"exam.h").write_text(header(set(re.findall(r"[A-Za-z_]\w*", source)) & COMPONENTS.keys() if selected is not None else None), encoding="utf-8")
         (self.folder/"main.c").write_text('#include "exam.h"\n'+source,
                                           encoding="utf-8")
@@ -63,10 +63,15 @@ class Algorithms(unittest.TestCase):
                             capture_output=True, text=True)
         self.assertEqual(cp.returncode, 0, cp.stderr)
         run = subprocess.run([str(executable)], input=data, text=True,
-                             capture_output=True, timeout=20)
+                             capture_output=True, encoding="utf-8", timeout=20)
         if expect_error:
             self.assertNotEqual(run.returncode, 0, run.stdout)
             self.assertTrue(run.stderr)
+            for part in diagnostic:
+                self.assertIn(part, run.stderr)
+            if diagnostic:
+                self.assertEqual(len(run.stderr.splitlines()), 1)
+                self.assertEqual(run.stdout, "")
         else:
             self.assertEqual(run.returncode, 0, run.stderr)
         return run.stdout
@@ -227,6 +232,57 @@ int main(void) {
                 self.run_c(code, data, selected, expect_error=True)
 
 
+    def test_calendar_format_and_read(self):
+        source = r"""
+int main(void) {
+    Date d = date_read();
+    Time t = time_read();
+    date_print(d, "%d/%m/%Y", "\n");
+    date_print(d, "%Y年%-m月%-d日 %m%m %%", "\n");
+    time_print(t, "%-H:%M:%S", "\n");
+    date_print(date_new(1, 2, 3), "%Y/%-Y/%m/%d", "\n");
+    return 0;
+}"""
+        self.assertEqual(self.run_c(source, "2024 02 09 8 5 3\n", True),
+                         "09/02/2024\n2024年2月9日 0202 %\n8:05:03\n0001/1/02/03\n")
+
+    def test_calendar_and_common_component_diagnostics(self):
+        cases = [
+            ('date_add_days((Date){0, 0, 0}, 2);', '',
+             ('date_add_days', 'year=0, month=0, day=0', 'delta=2')),
+            ('date_add_days(date_new(9999, 12, 31), 1);', '',
+             ('date_add_days', 'outside', '9999-12-31', 'delta=1')),
+            ('date_new(1900, 2, 29);', '', ('date_new', 'day=29', '1900-02', '1..28')),
+            ('date_to_serial((Date){INT_MIN, 1, 1});', '', ('date_to_serial', 'year=', '1..9999')),
+            ('date_diff(date_new(2000, 1, 1), (Date){2000, 13, 1});', '',
+             ('date_diff', 'b.month=13', '1..12')),
+            ('date_print(date_new(2000, 1, 1), "%", "\\n");', '',
+             ('date_print', 'incomplete', 'byte 0')),
+            ('time_print(time_new(1, 2, 3), "%m", "\\n");', '',
+             ('time_print', 'unsupported', 'byte 0', '0x6D')),
+            ('time_next_minute((Time){24, 0, 0});', '', ('time_next_minute', 'hour=24')),
+            ('date_read();', '2000 2', ('date_read', 'EOF', 'day')),
+            ('time_read();', '8 0 x', ('time_read', 'second', 'token="x"')),
+            ('char s[4] = "ab"; str_insert(s, 3, "cd");', '',
+             ('str_insert', 'pos=3', '0..2')),
+            ('char s[4] = "ab"; str_insert(s, 1, "cd");', '',
+             ('str_insert', 'capacity=4', 'inserted=2')),
+            ('int a[2] = {0}; long long prefix[2]; build_prefix_ints(a, 2, prefix);', '',
+             ('build_prefix_ints', 'capacity=2', 'need 3 elements')),
+        ]
+        for statement, data, diagnostic in cases:
+            with self.subTest(statement=statement):
+                self.run_c("int main(void) { " + statement + " return 0; }",
+                           data, True, expect_error=True, diagnostic=diagnostic)
+
+    def test_record_search_null_comparator(self):
+        for operation in ("find_records_by", "binary_search_records_by"):
+            with self.subTest(operation=operation):
+                source = ("struct Record { int id; }; int main(void) { "
+                          f"Record key = {{1}}; return {operation}(&key, 1, &key, NULL); }}")
+                self.run_c(source, selected=True, expect_error=True,
+                           diagnostic=(operation, "compare must not be NULL", "n=1"))
+
     def test_dates_times_typed_arrays_and_digit_operations(self):
         source = r"""
 int main(void) {
@@ -258,8 +314,8 @@ int main(void) {
     if(len!=2 || digits[0]!=15 || digits[1]!=15 ||
        digits_to_int(digits,len,16)!=255 ||
        int_reverse_digits(-1200)!=-21) return 5;
-    date_print(next," ");
-    time_print(t2,"\n");
+    date_print(next,"%Y-%m-%d"," ");
+    time_print(t2,"%H:%M:%S","\n");
     return 0;
 }"""
         self.assertEqual(self.run_c(source, selected={

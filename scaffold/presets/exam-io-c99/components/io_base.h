@@ -23,16 +23,16 @@ static inline void exam_io_unget(int c) {
         exam_io_fail("cannot restore input delimiter");
 }
 /* Return 0 only on clean EOF before a token. Keep the delimiter unread. */
-/** @requires exam_io_fail exam_io_get exam_io_space exam_io_unget exam_io_partial_line */
-static inline int exam_io_token(char *out, size_t capacity) {
-    if (!capacity) exam_io_fail("zero-sized input buffer");
+/** @requires exam_failf exam_io_get exam_io_space exam_io_unget exam_io_partial_line */
+static inline int exam_io_token(const char *api, char *out, size_t capacity) {
+    if (!capacity) exam_failf("io", api, "buffer capacity is 0");
     int c;
     do { c = exam_io_get(); } while (exam_io_space(c));
     if (c == EOF) return 0;
     size_t len = 0;
     do {
-        if (len >= capacity - 1) exam_io_fail("input token too long");
-        if (c == 0) exam_io_fail("NUL byte in token");
+        if (len >= capacity - 1) exam_failf("io", api, "token exceeds capacity=%zu (maximum content: %zu bytes)", capacity, capacity - 1);
+        if (c == 0) exam_failf("io", api, "NUL byte in token at byte %zu", len);
         out[len++] = (char)c;
         c = exam_io_get();
     } while (c != EOF && !exam_io_space(c));
@@ -53,15 +53,15 @@ static inline void exam_io_skip_current_line(void) {
     *exam_io_partial_line() = 0;
 }
 /* Read exactly the remainder of the current line; retain real empty lines. */
-/** @requires exam_io_fail exam_io_get exam_io_unget exam_io_partial_line */
-static inline int exam_io_line_buffer(char *out, size_t capacity) {
-    if (!capacity) exam_io_fail("zero-sized line buffer");
+/** @requires exam_failf exam_io_get exam_io_unget exam_io_partial_line */
+static inline int exam_io_line_buffer(const char *api, char *out, size_t capacity) {
+    if (!capacity) exam_failf("io", api, "buffer capacity is 0");
     int c = exam_io_get();
     if (c == EOF) return 0;
     size_t len = 0;
     while (c != EOF && c != '\n' && c != '\r') {
-        if (len >= capacity - 1) exam_io_fail("input line too long");
-        if (c == 0) exam_io_fail("NUL byte in line");
+        if (len >= capacity - 1) exam_failf("io", api, "line exceeds capacity=%zu (maximum content: %zu bytes)", capacity, capacity - 1);
+        if (c == 0) exam_failf("io", api, "NUL byte in line at byte %zu", len);
         out[len++] = (char)c;
         c = exam_io_get();
     }

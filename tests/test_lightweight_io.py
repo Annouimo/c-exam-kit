@@ -45,7 +45,7 @@ class IOPresetTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.folder = Path(self.tmp.name)
 
-    def run_c(self, main, stdin="", selected=None, expect_failure=False):
+    def run_c(self, main, stdin="", selected=None, expect_failure=False, diagnostic=()):
         (self.folder / "exam.h").write_text(header(set(re.findall(r"[A-Za-z_]\w*", main)) & COMPONENTS.keys() if selected is not None else None), encoding="utf-8")
         (self.folder / "main.c").write_text(
             '#include "exam.h"\n' + main + "\n", encoding="utf-8")
@@ -59,6 +59,11 @@ class IOPresetTests(unittest.TestCase):
         if expect_failure:
             self.assertNotEqual(finished.returncode, 0)
             self.assertIn("exam io:", finished.stderr)
+            for part in diagnostic:
+                self.assertIn(part, finished.stderr)
+            if diagnostic:
+                self.assertEqual(len(finished.stderr.splitlines()), 1)
+                self.assertEqual(finished.stdout, "")
         else:
             self.assertEqual(finished.returncode, 0, finished.stderr)
         return finished.stdout
@@ -227,6 +232,20 @@ int main(void) {
                          "1,2,3|10,20|1.2,2.5\nX|1\n")
         self.run_c(main, "5", {"io_ints", "io_lls", "io_doubles",
                                "io_char", "print_arrays"}, expect_failure=True)
+
+    def test_input_diagnostics_include_operation_and_details(self):
+        cases = [
+            ('read_int();', '12x', ('read_int', 'invalid integer', 'token="12x"')),
+            ('read_int();', '12\x1bX', ('read_int', r'12\x1BX')),
+            ('read_int();', '9' * 40, ('read_int', 'out of range', '9' * 32 + '...')),
+            ('read_int();', '', ('read_int', 'unexpected EOF')),
+            ('char word[3]; read_word(word);', 'abc', ('read_word', 'capacity=3', '2 bytes')),
+            ('char line[3]; read_line(line);', 'abc\n', ('read_line', 'capacity=3', '2 bytes')),
+        ]
+        for statement, data, diagnostic in cases:
+            with self.subTest(statement=statement, data=data):
+                self.run_c("int main(void) { " + statement + " return 0; }",
+                           data, True, expect_failure=True, diagnostic=diagnostic)
 
     def test_eof_line_and_error_behavior(self):
         main = r"""
