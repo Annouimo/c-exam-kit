@@ -1,8 +1,16 @@
 /** @category 输入和输出 */
 
+/** @requires exam_try_read_int exam_failf */
+static inline int exam_read_int_for(const char *api, const char *field) {
+    int value;
+    if (!exam_try_read_int(api, field, &value))
+        exam_failf("io", api, "unexpected EOF while reading %s", field ? field : "int");
+    return value;
+}
+
 /**
  * @public
- * @requires try_read_int exam_io_fail
+ * @requires exam_read_int_for
  * @category 输入和输出
  */
 /**
@@ -17,27 +25,27 @@
  * {{type}} x = {{fn1}}();
  */
 static inline int read_int(void) {
-    int value;
-    if (!try_read_int(&value)) exam_io_fail("unexpected EOF while reading int");
-    return value;
+    return exam_read_int_for("read_int", NULL);
 }
 
 /**
  * @public
- * @requires try_read_ll exam_io_fail
+ * @requires exam_try_read_ll exam_failf
  */
 static inline long long read_ll(void) {
     long long value;
-    if (!try_read_ll(&value)) exam_io_fail("unexpected EOF while reading long long");
+    if (!exam_try_read_ll("read_ll", NULL, &value))
+        exam_failf("io", "read_ll", "unexpected EOF while reading long long");
     return value;
 }
 
 /**
  * @public
- * @requires try_read_double exam_io_fail
+ * @requires exam_try_read_double exam_failf
  */
 static inline double read_double(void) {
     double value;
-    if (!try_read_double(&value)) exam_io_fail("unexpected EOF while reading double");
+    if (!exam_try_read_double("read_double", NULL, &value))
+        exam_failf("io", "read_double", "unexpected EOF while reading double");
     return value;
 }

@@ -1,20 +1,24 @@
 /** @category 输入和输出 */
 /* For actual char arrays only: sizeof(pointer) is NOT the buffer capacity. */
-/**
- * @public
- * @requires exam_io_fail exam_io_token
- */
-static inline bool try_read_word_into(char *out, size_t capacity) {
-    if (!out) exam_io_fail("null word destination");
-    return exam_io_token(out, capacity) != 0;
+/** @requires exam_failf exam_io_token */
+static inline bool exam_read_word_into(const char *api, char *out, size_t capacity) {
+    if (!out) exam_failf("io", api, "destination must not be NULL");
+    return exam_io_token(api, out, capacity) != 0;
 }
 /**
  * @public
- * @requires try_read_word_into exam_io_fail
+ * @requires exam_read_word_into
+ */
+static inline bool try_read_word_into(char *out, size_t capacity) {
+    return exam_read_word_into("try_read_word", out, capacity);
+}
+/**
+ * @public
+ * @requires exam_read_word_into exam_failf
  */
 static inline void read_word_into(char *out, size_t capacity) {
-    if (!try_read_word_into(out, capacity))
-        exam_io_fail("unexpected EOF while reading word");
+    if (!exam_read_word_into("read_word", out, capacity))
+        exam_failf("io", "read_word", "unexpected EOF");
 }
 /**
  * @public

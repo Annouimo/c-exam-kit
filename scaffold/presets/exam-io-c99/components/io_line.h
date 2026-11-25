@@ -2,38 +2,46 @@
 /* read_line: read the next COMPLETE line after a partial token/char read.
  * read_rest: read from the current position (including leading spaces).
  * Real empty lines are preserved; EOF before any character returns false. */
+/** @requires exam_failf exam_io_line_buffer exam_io_partial_line exam_io_skip_current_line */
+static inline bool exam_read_line_into(const char *api, char *out, size_t capacity) {
+    if (!out) exam_failf("io", api, "destination must not be NULL");
+    if (*exam_io_partial_line()) exam_io_skip_current_line();
+    return exam_io_line_buffer(api, out, capacity) != 0;
+}
 /**
  * @public
- * @requires exam_io_fail exam_io_partial_line exam_io_skip_current_line exam_io_line_buffer
+ * @requires exam_read_line_into
  */
 static inline bool try_read_line_into(char *out, size_t capacity) {
-    if (!out) exam_io_fail("null line destination");
-    if (*exam_io_partial_line()) exam_io_skip_current_line();
-    return exam_io_line_buffer(out, capacity) != 0;
+    return exam_read_line_into("try_read_line", out, capacity);
 }
 /**
  * @public
- * @requires try_read_line_into exam_io_fail
+ * @requires exam_read_line_into exam_failf
  */
 static inline void read_line_into(char *out, size_t capacity) {
-    if (!try_read_line_into(out, capacity))
-        exam_io_fail("unexpected EOF while reading line");
+    if (!exam_read_line_into("read_line", out, capacity))
+        exam_failf("io", "read_line", "unexpected EOF");
+}
+/** @requires exam_failf exam_io_line_buffer */
+static inline bool exam_read_rest_into(const char *api, char *out, size_t capacity) {
+    if (!out) exam_failf("io", api, "destination must not be NULL");
+    return exam_io_line_buffer(api, out, capacity) != 0;
 }
 /**
  * @public
- * @requires exam_io_fail exam_io_line_buffer
+ * @requires exam_read_rest_into
  */
 static inline bool try_read_rest_into(char *out, size_t capacity) {
-    if (!out) exam_io_fail("null line destination");
-    return exam_io_line_buffer(out, capacity) != 0;
+    return exam_read_rest_into("try_read_rest", out, capacity);
 }
 /**
  * @public
- * @requires try_read_rest_into exam_io_fail
+ * @requires exam_read_rest_into exam_failf
  */
 static inline void read_rest_into(char *out, size_t capacity) {
-    if (!try_read_rest_into(out, capacity))
-        exam_io_fail("unexpected EOF while reading rest of line");
+    if (!exam_read_rest_into("read_rest", out, capacity))
+        exam_failf("io", "read_rest", "unexpected EOF");
 }
 /**
  * @public

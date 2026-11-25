@@ -1,12 +1,18 @@
 /** @category 数组 */
 /**
  * @public
- * @requires exam_algo_fail
+ * @requires exam_failf
  */
 static inline void build_prefix_ints_into(const int *a, int n, long long *prefix,
                                            size_t capacity) {
-    if (n < 0 || (size_t)n >= capacity || !prefix)
-        exam_algo_fail("prefix array capacity must be at least n+1");
+    if (n < 0)
+        exam_failf("algorithm", "build_prefix_ints", "n=%d out of range (expected n >= 0)", n);
+    if (!prefix || (n && !a))
+        exam_failf("algorithm", "build_prefix_ints", "%s must not be NULL",
+                   prefix ? "input" : "destination");
+    if ((unsigned long long)n >= capacity)
+        exam_failf("algorithm", "build_prefix_ints",
+                   "capacity=%zu too small (need %llu elements)", capacity, (unsigned long long)n + 1);
     prefix[0] = 0;
     for (int i = 0; i < n; ++i) prefix[i+1] = prefix[i] + (long long)a[i];
 }

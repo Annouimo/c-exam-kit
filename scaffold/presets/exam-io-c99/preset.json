@@ -5,6 +5,7 @@
   "headerFile": "exam.h",
   "systemHeaders": [
     "stdio.h",
+    "stdarg.h",
     "stdlib.h",
     "stddef.h",
     "stdbool.h",

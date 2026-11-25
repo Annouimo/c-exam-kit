@@ -16,9 +16,15 @@ Follow the [Companion setup and usage guide](https://github.com/Annouimo/accodin
 - **Plain C values and arrays**: array functions use an `int` length and 0-based indices. Composite values use small structs. Queries do not modify arguments; mutation is in place.
 - **Naming**: verb + plural type (`sort_ints`, `sum_lls`), `str_...` for byte strings, type + verb (`bigint_add`, `date_add_days`) for composites. No backwards-compatibility aliases.
 - **Output buffers**: lowercase function-like macros `read_ints(a,n)`, `fill_ints(a,n,v)`, `values_ints(a,...)`, `range_ints(a,first,stop,step)`, `read_line(s)`, `str_insert(s,pos,text)` infer capacity using `sizeof(array)`. **Pass real arrays declared in the current scope**, never pointers, malloc buffers, or function array parameters. Use the corresponding `*_into(..., capacity)` function for pointers.
-- **Error behavior**: invalid parameters, overflow and capacity failure terminate nonzero with a message on stderr. `try_read_*` returns false only at clean EOF.
 - **Ranges**: where used, ranges are half-open `[begin,end)`; binary insertion positions are `[0,n]`.
 - **No dynamic container API**: a few algorithms may allocate temporary working memory internally; users do not manage it.
+
+### Error behavior
+
+- Write one line to `stderr` for a fatal error and terminate with a nonzero status. Keep normal output on `stdout`. Preserve documented results such as clean EOF from `try_read_*`, a missing search result, and a false validity check.
+- Name the public operation and the failed argument or condition. Include the received value and the required range or capacity when they help the caller fix the error. Separate causes that require different fixes. Shared validation should carry the public operation and argument name when needed.
+- Use bounded, escaped previews for user-input text. Check values before arithmetic or dereferencing them when a public operation can validate the precondition itself. Document any caller preconditions that the interface cannot verify.
+- Test representative failures for the operation name, the actionable detail and a nonzero status. Keep the entire wording flexible.
 
 ## IO
 
@@ -40,6 +46,12 @@ Single values: `read_int`, `read_ll`, `read_double`, `read_char` (skips whitespa
 Text: `read_word`, `read_line`, `read_rest`, `skip_line`, with `try_read_*` variants. `read_line` reads the next **whole** line after a partial token read (discarding any remaining part of the token's line), but preserves real blank lines. `read_rest` always reads the remainder of the current line, including leading spaces. CRLF/LF/CR handled.
 
 Arrays: `read_ints`, `read_lls`, `read_doubles`; `print_ints(a,n,sep,end)`, `print_lls`, `print_doubles(a,n,digits,sep,end)`. Scalar outputs `print_int(x,end)`, `print_ll`, `print_double(x,digits,end)`, `print_char`, `print_text`. Standard `printf` is compatible. Do not interleave input helpers with `scanf` or `fgets` on stdin.
+
+日期和时刻分别用 `date_read()` 和 `time_read()` 按顺序读取三个空白分隔的整数。
+打印接口为 `date_print(d, format, end)` 和 `time_print(t, format, end)`。
+从旧版升级时，日期与时间的两参数调用分别加上 `"%Y-%m-%d"` 和 `"%H:%M:%S"`。
+日期支持 `%Y`、`%m`、`%d`，时刻支持 `%H`、`%M`、`%S`。
+用 `%-` 去掉该字段的补零，用 `%%` 输出百分号，其他文字原样输出。
 
 ## Arrays
 

@@ -1,9 +1,13 @@
 /** @category 数组 */
-/** @requires Record exam_check_n */
+/** @requires Record exam_failf */
 static inline int exam_find_records_by(const Record *records, int n,
     size_t element_size, const Record *key,
     int (*compare)(const Record *, const Record *)) {
-    exam_check_n(n);
+    if (n < 0)
+        exam_failf("algorithm", "find_records_by", "n=%d out of range (expected n >= 0)", n);
+    if (n && (!records || !key || !compare))
+        exam_failf("algorithm", "find_records_by", "%s must not be NULL (n=%d)",
+                   !records ? "records" : (!key ? "key" : "compare"), n);
     const unsigned char *bytes = (const unsigned char *)records;
     for (int i = 0; i < n; ++i) {
         const Record *record = (const Record *)(bytes + (size_t)i * element_size);
@@ -12,11 +16,15 @@ static inline int exam_find_records_by(const Record *records, int n,
     return -1;
 }
 
-/** @requires Record exam_check_n */
+/** @requires Record exam_failf */
 static inline int exam_binary_search_records_by(const Record *records, int n,
     size_t element_size, const Record *key,
     int (*compare)(const Record *, const Record *)) {
-    exam_check_n(n);
+    if (n < 0)
+        exam_failf("algorithm", "binary_search_records_by", "n=%d out of range (expected n >= 0)", n);
+    if (n && (!records || !key || !compare))
+        exam_failf("algorithm", "binary_search_records_by", "%s must not be NULL (n=%d)",
+                   !records ? "records" : (!key ? "key" : "compare"), n);
     const unsigned char *bytes = (const unsigned char *)records;
     int left = 0, right = n;
     while (left < right) {

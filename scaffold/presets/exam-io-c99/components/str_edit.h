@@ -1,14 +1,34 @@
 /** @category 字符串 */
 /**
  * @public
- * @requires exam_algo_fail
+ * @requires exam_failf
  */
 static inline void str_insert_into(char *s, int pos, const char *text,
                                    size_t capacity) {
+    if (!s || !text) {
+        exam_failf("algorithm", "str_insert", "%s must not be NULL", s ? "text" : "destination");
+        return;
+    }
+    if (!capacity) {
+        exam_failf("algorithm", "str_insert", "destination capacity is 0");
+        return;
+    }
+    if (!memchr(s, 0, capacity)) {
+        exam_failf("algorithm", "str_insert",
+                   "destination is not NUL-terminated within capacity=%zu", capacity);
+        return;
+    }
     size_t n = strlen(s), add = strlen(text);
-    if (pos < 0 || (size_t)pos > n || n >= capacity ||
-        add > capacity - n - 1)
-        exam_algo_fail("str_insert invalid index or capacity");
+    if (pos < 0 || (size_t)pos > n) {
+        exam_failf("algorithm", "str_insert", "pos=%d out of range (expected 0..%zu)", pos, n);
+        return;
+    }
+    if (add > capacity - n - 1) {
+        exam_failf("algorithm", "str_insert",
+                   "capacity=%zu too small (existing=%zu bytes, inserted=%zu bytes, plus NUL)",
+                   capacity, n, add);
+        return;
+    }
     /* text must not alias s when insertion shifts the buffer. */
     memmove(s + pos + add, s + pos, n - (size_t)pos + 1);
     memcpy(s + pos, text, add);
