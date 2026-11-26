@@ -278,11 +278,23 @@
         },
         {
           "title": "日期与时间",
-          "entries": [
-            "date_create",
-            "date_arithmetic",
-            "time_create",
-            "time_arithmetic"
+          "children": [
+            {
+              "title": "日期",
+              "entries": [
+                "date_io",
+                "date_create",
+                "date_arithmetic"
+              ]
+            },
+            {
+              "title": "时刻",
+              "entries": [
+                "time_io",
+                "time_create",
+                "time_arithmetic"
+              ]
+            }
           ]
         }
       ]

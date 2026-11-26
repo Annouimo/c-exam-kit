@@ -46,8 +46,8 @@ static inline void exam_date_check(const char *api, const char *argument, Date x
 /**
  * @id date_create
  * @title 日期构造与合法性
- * @members Date date_new date_valid date_is_leap date_days_in_month date_day_of_year date_read
- * Date 使用公历 1..9999 年。date_new 构造日期；date_valid 检查合法性；date_day_of_year 返回一年中的第几天。date_read 按年、月、日顺序读取三个空白分隔的整数。
+ * @members Date date_new date_valid date_is_leap date_days_in_month date_day_of_year
+ * Date 使用公历 1..9999 年。date_new 构造日期；date_valid 检查合法性；date_day_of_year 返回一年中的第几天。
  * @example
  * Date d = date_new(2024, 2, 29);
  * bool ok = date_valid(d);
@@ -67,6 +67,20 @@ static inline int exam_date_day_of_year(Date x) {
 /**
  * @public
  * @requires Date exam_date_check exam_read_int_for
+ */
+/**
+ * @id date_io
+ * @title 读取与格式化日期
+ * @keywords 日期 输入 输出 读 格式 补零
+ * @members date_read date_print
+ * @related date_create date_arithmetic
+ * date_read 按年、月、日顺序读取三个空白分隔的整数。日期非法、输入不完整或不是整数时，诊断会指出出错的字段。
+ * date_print 按格式输出并追加 end。%Y 补至四位，%m、%d 补至两位。字段可重排或省略；%- 去掉该字段的补零，%% 输出百分号，其余文字原样输出。格式记号非法时报告出错字节的位置。
+ * 从旧版升级时，两参数调用改为 date_print(d, "%Y-%m-%d", end)。
+ * @example
+ * Date d = date_read(); // 输入 2024 2 9
+ * date_print(d, "%Y-%m-%d", "\n"); // 2024-02-09
+ * date_print(d, "%Y年%-m月%-d日", "\n"); // 2024年2月9日
  */
 static inline Date date_read(void) {
     Date x;
@@ -128,14 +142,13 @@ static inline Date date_from_serial(int serial) {
 /**
  * @id date_arithmetic
  * @title 日期计算
- * @members date_add_days date_diff date_compare date_to_serial date_from_serial date_print
+ * @members date_add_days date_diff date_compare date_to_serial date_from_serial
  * date_add_days 返回偏移指定天数的日期；date_diff(a,b) 返回 b-a 的天数。compare 比较日期先后；serial 接口转换为连续日序号。
- * date_print 支持 %Y、%m、%d、%- 去补零和 %%。由旧版升级时，请给两参数调用加上 "%Y-%m-%d"。
  * @example
  * Date a = date_new(2024, 2, 28);
  * Date b = date_add_days(a, 2);
  * int n = date_diff(a, b); // 2
- * date_print(b, "%Y-%m-%d", "\n");
+ * // b 是 2024-03-01
  */
 static inline Date date_add_days(Date x, int delta) {
     if (!date_valid(x))

@@ -30,8 +30,8 @@ static inline int exam_time_seconds(Time t) {
 /**
  * @id time_create
  * @title 时刻构造与合法性
- * @members Time time_new time_valid time_to_seconds time_from_seconds time_read
- * Time 表示一天中的时刻。time_to_seconds 转为从午夜开始的秒数，time_from_seconds 转回 24 小时时刻。time_read 按时、分、秒顺序读取三个空白分隔的整数。
+ * @members Time time_new time_valid time_to_seconds time_from_seconds
+ * Time 表示一天中的时刻。time_to_seconds 转为从午夜开始的秒数，time_from_seconds 转回 24 小时时刻。
  * @example
  * Time t = time_new(12, 30, 0);
  * bool ok = time_valid(t);
@@ -45,6 +45,20 @@ static inline Time time_new(int h, int m, int s) {
 /**
  * @public
  * @requires Time exam_time_check exam_read_int_for
+ */
+/**
+ * @id time_io
+ * @title 读取与格式化时刻
+ * @keywords 时刻 输入 输出 读 格式 补零
+ * @members time_read time_print
+ * @related time_create time_arithmetic
+ * time_read 按时、分、秒顺序读取三个空白分隔的整数。输入不完整或不是整数时，诊断会指出出错的字段。时刻越界时显示传入的时、分、秒。
+ * time_print 按格式输出并追加 end。%H、%M、%S 默认各补至两位。字段可重排或省略；%- 去掉该字段的补零，%% 输出百分号，其余文字原样输出。格式记号非法时报告出错字节的位置。
+ * 从旧版升级时，两参数调用改为 time_print(t, "%H:%M:%S", end)。
+ * @example
+ * Time t = time_read(); // 输入 8 5 3
+ * time_print(t, "%H:%M:%S", "\n"); // 08:05:03
+ * time_print(t, "%-H:%M:%S", "\n"); // 8:05:03
  */
 static inline Time time_read(void) {
     Time t;
@@ -94,13 +108,12 @@ static inline Time exam_shift_time(const char *api, Time t, int delta) {
 /**
  * @id time_arithmetic
  * @title 时刻计算
- * @members time_add_seconds time_diff time_next_second time_next_minute time_print
+ * @members time_add_seconds time_diff time_next_second time_next_minute
  * 加秒、下一秒和下一分钟按 24 小时循环。time_diff(a,b) 返回 b-a 的秒数，不自动跨日。
- * time_print 支持 %H、%M、%S、%- 去补零和 %%。由旧版升级时，请给两参数调用加上 "%H:%M:%S"。
  * @example
  * Time a = time_new(23, 59, 59);
  * Time b = time_next_second(a);
- * time_print(b, "%H:%M:%S", "\n");
+ * // b 是 00:00:00
  */
 static inline Time time_add_seconds(Time t, int delta) {
     return exam_shift_time("time_add_seconds", t, delta);

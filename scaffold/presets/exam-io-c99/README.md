@@ -11,6 +11,12 @@ The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-com
 
 Follow the [Companion setup and usage guide](https://github.com/Annouimo/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
 
+### 公开接口变更
+
+1. 新增接口时，在声明注释中说明用途、调用前提和失败行为，并给出能直接使用的示例。改动签名或语义时，同步更新已有示例和说明。仅改诊断措辞时验证关键报错。新增约束或改变失败行为时补进对应条目。
+2. 从任务出发检查标题和目录。用户应能按要做的事找到接口。新增条目更新 `reference-layout.json`，复用条目时检查标题与示例是否覆盖新增用法。一个示例可以展示多个共同使用的接口。
+3. 打包前检查生成的 `reference.json`，确认导航、签名、说明和示例与代码一致。通过 CI 的结构校验和示例编译后，仍要确认示例实际调用了本次新增或改动的接口。影响已有题目代码的改动随发布提供迁移说明，便于升级前查看。
+
 ## Design conventions
 
 - **Plain C values and arrays**: array functions use an `int` length and 0-based indices. Composite values use small structs. Queries do not modify arguments; mutation is in place.

@@ -20,7 +20,7 @@ static inline int exam_read_int_for(const char *api, const char *field) {
  * @variant int read_int
  * @variant ll read_ll
  * @variant double read_double
- * 从标准输入读取指定类型的一个数。提前遇到 EOF 或输入无效时结束程序。
+ * 从标准输入读取指定类型的一个数。正常读取之外，提前遇到 EOF、格式无效和数值超出范围分别报错。格式或范围错误会显示一段输入。
  * @example
  * {{type}} x = {{fn1}}();
  */
