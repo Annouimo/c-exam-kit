@@ -72,7 +72,7 @@ static inline void skip_line(void) {
  * @title 读一整行
  * @keywords 字符串 整行 fgets EOF
  * @members read_line try_read_line read_line_into try_read_line_into
- * 读取下一整行，不保留行结束符。若前面已经读取本行的一部分 token，先丢弃本行剩余内容。保留真正的空行。try 版本正常 EOF 返回 false；指针使用 *_into。
+ * 读取下一整行，不保留行结束符。若前面已经读取本行的一部分 token，先丢弃本行剩余内容。保留真正的空行。try 版本正常 EOF 返回 false；指针使用 *_into。整行太长时，诊断会显示缓冲区容量和可容纳的内容字节数。
  * @example
  * char line[100];
  * read_line(line);
@@ -93,7 +93,7 @@ static inline void skip_line(void) {
  * @title 读本行剩余内容
  * @keywords 字符串 换行 空格 EOF
  * @members read_rest try_read_rest read_rest_into try_read_rest_into
- * 读取当前行剩余内容，保留前导空白，不保留行结束符。try 版本正常 EOF 返回 false；指针使用 *_into。
+ * 读取当前行剩余内容，保留前导空白，不保留行结束符。try 版本正常 EOF 返回 false；指针使用 *_into。剩余内容太长时，诊断会显示缓冲区容量和可容纳的内容字节数。
  * @example
  * int n = read_int();
  * char rest[100];

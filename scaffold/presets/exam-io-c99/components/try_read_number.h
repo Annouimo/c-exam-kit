@@ -57,7 +57,7 @@ static inline bool exam_try_read_int(const char *api, const char *field, int *va
  * @variant int try_read_int
  * @variant ll try_read_ll
  * @variant double try_read_double
- * 读到数时返回 `true`，正常 EOF 返回 `false`。传入存放结果的变量地址。输入无效时结束程序。
+ * 读到数时返回 `true`，正常 EOF 返回 `false`。传入存放结果的变量地址。格式无效或数值越界时结束程序，诊断会显示相应原因和一段输入。
  * @example
  * {{type}} x;
  * while ({{fn1}}(&x)) {

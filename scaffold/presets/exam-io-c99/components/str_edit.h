@@ -146,7 +146,7 @@ static inline int str_replace_all_into(char *s, const char *needle,
  * @id str_insert
  * @title 插入字符串
  * @members str_insert str_insert_into
- * 在下标 pos 前插入 text。pos 可以等于原长度；目标容量包含结束符，text 不能指向目标缓冲区。
+ * 在下标 pos 前插入 text。pos 的范围是 0 到原长度，目标容量包含结束符，text 不能指向目标缓冲区。下标越界会显示允许范围，容量不足会显示目标容量和要拼接的字节数。
  * @example
  * char s[20] = "ac";
  * str_insert(s, 1, "b"); // abc

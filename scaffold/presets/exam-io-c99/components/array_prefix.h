@@ -35,7 +35,7 @@ static inline long long prefix_range_sum(const long long *prefix, int begin,
  * @title 多次区间求和（前缀和）
  * @members build_prefix_ints prefix_range_sum build_prefix_ints_into
  * @related difference_array
- * 先建表，再查询 [l,r)（不含 r）。prefix 是至少 n+1 项的 long long 数组。建表 O(n)，单次查询 O(1)。
+ * 先建表，再查询 [l,r)（不含 r）。n 须非负，prefix 指向至少 n+1 项的 long long 数组。n 大于 0 时输入数组也不能为空指针。容量不足会显示实际容量和所需的元素数。建表 O(n)，单次查询 O(1)。
  * @example
  * int a[] = {2, 4, 6, 8};
  * long long prefix[5];

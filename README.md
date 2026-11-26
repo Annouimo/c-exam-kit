@@ -10,7 +10,7 @@
 
 ## 开发
 
-组件、依赖清单和手册均在 `scaffold/presets/exam-io-c99/`。改动公开接口时同步更新手册。打包脚本从 `npm/accoding-preset/package.json` 读取版本，并生成 npm 包中的组件清单和手册。
+组件、依赖清单和手册均在 `scaffold/presets/exam-io-c99/`。改动公开接口时按 [公开接口变更](scaffold/presets/exam-io-c99/README.md#公开接口变更) 核对速查、目录和发布说明。打包脚本从 `npm/accoding-preset/package.json` 读取版本，并生成 npm 包中的组件清单和手册。
 
 ```sh
 python3 tests/test_lightweight_io.py
