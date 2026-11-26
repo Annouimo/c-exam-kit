@@ -8,13 +8,13 @@ Copyright © 2026 Annouimo。下列授权适用于本项目由 Annouimo 提供�
 | C99 preset 的组件源码、装配输出和文档中可复制的代码示例 | [MIT-0](LICENSES/MIT-0.txt) |
 | README、手册正文与表格、组件说明文字 | [CC BY 4.0](LICENSES/CC-BY-4.0.txt) |
 
-未在上表单独列出的本项目工程代码默认采用 MIT。旧生成器和考试 PDF 的授权见 [v0.6.4 授权说明](https://github.com/Annouimo/c-exam-kit/blob/v0.6.4/LICENSING.md)。
+未在上表单独列出的本项目工程代码默认采用 MIT。旧生成器和考试 PDF 的授权见 [v0.6.4 授权说明](https://github.com/Routilet/c-exam-kit/blob/v0.6.4/LICENSING.md)。
 
 ## 对使用者的含义
 
 - **复制或修改生成代码、手册代码示例**：可以删除注释和工具署名，无需附带许可文本，也无需公开自己写的解题代码。此处的 MIT-0 授权只涉及本项目提供的内容，不涉及使用者另行加入的代码。
 - **修改、分发工程代码**：保留适用的版权和许可声明。MIT 不要求修改后开源。
-- **转载、修改手册正文或表格**：注明 Annouimo、项目来源和 CC BY 4.0 协议；修改后标明修改情况。示例署名：`改编自 Annouimo《C语言考试工具包》，https://github.com/Annouimo/c-exam-kit，CC BY 4.0；已修改。`
+- **转载、修改手册正文或表格**：注明 Annouimo、项目来源和 CC BY 4.0 协议；修改后标明修改情况。示例署名：`改编自 Annouimo《C语言考试工具包》，https://github.com/Routilet/c-exam-kit，CC BY 4.0；已修改。`
 
 上述三种协议均允许商业使用。软件和资料按现状提供，不保证适用于特定考试或保证答案正确。
 
