@@ -1,6 +1,6 @@
 # C99 lightweight scaffold preset
 
-The C99 preset for [Accoding Companion](https://github.com/Routilet/accoding-companion), built and distributed as `@annouimo/c-exam-kit-preset`.
+The C99 preset for [Accoding Companion](https://github.com/Routilet/accoding-companion), built and distributed as `@routilet/c-exam-kit-preset`.
 
 ## Workflow
 

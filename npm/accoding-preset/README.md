@@ -1,4 +1,4 @@
-# @annouimo/c-exam-kit-preset
+# @routilet/c-exam-kit-preset
 
 This npm package contains **C99 component data and a versioned Chinese reference manual** for [Accoding Companion](https://github.com/Routilet/accoding-companion).
 
