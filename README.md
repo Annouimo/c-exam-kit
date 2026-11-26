@@ -24,6 +24,10 @@ npm pack ./npm/accoding-preset
 
 新资源发行使用 `@routilet/c-exam-kit`；原 `@annouimo/c-exam-kit-preset` 历史版本继续保留。旧课程中已保存的资源快照不会随包名变化。请使用新版 Companion 启动器安装新资源，不需要修改已有题目源码。
 
+## npm 发行
+
+版本以 `npm/accoding-preset/package.json` 的 version 为准。提升正式版本号并合入 main 后，`publish-npm.yml` 自动查询 npm、执行 C99 测试、打包并发布 `@routilet/c-exam-kit` 的 latest。已发行版本跳过，禁止覆盖或倒退；registry 查询失败时停止。PR 不发布，手动 AUTO 可重试，DRY_RUN 仅构建。普通源码、手册修改无需立即发版。保持 npm Trusted Publishing（OIDC），不保存长期 token。
+
 ## 历史版本
 
 单文件生成器和考试 PDF 已归档在 [v0.6.4 Release](https://github.com/Routilet/c-exam-kit/releases/tag/v0.6.4)。该标签保留完整的构建环境所需源码和配置。
