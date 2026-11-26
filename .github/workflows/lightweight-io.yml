@@ -68,7 +68,7 @@ jobs:
           path: exam-kit
       - uses: actions/checkout@v4
         with:
-          repository: Annouimo/accoding-companion
+          repository: Routilet/accoding-companion
           ref: main
           path: accoding
       - uses: actions/setup-node@v4

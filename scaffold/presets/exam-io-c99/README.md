@@ -1,6 +1,6 @@
 # C99 lightweight scaffold preset
 
-The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-companion), built and distributed as `@annouimo/c-exam-kit-preset`.
+The C99 preset for [Accoding Companion](https://github.com/Routilet/accoding-companion), built and distributed as `@routilet/c-exam-kit-preset`.
 
 ## Workflow
 
@@ -9,7 +9,7 @@ The C99 preset for [Accoding Companion](https://github.com/Annouimo/accoding-com
 用 `@title` 和可选的 `@id`、`@members` 创建条目；`@variant int fn1 fn2`（类型键 int / ll / double）声明类型变体，`@example` 后写多行示例，支持 {{type}}、{{fn1}} 等简单占位符，`@example double` 和 `@note double` 覆盖示例或追加说明。目录维护在 `reference-layout.json`。所有公开符号必须归属于有用途说明的条目，目录必须覆盖所有条目；构建检查引用，CI 编译所有示例。`@related` 引用其他文档 ID；`*_into` 接口自动放入扩展接口区域。注释内示例不要使用嵌套块注释，使用 `//`。
 本地运行 `node npm/accoding-preset/scripts/build-preset.mjs` 可生成清单和 TUI 数据。
 
-Follow the [Companion setup and usage guide](https://github.com/Annouimo/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
+Follow the [Companion setup and usage guide](https://github.com/Routilet/accoding-companion#readme). Companion keeps a shared preset snapshot and complete IDE header in `.accoding/presets/` for each version used by a workspace. When testing or submitting, Companion assembles the referenced components and their dependencies. The compiler needs C99 and `-lm`.
 
 ### 公开接口变更
 

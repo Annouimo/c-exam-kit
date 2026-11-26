@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "DRY_RUN builds only; PUBLISH_LATEST publishes to npm latest"
+        description: "DRY_RUN builds only (also prepares a tarball for first manual publish); PUBLISH_LATEST publishes to npm latest"
         type: choice
         required: true
         default: DRY_RUN
@@ -47,8 +47,8 @@ jobs:
           const fs=require("node:fs");
           const file="npm/accoding-preset/package.json";
           const pkg=JSON.parse(fs.readFileSync(file,"utf8"));
-          if(pkg.name!=="@annouimo/c-exam-kit-preset") throw Error("Unexpected package name");
-          if(pkg.repository?.url!=="git+https://github.com/Annouimo/c-exam-kit.git") throw Error("GitHub provenance repository mismatch");
+          if(pkg.name!=="@routilet/c-exam-kit-preset") throw Error("Unexpected package name");
+          if(pkg.repository?.url!=="git+https://github.com/Routilet/c-exam-kit.git") throw Error("GitHub provenance repository mismatch");
           if(pkg.version!==process.env.EXPECTED_VERSION || !/^\d+\.\d+\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a stable version");
           delete pkg.private; // Only the runner copy becomes publishable.
           fs.writeFileSync(file,JSON.stringify(pkg,null,2)+"\n");

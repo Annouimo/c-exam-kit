@@ -1,5 +1,5 @@
 {
-  "name": "@annouimo/c-exam-kit-preset",
+  "name": "@routilet/c-exam-kit-preset",
   "version": "0.6.10",
   "description": "Versioned C99 data-only presets for Accoding Companion",
   "private": true,
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Annouimo/c-exam-kit.git",
+    "url": "git+https://github.com/Routilet/c-exam-kit.git",
     "directory": "npm/accoding-preset"
   },
   "keywords": [
@@ -24,5 +24,9 @@
     "c99",
     "scaffold",
     "data-only"
-  ]
+  ],
+  "homepage": "https://github.com/Routilet/c-exam-kit#readme",
+  "bugs": {
+    "url": "https://github.com/Routilet/c-exam-kit/issues"
+  }
 }
