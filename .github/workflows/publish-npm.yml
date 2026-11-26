@@ -28,7 +28,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: npm-latest-publish
+  group: npm-latest-publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
