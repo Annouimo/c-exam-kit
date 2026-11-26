@@ -8,7 +8,7 @@ Routilet 维护的 C99 函数组件、版本化资源包和中文速查手册，
 
 - [下载 Companion 启动包](https://github.com/Routilet/accoding-companion/releases/latest)。启动器负责安装或更新 Companion 和 preset。
 - 在 Companion 中按 `H` 打开工作区内对应版本的中文函数速查。
-- [查看 preset 的接口说明](scaffold/presets/exam-io-c99/README.md)和 [npm 包](https://www.npmjs.com/package/@routilet/c-exam-kit-preset)。
+- [查看 preset 的接口说明](scaffold/presets/exam-io-c99/README.md)和 [npm 包](https://www.npmjs.com/package/@routilet/c-exam-kit)。
 
 ## 开发
 
@@ -22,7 +22,7 @@ npm pack ./npm/accoding-preset
 
 ## npm 命名空间迁移
 
-新资源发行使用 `@routilet/c-exam-kit-preset`；原 `@annouimo/c-exam-kit-preset` 历史版本继续保留。旧课程中已保存的资源快照不会随包名变化。请使用新版 Companion 启动器安装新资源，不需要修改已有题目源码。
+新资源发行使用 `@routilet/c-exam-kit`；原 `@annouimo/c-exam-kit-preset` 历史版本继续保留。旧课程中已保存的资源快照不会随包名变化。请使用新版 Companion 启动器安装新资源，不需要修改已有题目源码。
 
 ## 历史版本
 
