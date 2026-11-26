@@ -1,6 +1,9 @@
 name: Publish npm stable release
 
 on:
+  push:
+    branches: [main]
+    paths: ['npm/accoding-preset/package.json', '.github/workflows/publish-npm.yml']
   workflow_dispatch:
     inputs:
       mode:
@@ -47,9 +50,9 @@ jobs:
           const fs=require("node:fs");
           const file="npm/accoding-preset/package.json";
           const pkg=JSON.parse(fs.readFileSync(file,"utf8"));
-          if(pkg.name!=="@routilet/c-exam-kit-preset") throw Error("Unexpected package name");
+          if(pkg.name!=="@routilet/c-exam-kit") throw Error("Unexpected package name");
           if(pkg.repository?.url!=="git+https://github.com/Routilet/c-exam-kit.git") throw Error("GitHub provenance repository mismatch");
-          if(pkg.version!==process.env.EXPECTED_VERSION || !/^\d+\.\d+\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a stable version");
+          if((process.env.GITHUB_EVENT_NAME==="workflow_dispatch" && pkg.version!==process.env.EXPECTED_VERSION) || !/^\d+\.\d+\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a stable version");
           delete pkg.private; // Only the runner copy becomes publishable.
           fs.writeFileSync(file,JSON.stringify(pkg,null,2)+"\n");
           NODE
@@ -89,7 +92,7 @@ jobs:
   publish:
     name: Publish C Exam Kit preset to npm latest
     needs: pack
-    if: ${{ inputs.mode == 'PUBLISH_LATEST' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.mode == 'PUBLISH_LATEST' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

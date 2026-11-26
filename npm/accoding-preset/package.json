@@ -1,5 +1,5 @@
 {
-  "name": "@routilet/c-exam-kit-preset",
+  "name": "@routilet/c-exam-kit",
   "version": "0.6.10",
   "description": "Versioned C99 data-only presets for Accoding Companion",
   "private": true,
