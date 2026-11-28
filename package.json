@@ -1,6 +1,6 @@
 {
   "name": "@routilet/c-exam-kit",
-  "version": "0.7.0-beta.1",
+  "version": "0.7.0",
   "description": "Offline C99 function resources for Routilet Companion",
   "private": true,
   "license": "(MIT-0 AND CC-BY-4.0)",

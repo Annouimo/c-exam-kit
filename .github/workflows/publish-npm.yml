@@ -146,6 +146,20 @@ jobs:
           VERSION: ${{ needs.plan.outputs.version }}
           TAG: ${{ needs.plan.outputs.tag }}
         run: node .github/scripts/npm-release-state.mjs @routilet/c-exam-kit "$VERSION" "$TAG"
+      - name: Confirm 0.7.0 consumers are available
+        if: steps.registry.outputs.publish == 'true' && needs.plan.outputs.version == '0.7.0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # One-time release ordering check; not a runtime compatibility rule.
+          for attempt in $(seq 1 90); do
+            r="$(npm view @routilet/routilet dist-tags.latest --registry=https://registry.npmjs.org --fetch-retries=0 --fetch-timeout=10000 2>/dev/null || true)"
+            c="$(npm view @routilet/companion dist-tags.latest --registry=https://registry.npmjs.org --fetch-retries=0 --fetch-timeout=10000 2>/dev/null || true)"
+            if [[ "$r" == 0.2.0 && "$c" == 0.2.0 ]]; then exit 0; fi
+            sleep 20
+          done
+          echo "::error::Routilet and Companion 0.2.0 must be available before Exam Kit 0.7.0."
+          exit 1
       - uses: actions/download-artifact@v4
         with:
           name: npm-release-tarball
