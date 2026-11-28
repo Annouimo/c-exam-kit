@@ -9,3 +9,6 @@ __pycache__/
 /dist/c_template_builder
 /dist/c_scaffold
 .DS_Store
+
+/dist/package/
+/*.tgz

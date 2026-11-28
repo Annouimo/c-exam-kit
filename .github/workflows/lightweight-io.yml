@@ -6,8 +6,11 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'scaffold/presets/exam-io-c99/**'
-      - 'npm/accoding-preset/**'
+      - 'src/**'
+      - 'scripts/**'
+      - 'kit.json'
+      - 'GUIDE.md'
+      - 'package.json'
       - 'tests/test_lightweight_io.py'
       - 'tests/test_lightweight_algorithms.py'
       - '.github/workflows/lightweight-io.yml'
@@ -78,11 +81,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node exam-kit/npm/accoding-preset/scripts/build-preset.mjs
+          node exam-kit/scripts/build.mjs
           cd accoding
           npm install --no-audit --no-fund
           node --import tsx src/standalone/cli.ts scaffold init ../sample-problem \
-            --preset ../exam-kit/npm/accoding-preset/preset/manifest.json
+            --preset ../exam-kit/dist/package/preset/manifest.json
           cat > ../sample-problem/main.c <<'EOF'
           #include "exam.h"
           int main(void) {
@@ -106,7 +109,7 @@ jobs:
 
           # Cover automatic symbol selection for the newly approved APIs.
           node --import tsx src/standalone/cli.ts scaffold init ../advanced-problem \
-            --preset ../exam-kit/npm/accoding-preset/preset/manifest.json
+            --preset ../exam-kit/dist/package/preset/manifest.json
           cat > ../advanced-problem/main.c <<'EOF'
           #include "exam.h"
           struct Record {

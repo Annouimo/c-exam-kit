@@ -1,7 +1,7 @@
 {
   "name": "@routilet/c-exam-kit",
-  "version": "0.6.10",
-  "description": "Versioned C99 data-only presets for Accoding Companion",
+  "version": "0.7.0-beta.1",
+  "description": "Offline C99 function resources for Routilet Companion",
   "private": true,
   "license": "(MIT-0 AND CC-BY-4.0)",
   "files": [
@@ -12,17 +12,17 @@
     "access": "public"
   },
   "scripts": {
-    "prepack": "node scripts/build-preset.mjs"
+    "build": "node scripts/build.mjs",
+    "test": "python3 tests/test_lightweight_io.py && python3 tests/test_lightweight_algorithms.py"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Routilet/c-exam-kit.git",
-    "directory": "npm/accoding-preset"
+    "url": "git+https://github.com/Routilet/c-exam-kit.git"
   },
   "keywords": [
-    "accoding",
     "c99",
-    "scaffold",
+    "routilet",
+    "exam-kit",
     "data-only"
   ],
   "homepage": "https://github.com/Routilet/c-exam-kit#readme",
