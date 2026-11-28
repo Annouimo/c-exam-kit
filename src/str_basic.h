@@ -1,12 +1,12 @@
-/** @category 字符串 */
+
 /* Byte-oriented strings: no UTF-8 character awareness. */
 /**
  * @public
- * @category 字符串
- */
-/**
  * @id str_reverse
  * @title 反转字符串
+ * @tags 字符串 修改
+ * @summary 原地反转字符串中的字节。
+ * @keywords 反转 倒序
  * @members str_reverse
  * 原地反转字符串中的字节，不包含结尾的空字符。
  * @example
@@ -19,10 +19,13 @@ static inline void str_reverse(char *s) {
         char c = s[i]; s[i] = s[n-1-i]; s[n-1-i] = c;
     }
 }
-/** @public */
 /**
+ * @public
  * @id str_case
  * @title 大小写转换
+ * @tags 字符串 转换 修改
+ * @summary 原地转换英文字母大小写。
+ * @keywords 大小写 uppercase lowercase
  * @members str_lower str_upper
  * 原地转换英文字母大小写。
  * @example
@@ -34,15 +37,20 @@ static inline void str_lower(char *s) {
     for (size_t i = 0; s[i]; ++i)
         s[i] = (char)tolower((unsigned char)s[i]);
 }
-/** @public */
+/**
+ * @public
+ */
 static inline void str_upper(char *s) {
     for (size_t i = 0; s[i]; ++i)
         s[i] = (char)toupper((unsigned char)s[i]);
 }
-/** @public */
 /**
+ * @public
  * @id str_trim
  * @title 去除首尾空白
+ * @tags 字符串 修改
+ * @summary 原地删除字符串首尾空白。
+ * @keywords 裁剪 去空格 trim
  * @members str_trim
  * 原地删除首尾空白，保留中间空白。
  * @example
@@ -58,11 +66,12 @@ static inline void str_trim(char *s) {
 }
 /**
  * @public
- * @category 字符串
- */
-/**
  * @id str_is_palindrome
  * @title 判断回文
+ * @tags 字符串 判断
+ * @summary 判断字符串是否按字节回文。
+ * @return 是回文返回 true，否则返回 false。
+ * @keywords 回文 对称
  * @members str_is_palindrome
  * 按字节比较首尾，返回是否为回文；区分大小写。
  * @example
@@ -76,10 +85,11 @@ static inline bool str_is_palindrome(const char *s) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id str_count_char
  * @title 统计字符
+ * @tags 字符串 统计
+ * @summary 统计指定字符出现的次数。
+ * @keywords 字符 计数 出现次数
  * @members str_count_char
  * 返回指定字符出现的次数。
  * @example
@@ -94,10 +104,11 @@ static inline int str_count_char(const char *s, char key) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id str_count_substr
  * @title 统计子串
+ * @tags 字符串 统计 查找
+ * @summary 统计指定子串出现的次数。
+ * @keywords 子串 匹配 重叠
  * @members str_count_substr
  * needle 是待匹配子串。overlapping 为 true 时允许重叠匹配，否则只统计不重叠匹配。
  * @example
@@ -120,10 +131,11 @@ static inline int str_count_substr(const char *s, const char *needle,
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id str_longest_char_run
  * @title 最长连续字符
+ * @tags 字符串 统计
+ * @summary 计算指定字符连续出现的最大长度。
+ * @keywords 连续相同 最长段
  * @members str_longest_char_run
  * 返回指定字符连续出现的最大长度。
  * @example

@@ -1,6 +1,8 @@
-/** @category 输入和输出 */
+
 /* For actual char arrays only: sizeof(pointer) is NOT the buffer capacity. */
-/** @requires exam_failf exam_io_token */
+/**
+ * @requires exam_failf exam_io_token
+ */
 static inline bool exam_read_word_into(const char *api, char *out, size_t capacity) {
     if (!out) exam_failf("io", api, "destination must not be NULL");
     return exam_io_token(api, out, capacity) != 0;
@@ -28,12 +30,12 @@ static inline void read_word_into(char *out, size_t capacity) {
 /**
  * @public
  * @requires read_word_into
- * @category 输入和输出
- */
-/**
  * @id read_word
  * @title 读一个单词
- * @keywords 字符串 单词 scanf EOF
+ * @tags 输入 字符串
+ * @summary 读取一个以空白分隔的单词。
+ * @pre 缓冲区容量包含结束符。
+ * @keywords 字符串 单词 scanf EOF 空格
  * @members read_word try_read_word read_word_into try_read_word_into
  * 跳过前导空白，读取一个不含空白的单词。try 版本在正常 EOF 返回 false。普通宏要求实际字符数组；指针使用 *_into，容量包含结束符。单词过长时，诊断会显示缓冲区容量和可容纳的内容字节数。
  * @example

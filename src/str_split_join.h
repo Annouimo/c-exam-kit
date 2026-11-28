@@ -1,4 +1,4 @@
-/** @category 字符串 */
+
 /* Text split/join for *actual* rectangular char arrays:
  *   char words[100][50];
  *   int n = str_split("a,,b,", ",", words); // four fields
@@ -7,7 +7,9 @@
  * out_rows is a char[rows][width] buffer laid out contiguously.
  * Delimiter split preserves empty fields and never changes input text.
  */
-/** @requires exam_algo_fail */
+/**
+ * @requires exam_algo_fail
+ */
 static inline void exam_split_store(char *out_rows, size_t capacity_rows,
                                     size_t width, int row,
                                     const char *begin, size_t length) {
@@ -95,11 +97,13 @@ static inline void str_join_into(const char *rows, int n,
 /**
  * @public
  * @requires str_split_into
- * @category 字符串
- */
-/**
  * @id str_split
  * @title 按分隔符拆分
+ * @tags 字符串 转换
+ * @summary 按非空字面分隔符拆分，保留空字段。
+ * @return 拆分所得字段数。
+ * @pre 二维字符数组容量足够且不与输入重叠。
+ * @keywords 拆分 分隔符 split 分割
  * @members str_split str_split_into
  * @related str_split_whitespace str_join
  * 按非空字面分隔符拆分，保留空字段，返回字段数。words 为二维 char 数组，行数和每行容量须足够，不能与输入重叠。
@@ -113,10 +117,12 @@ static inline void str_join_into(const char *rows, int n,
 /**
  * @public
  * @requires str_split_whitespace_into
- */
-/**
  * @id str_split_whitespace
  * @title 按空白拆分
+ * @tags 字符串 转换
+ * @summary 按连续空白拆分，忽略空字段。
+ * @return 字段数；全空白输入返回 0。
+ * @keywords 拆分 空格 split 分词
  * @members str_split_whitespace str_split_whitespace_into
  * @related str_split str_join
  * 按连续空白拆分，忽略空字段，返回字段数。全空白输入返回 0。words 为足够大的二维 char 数组。
@@ -131,10 +137,12 @@ static inline void str_join_into(const char *rows, int n,
 /**
  * @public
  * @requires str_join_into
- */
-/**
  * @id str_join
  * @title 拼接字符串
+ * @tags 字符串 转换
+ * @summary 用分隔符拼接二维字符数组中的前 n 行。
+ * @pre 输出到独立且足够大的字符数组。
+ * @keywords 拼接 join 合并 连接
  * @members str_join str_join_into
  * @related str_split str_split_whitespace
  * 拼接二维字符数组的前 n 行，分隔符只放在字段之间。输出到独立且足够大的 char 数组。n 为 0 时输出空串。

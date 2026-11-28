@@ -1,6 +1,6 @@
-/** @category 输入和输出 */
-
-/** @requires exam_try_read_int exam_failf */
+/**
+ * @requires exam_try_read_int exam_failf
+ */
 static inline int exam_read_int_for(const char *api, const char *field) {
     int value;
     if (!exam_try_read_int(api, field, &value))
@@ -11,12 +11,12 @@ static inline int exam_read_int_for(const char *api, const char *field) {
 /**
  * @public
  * @requires exam_read_int_for
- * @category 输入和输出
- */
-/**
  * @id read_number
  * @title 读一个数
- * @keywords 数字 整数 浮点 scanf
+ * @tags 输入 数值
+ * @summary 从标准输入读取一个指定类型的数。
+ * @error 提前 EOF、格式无效或数值越界时结束程序。
+ * @keywords 数字 整数 浮点 scanf 读数
  * @variant int read_int
  * @variant ll read_ll
  * @variant double read_double

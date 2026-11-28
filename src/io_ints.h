@@ -1,4 +1,3 @@
-/** @category 输入和输出 */
 /**
  * @public
  * @requires exam_io_fail read_int
@@ -12,12 +11,12 @@ static inline void read_ints_into(int *array, int count, size_t capacity) {
 /**
  * @public
  * @requires read_ints_into
- * @category 输入和输出
- */
-/**
  * @id read_arrays
  * @title 读数组
- * @keywords 数组 输入 容量
+ * @tags 输入 数组
+ * @summary 连续读取 n 个数值到已有数组。
+ * @pre 普通接口传入实际数组，指针使用显式容量接口。
+ * @keywords 数组 输入 容量 批量读入
  * @variant int read_ints read_ints_into
  * @variant ll read_lls read_lls_into
  * @variant double read_doubles read_doubles_into

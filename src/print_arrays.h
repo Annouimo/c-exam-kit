@@ -1,13 +1,11 @@
-/** @category 输入和输出 */
 /**
  * @public
  * @requires exam_io_fail exam_io_write print_int
- * @category 输入和输出
- */
-/**
  * @id print_arrays
  * @title 输出数组
- * @keywords 数组 输出 分隔符 精度
+ * @tags 输出 数组
+ * @summary 按指定分隔符和结束字符串输出数组。
+ * @keywords 数组 输出 分隔符 精度 打印 空格
  * @variant int print_ints
  * @variant ll print_lls
  * @variant double print_doubles

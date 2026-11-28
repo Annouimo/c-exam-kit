@@ -1,4 +1,4 @@
-/** @category 字符串 */
+
 static inline int exam_cmp_unsigned_char(const void *x, const void *y) {
     unsigned char a = *(const unsigned char *)x;
     unsigned char b = *(const unsigned char *)y;
@@ -7,11 +7,11 @@ static inline int exam_cmp_unsigned_char(const void *x, const void *y) {
 /**
  * @public
  * @requires exam_cmp_unsigned_char
- * @category 字符串
- */
-/**
  * @id str_sort_chars
  * @title 字符排序
+ * @tags 字符串 排序
+ * @summary 原地按无符号字节值升序排序。
+ * @keywords 字符 字典序
  * @members str_sort_chars
  * 原地按无符号字节值升序排列。
  * @example
@@ -21,10 +21,13 @@ static inline int exam_cmp_unsigned_char(const void *x, const void *y) {
 static inline void str_sort_chars(char *s) {
     qsort(s, strlen(s), sizeof(char), exam_cmp_unsigned_char);
 }
-/** @public */
 /**
+ * @public
  * @id str_unique_chars
  * @title 字符去重
+ * @tags 字符串 修改 统计
+ * @summary 原地去除重复字符并保留首次出现顺序。
+ * @keywords 去重 重复
  * @members str_unique_chars
  * 原地去除重复字符，保留首次出现顺序，返回新长度。
  * @example

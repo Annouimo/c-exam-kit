@@ -1,13 +1,11 @@
-/** @category 输入和输出 */
 /**
  * @public
  * @requires exam_io_fail exam_io_write
- * @category 输入和输出
- */
-/**
  * @id print_number
  * @title 输出一个数
- * @keywords 输出 printf 精度
+ * @tags 输出 数值
+ * @summary 输出一个数值及结束字符串。
+ * @keywords 输出 printf 精度 打印 小数
  * @variant int print_int
  * @variant ll print_ll
  * @variant double print_double
@@ -41,11 +39,11 @@ static inline void print_double(double value, int digits, const char *end) {
 /**
  * @public
  * @requires exam_io_fail exam_io_write
- */
-/**
  * @id print_char
  * @title 输出字符
- * @keywords 输出 字符
+ * @tags 输出 字符串
+ * @summary 输出一个字符及结束字符串。
+ * @keywords 输出 字符 打印
  * 输出一个字符，再追加 end 字符串。
  * @example
  * print_char('A', "\n");
@@ -57,11 +55,11 @@ static inline void print_char(char value, const char *end) {
 /**
  * @public
  * @requires exam_io_write
- */
-/**
  * @id print_text
  * @title 输出字符串
- * @keywords 输出 文本
+ * @tags 输出 字符串
+ * @summary 输出以零结尾的字符串及结束字符串。
+ * @keywords 输出 文本 打印
  * 输出以零结尾的字符串，再追加 end 字符串。
  * @example
  * print_text("hello", "\n");

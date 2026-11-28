@@ -1,6 +1,6 @@
-/** @category 输入和输出 */
-
-/** @requires exam_failf */
+/**
+ * @requires exam_failf
+ */
 static inline void exam_number_error(const char *api, const char *field,
                                      const char *reason, const char *token) {
     char preview[32 * 4 + 4];
@@ -30,7 +30,9 @@ static inline void exam_number_error(const char *api, const char *field,
 
 
 /* Strict int token: invalid input and overflow are errors, only EOF returns false. */
-/** @requires exam_failf exam_io_token exam_number_error */
+/**
+ * @requires exam_failf exam_io_token exam_number_error
+ */
 static inline bool exam_try_read_int(const char *api, const char *field, int *value) {
     if (!value) exam_failf("io", api, "destination must not be NULL");
     char token[128];
@@ -48,12 +50,13 @@ static inline bool exam_try_read_int(const char *api, const char *field, int *va
 /**
  * @public
  * @requires exam_try_read_int
- * @category 输入和输出
- */
-/**
  * @id try_read_number
  * @title 尝试读取一个数
- * @keywords EOF 循环 输入
+ * @tags 输入 数值
+ * @summary 读取一个数，允许正常 EOF。
+ * @return 读到数返回 true，正常 EOF 返回 false。
+ * @error 格式无效或数值越界时结束程序。
+ * @keywords EOF 循环 输入 一直输入 多组
  * @variant int try_read_int
  * @variant ll try_read_ll
  * @variant double try_read_double
@@ -68,7 +71,9 @@ static inline bool try_read_int(int *value) {
     return exam_try_read_int("try_read_int", NULL, value);
 }
 
-/** @requires exam_failf exam_io_token exam_number_error */
+/**
+ * @requires exam_failf exam_io_token exam_number_error
+ */
 static inline bool exam_try_read_ll(const char *api, const char *field, long long *value) {
     if (!value) exam_failf("io", api, "destination must not be NULL");
     char token[128];
@@ -90,7 +95,9 @@ static inline bool try_read_ll(long long *value) {
     return exam_try_read_ll("try_read_ll", NULL, value);
 }
 
-/** @requires exam_failf exam_io_token exam_number_error */
+/**
+ * @requires exam_failf exam_io_token exam_number_error
+ */
 static inline bool exam_try_read_double(const char *api, const char *field, double *value) {
     if (!value) exam_failf("io", api, "destination must not be NULL");
     char token[128];

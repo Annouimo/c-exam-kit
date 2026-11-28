@@ -1,4 +1,3 @@
-/** @category 字符串 */
 /**
  * @public
  * @requires exam_failf
@@ -36,10 +35,11 @@ static inline void str_insert_into(char *s, int pos, const char *text,
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id str_erase
  * @title 删除一段字符串
+ * @tags 字符串 修改
+ * @summary 从指定下标开始原地删除一段字符。
+ * @keywords 删除 截断
  * @members str_erase
  * 从下标 pos 起删除 count 个字符，范围必须在字符串内。原地修改。
  * @example
@@ -56,10 +56,11 @@ static inline void str_erase(char *s, int pos, int count) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id str_replace_char
  * @title 替换字符
+ * @tags 字符串 修改
+ * @summary 原地替换指定字符并返回替换次数。
+ * @keywords 替换 字符
  * @members str_replace_char
  * 原地将所有 old_char 替换为 new_char，返回替换次数。
  * @example
@@ -77,10 +78,11 @@ static inline int str_replace_char(char *s, char old_char, char new_char) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id str_remove_char
  * @title 删除指定字符
+ * @tags 字符串 修改
+ * @summary 原地删除指定字符并返回删除次数。
+ * @keywords 删除 去除 字符
  * @members str_remove_char
  * 原地删除所有 key 字符，返回删除次数。
  * @example
@@ -140,11 +142,12 @@ static inline int str_replace_all_into(char *s, const char *needle,
 /**
  * @public
  * @requires str_insert_into
- * @category 字符串
- */
-/**
  * @id str_insert
  * @title 插入字符串
+ * @tags 字符串 修改
+ * @summary 在指定下标前原地插入字符串。
+ * @pre 目标容量足够且包含结束符；text 不得指向目标缓冲区。
+ * @keywords 插入 拼接
  * @members str_insert str_insert_into
  * 在下标 pos 前插入 text。pos 的范围是 0 到原长度，目标容量包含结束符，text 不能指向目标缓冲区。下标越界会显示允许范围，容量不足会显示目标容量和要拼接的字节数。
  * @example
@@ -156,10 +159,12 @@ static inline int str_replace_all_into(char *s, const char *needle,
 /**
  * @public
  * @requires str_replace_all_into
- */
-/**
  * @id str_replace_all
  * @title 替换子串
+ * @tags 字符串 修改 查找
+ * @summary 原地替换所有非重叠子串匹配。
+ * @pre needle 非空；needle 和 replacement 不可指向目标缓冲区；容量足够。
+ * @keywords 替换 子串
  * @members str_replace_all str_replace_all_into
  * 原地替换所有非重叠匹配，返回替换次数。needle 非空；needle 和 replacement 不可指向目标缓冲区，目标容量须足够。
  * @example
