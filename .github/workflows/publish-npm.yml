@@ -1,25 +1,22 @@
-name: Publish npm stable release
+name: Publish npm release
 
 on:
   push:
     branches: [main]
-    paths: ['npm/accoding-preset/package.json', '.github/workflows/publish-npm.yml', '.github/scripts/npm-release-state*.mjs']
+    paths: ['package.json', '.github/workflows/publish-npm.yml', '.github/scripts/npm-release-state*.mjs']
   pull_request:
     branches: [main]
-    paths: ['npm/accoding-preset/package.json', '.github/workflows/publish-npm.yml', '.github/scripts/npm-release-state*.mjs']
+    paths: ['src/**', 'scripts/**', 'kit.json', 'GUIDE.md', 'package.json', 'tests/**', '.github/workflows/publish-npm.yml', '.github/scripts/npm-release-state*.mjs']
   workflow_dispatch:
     inputs:
       mode:
-        description: "AUTO publishes a new declared version; DRY_RUN builds only; PUBLISH_LATEST retries stable publication"
+        description: "AUTO publishes new declared version; DRY_RUN builds only; PUBLISH retries"
         type: choice
         required: true
         default: AUTO
-        options:
-          - AUTO
-          - DRY_RUN
-          - PUBLISH_LATEST
+        options: [AUTO, DRY_RUN, PUBLISH]
       expected_version:
-        description: "Optional assertion of the declared stable package.json version"
+        description: "Optional assertion of declared package.json version"
         type: string
         required: false
         default: ''
@@ -28,7 +25,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: npm-latest-publish-${{ github.ref }}
+  group: npm-publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -37,6 +34,7 @@ jobs:
     outputs:
       version: ${{ steps.select.outputs.version }}
       mode: ${{ steps.select.outputs.mode }}
+      tag: ${{ steps.select.outputs.tag }}
       publish: ${{ steps.registry.outputs.publish }}
     steps:
       - uses: actions/checkout@v4
@@ -53,80 +51,71 @@ jobs:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
           set -euo pipefail
-          version="$(node -p 'require("./npm/accoding-preset/package.json").version')"
-          [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          version="$(node -p 'require("./package.json").version')"
+          stable='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+          preview='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-(alpha|beta|rc|dev)\.(0|[1-9][0-9]*)$'
+          if [[ "$version" =~ $stable ]]; then tag=latest; elif [[ "$version" =~ $preview ]]; then tag=next; else exit 1; fi
           [[ -z "$EXPECTED_VERSION" || "$EXPECTED_VERSION" == "$version" ]]
           case "$GITHUB_EVENT_NAME" in
             pull_request) mode=DRY_RUN ;;
-            push) mode=PUBLISH_LATEST ;;
-            workflow_dispatch) mode="${REQUESTED_MODE:-AUTO}" ;;
+            push) mode=PUBLISH ;;
+            workflow_dispatch) mode="$REQUESTED_MODE" ;;
             *) exit 1 ;;
           esac
-          [[ "$mode" != AUTO ]] || mode=PUBLISH_LATEST
-          case "$mode" in DRY_RUN) ;; PUBLISH_LATEST) test "$GITHUB_REF" = refs/heads/main ;; *) exit 1 ;; esac
-          printf 'version=%s\nmode=%s\n' "$version" "$mode" >> "$GITHUB_OUTPUT"
+          [[ "$mode" != AUTO ]] || mode=PUBLISH
+          case "$mode" in DRY_RUN) ;; PUBLISH) test "$GITHUB_REF" = refs/heads/main ;; *) exit 1 ;; esac
+          printf 'version=%s\nmode=%s\ntag=%s\n' "$version" "$mode" "$tag" >> "$GITHUB_OUTPUT"
       - name: Check registry without publish permissions
         id: registry
         env:
           MODE: ${{ steps.select.outputs.mode }}
           VERSION: ${{ steps.select.outputs.version }}
+          TAG: ${{ steps.select.outputs.tag }}
         run: |
-          if [[ "$MODE" == DRY_RUN ]]; then echo publish=false >> "$GITHUB_OUTPUT"; else node .github/scripts/npm-release-state.mjs @routilet/c-exam-kit "$VERSION"; fi
+          if [[ "$MODE" == DRY_RUN ]]; then echo publish=false >> "$GITHUB_OUTPUT"; else node .github/scripts/npm-release-state.mjs @routilet/c-exam-kit "$VERSION" "$TAG"; fi
+
   pack:
     needs: plan
     if: needs.plan.outputs.mode == 'DRY_RUN' || needs.plan.outputs.publish == 'true'
-    name: Build and validate C Exam Kit preset
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          registry-url: "https://registry.npmjs.org"
-      - name: Verify the intended source branch and stable version
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - name: Verify source and test C99
         env:
           EXPECTED_VERSION: ${{ needs.plan.outputs.version }}
         run: |
           set -euo pipefail
           node - <<'NODE'
-          const fs=require("node:fs");
-          const file="npm/accoding-preset/package.json";
-          const pkg=JSON.parse(fs.readFileSync(file,"utf8"));
-          if(pkg.name!=="@routilet/c-exam-kit") throw Error("Unexpected package name");
-          if(pkg.repository?.url!=="git+https://github.com/Routilet/c-exam-kit.git") throw Error("GitHub provenance repository mismatch");
-          if(pkg.version!==process.env.EXPECTED_VERSION || !/^\d+\.\d+\.\d+$/.test(pkg.version)) throw Error("Expected version mismatch or not a stable version");
-          delete pkg.private; // Only the runner copy becomes publishable.
-          fs.writeFileSync(file,JSON.stringify(pkg,null,2)+"\n");
+          const pkg=require("./package.json");
+          if(pkg.name!=="@routilet/c-exam-kit" || pkg.repository?.url!=="git+https://github.com/Routilet/c-exam-kit.git" || pkg.version!==process.env.EXPECTED_VERSION || !pkg.private) throw Error("Invalid source package");
           NODE
-      - name: Test C99 preset
-        run: |
           python3 tests/test_lightweight_io.py
           python3 tests/test_lightweight_algorithms.py
-      - name: Validate and pack the data-only C99 preset
-        working-directory: npm/accoding-preset
+      - name: Validate and pack data-only resources
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/npm-dist"
-          npm pack --pack-destination "$RUNNER_TEMP/npm-dist"
-          test -f preset/manifest.json
-          test -f preset/reference.json
+          node scripts/build.mjs
+          npm pack ./dist/package --pack-destination "$RUNNER_TEMP/npm-dist"
+          cd dist/package
+          test -f LICENSE
+          test -f preset/CC-BY-4.0.txt
           test ! -e preset/components
           test ! -e preset/manual.zh-CN.md
           node - <<'NODE'
-          const fs=require("node:fs");
-          const reference=JSON.parse(fs.readFileSync("preset/reference.json","utf8"));
-          if(reference.schemaVersion!==1 || reference.version!==require("./package.json").version ||
-            !Array.isArray(reference.categories) || reference.categories.length<1) throw Error("Invalid function reference");
-          const manifest=JSON.parse(fs.readFileSync("preset/manifest.json","utf8"));
-          if(manifest.schemaVersion!==2 || manifest.languageId!=="c99" || manifest.language!=="c" || manifest.standard!=="c99" || !Array.isArray(manifest.components) || manifest.components.length<1) throw Error("Invalid C99 data package");
-          for(const c of manifest.components) {
-            if(typeof c.code!=="string" || !c.code.trim() || "source" in c) throw Error("Invalid inline component "+c.id);
-          }
-          console.log("Validated",manifest.components.length,"C99 components");
+          const fs=require("node:fs"),pkg=require("./package.json");
+          const r=JSON.parse(fs.readFileSync("preset/reference.json","utf8"));
+          if(r.schemaVersion!==2 || r.version!==pkg.version || !r.entries?.length || !r.tags?.length || "categories" in r || "sections" in r) throw Error("Invalid flat reference");
+          const m=JSON.parse(fs.readFileSync("preset/manifest.json","utf8"));
+          if(m.schemaVersion!==2 || m.languageId!=="c99" || m.language!=="c" || m.standard!=="c99" || !m.components?.length) throw Error("Invalid manifest");
+          for(const c of m.components) if(typeof c.code!=="string" || !c.code.trim() || "source" in c) throw Error("Invalid component "+c.id);
+          console.log("Validated",m.components.length,"components",r.entries.length,"manual entries");
           NODE
       - uses: actions/upload-artifact@v4
         with:
@@ -136,7 +125,6 @@ jobs:
           retention-days: 7
 
   publish:
-    name: Publish C Exam Kit preset to npm latest
     needs: [plan, pack]
     if: github.ref == 'refs/heads/main' && needs.plan.outputs.publish == 'true'
     runs-on: ubuntu-latest
@@ -149,24 +137,25 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          registry-url: "https://registry.npmjs.org"
-      - name: Ensure OIDC compatible npm CLI
-        run: npm install --global "npm@^11.21.0"
-      - name: Recheck registry before publishing
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global "npm@^11.21.0"
+      - name: Recheck registry
         id: registry
         env:
           VERSION: ${{ needs.plan.outputs.version }}
-        run: node .github/scripts/npm-release-state.mjs @routilet/c-exam-kit "$VERSION"
+          TAG: ${{ needs.plan.outputs.tag }}
+        run: node .github/scripts/npm-release-state.mjs @routilet/c-exam-kit "$VERSION" "$TAG"
       - uses: actions/download-artifact@v4
         with:
           name: npm-release-tarball
-          path: ./release
-      - name: Publish stable package with npm OIDC
+          path: release
+      - name: Publish selected npm tag via OIDC
         if: steps.registry.outputs.publish == 'true'
+        env:
+          TAG: ${{ needs.plan.outputs.tag }}
         run: |
           set -euo pipefail
           tarball="$(find release -type f -name '*.tgz' -print -quit)"
           test -n "$tarball"
-          # npm must receive an explicit filesystem path, not a package/Git spec.
-          npm publish "$(realpath "$tarball")" --tag latest --access public
+          npm publish "$(realpath "$tarball")" --tag "$TAG" --access public

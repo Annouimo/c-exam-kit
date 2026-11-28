@@ -9,8 +9,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PRESET = ROOT / "npm" / "accoding-preset" / "preset"
-subprocess.run(["node", str(PRESET.parent / "scripts" / "build-preset.mjs")], check=True)
+PRESET = ROOT / "dist" / "package" / "preset"
+subprocess.run(["node", str(ROOT / "scripts" / "build.mjs")], check=True)
 MANIFEST = json.loads((PRESET / "manifest.json").read_text(encoding="utf-8"))
 COMPONENTS = {item["id"]: item for item in MANIFEST["components"]}
 CC = os.environ.get("CC", "cc")
@@ -93,24 +93,25 @@ class IOPresetTests(unittest.TestCase):
         reference = json.loads((PRESET / "reference.json").read_text(encoding="utf-8"))
         self.assertNotIn("exam.h", json.dumps(reference, ensure_ascii=False))
         self.assertEqual(reference["notes"].count("## "), 5)
-        section = reference["sections"][0]
-        self.assertEqual(section["title"], "输入与输出")
-        self.assertLessEqual(len(section["children"]), 5)
-        entries = {e["id"]: e for cat in reference["categories"] for e in cat["entries"]}
-        ids = [i for child in section["children"] for i in child["entries"]]
-        self.assertEqual(len(ids), 13)
+        self.assertEqual(reference["schemaVersion"], 2)
+        self.assertNotIn("sections", reference)
+        self.assertNotIn("categories", reference)
+        entries = {e["id"]: e for e in reference["entries"]}
+        self.assertEqual(len(entries), len(reference["entries"]))
+        self.assertTrue(entries["binary_search_arrays"])
+        self.assertTrue(entries["lower_bound_arrays"])
+        self.assertTrue(entries["upper_bound_arrays"])
+        tags = set(reference["tags"])
+        self.assertTrue(tags)
+        for e in entries.values():
+            self.assertTrue(e["summary"])
+            self.assertTrue(e["tags"])
+            self.assertTrue(set(e["tags"]) <= tags)
         variants = entries["read_number"]["variants"]
         self.assertEqual([v["key"] for v in variants], ["int", "ll", "double"])
         self.assertEqual(variants[1]["example"], "long long x = read_ll();")
         self.assertIn("read_ints(array, count)", entries["read_arrays"]["variants"][0]["signatures"])
         self.assertIn("print_double(3.14159", entries["print_number"]["variants"][2]["example"])
-        def walk(nodes):
-            for node in nodes:
-                if "children" in node:
-                    yield from walk(node["children"])
-                else:
-                    yield from node["entries"]
-        self.assertEqual(set(walk(reference["sections"])), set(entries))
         for id, entry in entries.items():
             self.assertTrue(entry["description"])
             for example in ([v["example"] for v in entry["variants"]] if entry.get("variants") else [entry["example"]]):

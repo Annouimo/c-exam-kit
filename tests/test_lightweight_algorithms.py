@@ -11,8 +11,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PRESET = ROOT / "npm" / "accoding-preset" / "preset"
-subprocess.run(["node", str(PRESET.parent / "scripts" / "build-preset.mjs")], check=True)
+PRESET = ROOT / "dist" / "package" / "preset"
+subprocess.run(["node", str(ROOT / "scripts" / "build.mjs")], check=True)
 MANIFEST = json.loads((PRESET/"manifest.json").read_text(encoding="utf-8"))
 COMPONENTS = {x["id"]: x for x in MANIFEST["components"]}
 CC = os.environ.get("CC", "cc")
@@ -43,8 +43,7 @@ def header(selected=None):
 class Algorithms(unittest.TestCase):
     def test_record_search_manual_example(self):
         reference = json.loads((PRESET / "reference.json").read_text(encoding="utf-8"))
-        example = next(entry["example"] for category in reference["categories"]
-                       for entry in category["entries"] if entry["id"] == "find_records_by")
+        example = next(entry["example"] for entry in reference["entries"] if entry["id"] == "find_records_by")
         self.assertEqual(self.run_c(example), "0\n1\n")
 
     def setUp(self):
