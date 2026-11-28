@@ -1,11 +1,12 @@
-/** @category 大整数、枚举及其他类型 */
 /**
  * @public
  * @requires BigInt exam_algo_fail bigint_zero bigint_mul_small
- */
-/**
  * @id bigint_factorial
  * @title 大整数阶乘
+ * @tags 大整数 数学计算
+ * @summary 计算普通整数容量无法容纳的阶乘。
+ * @pre n 非负且结果在 BigInt 容量内。
+ * @keywords 高精度 阶乘 n!
  * @members bigint_factorial
  * @related factorial_basic
  * 计算非负整数 n 的阶乘，结果写入 BigInt。结果不得超过容量。

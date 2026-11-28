@@ -1,7 +1,5 @@
-/** @category 大整数、枚举及其他类型 */
 /**
  * @public
- * @category 大整数、枚举及其他类型
  */
 typedef struct { int hour, minute, second; } Time;
 /**
@@ -12,24 +10,29 @@ static inline bool time_valid(Time t) {
     return t.hour>=0 && t.hour<24 && t.minute>=0 && t.minute<60 &&
            t.second>=0 && t.second<60;
 }
-/** @requires Time time_valid exam_failf */
+/**
+ * @requires Time time_valid exam_failf
+ */
 static inline void exam_time_check(const char *api, const char *argument, Time t) {
     if (!time_valid(t))
         exam_failf("algorithm", api,
                    "invalid %s (hour=%d, minute=%d, second=%d; expected 0..23, 0..59, 0..59)",
                    argument, t.hour, t.minute, t.second);
 }
-/** @requires Time */
+/**
+ * @requires Time
+ */
 static inline int exam_time_seconds(Time t) {
     return 3600 * t.hour + 60 * t.minute + t.second;
 }
 /**
  * @public
  * @requires Time exam_time_check
- */
-/**
  * @id time_create
  * @title 时刻构造与合法性
+ * @tags 时刻 构造 判断 转换
+ * @summary 构造时刻、检查有效性以及转换为午夜起的秒数。
+ * @keywords 时分秒 时间 合法性
  * @members Time time_new time_valid time_to_seconds time_from_seconds
  * Time 表示一天中的时刻。time_to_seconds 转为从午夜开始的秒数，time_from_seconds 转回 24 小时时刻。
  * @example
@@ -45,11 +48,11 @@ static inline Time time_new(int h, int m, int s) {
 /**
  * @public
  * @requires Time exam_time_check exam_read_int_for
- */
-/**
  * @id time_io
  * @title 读取与格式化时刻
- * @keywords 时刻 输入 输出 读 格式 补零
+ * @tags 时刻 输入 输出
+ * @summary 读取时分秒并按指定格式输出时刻。
+ * @keywords 时刻 输入 输出 读 格式 补零 时分秒 时间 格式化
  * @members time_read time_print
  * @related time_create time_arithmetic
  * time_read 按时、分、秒顺序读取三个空白分隔的整数。输入不完整或不是整数时，诊断会指出出错的字段。时刻越界时显示传入的时、分、秒。
@@ -94,7 +97,9 @@ static inline int time_diff(Time a, Time b) {
     exam_time_check("time_diff", "b", b);
     return exam_time_seconds(b) - exam_time_seconds(a);
 }
-/** @requires Time exam_time_check exam_time_seconds time_from_seconds */
+/**
+ * @requires Time exam_time_check exam_time_seconds time_from_seconds
+ */
 static inline Time exam_shift_time(const char *api, Time t, int delta) {
     exam_time_check(api, "base time", t);
     long long sum = (long long)exam_time_seconds(t) + delta;
@@ -104,10 +109,11 @@ static inline Time exam_shift_time(const char *api, Time t, int delta) {
 /**
  * @public
  * @requires Time exam_shift_time
- */
-/**
  * @id time_arithmetic
  * @title 时刻计算
+ * @tags 时刻 数学计算
+ * @summary 计算时刻偏移和两个时刻之间的秒数。
+ * @keywords 时间 下一秒 下一分钟 时间差
  * @members time_add_seconds time_diff time_next_second time_next_minute
  * 加秒、下一秒和下一分钟按 24 小时循环。time_diff(a,b) 返回 b-a 的秒数，不自动跨日。
  * @example

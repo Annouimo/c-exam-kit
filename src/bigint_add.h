@@ -1,12 +1,12 @@
-/** @category 大整数、枚举及其他类型 */
 /**
  * @public
  * @requires BigInt exam_algo_fail exam_bigint_add_abs exam_bigint_cmp_abs bigint_zero exam_bigint_sub_abs
- * @category 大整数、枚举及其他类型
- */
-/**
  * @id bigint_arithmetic
  * @title 大整数加减法
+ * @tags 大整数 数学计算
+ * @summary 计算两个大整数的和或差。
+ * @error 结果超出容量时终止。
+ * @keywords 高精度 加减 大数
  * @members bigint_add bigint_sub
  * @related bigint_mul bigint_div
  * 结果写入第一个参数，允许结果与操作数别名。结果超出容量时报告错误。

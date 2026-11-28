@@ -1,11 +1,11 @@
-/** @category 大整数、枚举及其他类型 */
 /**
  * @public
  * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize
- */
-/**
  * @id bigint_mul
  * @title 大整数乘法
+ * @tags 大整数 数学计算
+ * @summary 计算大整数乘积，支持乘以普通整数。
+ * @keywords 高精度 乘积 大数
  * @members bigint_mul bigint_mul_small
  * 将乘积写入第一个参数。bigint_mul_small 的第二个操作数是 int；结果可与输入别名。
  * @example

@@ -1,12 +1,14 @@
-/** @category 大整数、枚举及其他类型 */
+
 /* Quotient truncates toward zero; remainder keeps dividend sign. */
 /**
  * @public
  * @requires BigInt exam_algo_fail bigint_zero EXAM_BIGINT_CAP exam_bigint_normalize exam_bigint_cmp_abs exam_bigint_sub_abs_inplace
- */
-/**
  * @id bigint_div
  * @title 大整数除法
+ * @tags 大整数 数学计算
+ * @summary 计算大整数除法的商与余数。
+ * @pre 除数非零，商与余数输出必须是不同变量。
+ * @keywords 高精度 除法 取模 商 余数
  * @members bigint_divmod bigint_div_small
  * 除数非零。商向零截断，余数与被除数同号或为零。divmod 的商和余数输出必须是不同变量；div_small 的除数和余数为 int。
  * @example

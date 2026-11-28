@@ -1,11 +1,12 @@
-/** @category 大整数、枚举及其他类型 */
+
 /* Proleptic Gregorian dates, years 1..9999, no timezone/calendar reform. */
 /**
  * @public
- * @category 大整数、枚举及其他类型
  */
 typedef struct { int year, month, day; } Date;
-/** @public */
+/**
+ * @public
+ */
 static inline bool date_is_leap(int year) {
     return year%4==0 && (year%100!=0 || year%400==0);
 }
@@ -26,7 +27,9 @@ static inline bool date_valid(Date x) {
     int days=date_days_in_month(x.year,x.month);
     return days && x.day>=1 && x.day<=days;
 }
-/** @requires Date date_days_in_month exam_failf */
+/**
+ * @requires Date date_days_in_month exam_failf
+ */
 static inline void exam_date_check(const char *api, const char *argument, Date x) {
     if (x.year < 1 || x.year > 9999)
         exam_failf("algorithm", api, "%s.year=%d out of range (expected 1..9999; month=%d, day=%d)",
@@ -42,10 +45,11 @@ static inline void exam_date_check(const char *api, const char *argument, Date x
 /**
  * @public
  * @requires Date exam_date_check
- */
-/**
  * @id date_create
  * @title 日期构造与合法性
+ * @tags 日期 构造 判断
+ * @summary 构造日期、检查有效性和获取公历日期信息。
+ * @keywords 年月日 闰年 合法性
  * @members Date date_new date_valid date_is_leap date_days_in_month date_day_of_year
  * Date 使用公历 1..9999 年。date_new 构造日期；date_valid 检查合法性；date_day_of_year 返回一年中的第几天。
  * @example
@@ -58,7 +62,9 @@ static inline Date date_new(int year, int month, int day) {
     exam_date_check("date_new", "date", x);
     return x;
 }
-/** @requires Date date_days_in_month */
+/**
+ * @requires Date date_days_in_month
+ */
 static inline int exam_date_day_of_year(Date x) {
     int count=x.day;
     for (int m=1;m<x.month;++m) count+=date_days_in_month(x.year,m);
@@ -67,11 +73,11 @@ static inline int exam_date_day_of_year(Date x) {
 /**
  * @public
  * @requires Date exam_date_check exam_read_int_for
- */
-/**
  * @id date_io
  * @title 读取与格式化日期
- * @keywords 日期 输入 输出 读 格式 补零
+ * @tags 日期 输入 输出
+ * @summary 读取年月日并按指定格式输出日期。
+ * @keywords 日期 输入 输出 读 格式 补零 年月日 格式化
  * @members date_read date_print
  * @related date_create date_arithmetic
  * date_read 按年、月、日顺序读取三个空白分隔的整数。日期非法、输入不完整或不是整数时，诊断会指出出错的字段。
@@ -102,7 +108,9 @@ static inline int exam_date_start_of_year(int year) {
     int y=year-1;
     return 365*y+y/4-y/100+y/400;
 }
-/** @requires Date exam_date_start_of_year exam_date_day_of_year */
+/**
+ * @requires Date exam_date_start_of_year exam_date_day_of_year
+ */
 static inline int exam_date_serial(Date x) {
     return exam_date_start_of_year(x.year) + exam_date_day_of_year(x) - 1;
 }
@@ -138,10 +146,11 @@ static inline Date date_from_serial(int serial) {
 /**
  * @public
  * @requires Date date_valid exam_date_serial exam_date_start_of_year exam_failf date_from_serial
- */
-/**
  * @id date_arithmetic
  * @title 日期计算
+ * @tags 日期 数学计算 转换
+ * @summary 计算日期偏移、日期差、先后顺序及日序号。
+ * @keywords 相差天数 日期加减 序号
  * @members date_add_days date_diff date_compare date_to_serial date_from_serial
  * date_add_days 返回偏移指定天数的日期；date_diff(a,b) 返回 b-a 的天数。compare 比较日期先后；serial 接口转换为连续日序号。
  * @example

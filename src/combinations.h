@@ -1,11 +1,10 @@
-/** @category 大整数、枚举及其他类型 */
+
 #ifndef EXAM_ENUM_CAP
 #define EXAM_ENUM_CAP 64
 #endif
 /**
  * @public
  * @requires EXAM_ENUM_CAP
- * @category 大整数、枚举及其他类型
  */
 typedef struct {
     int n, r, started, finished;
@@ -14,10 +13,11 @@ typedef struct {
 /**
  * @public
  * @requires Combination EXAM_ENUM_CAP exam_algo_fail
- */
-/**
  * @id combinations
  * @title 枚举组合
+ * @tags 枚举 数组
+ * @summary 枚举从 n 项中无序选择 r 项的组合。
+ * @keywords 组合 选取 不重复
  * @members Combination combination_new combination_next
  * @related permutations
  * 从 0..n-1 中无序选 r 项。初始化迭代器，每次 next 返回 true 时读取 indices[0..r-1]。默认 n <= 64；r=0 枚举一次空组合。

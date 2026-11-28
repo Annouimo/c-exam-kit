@@ -1,4 +1,3 @@
-/** @category 大整数、枚举及其他类型 */
 /**
  * @public
  * @requires EXAM_ENUM_CAP
@@ -11,10 +10,11 @@ typedef struct {
 /**
  * @public
  * @requires Permutation EXAM_ENUM_CAP exam_algo_fail
- */
-/**
  * @id permutations
  * @title 枚举排列
+ * @tags 枚举 数组
+ * @summary 枚举从 n 项中有序选择 r 项的排列。
+ * @keywords 排列 全排列 顺序
  * @members Permutation permutation_new permutation_next
  * @related combinations
  * 从 0..n-1 中有序选 r 项。每次 next 返回 true 时读取 indices[0..r-1]。默认 n <= 64；r=0 枚举一次空排列。
