@@ -1,4 +1,3 @@
-/** @category 数学、数位与二分 */
 /**
  * @public
  * @requires exam_algo_fail
@@ -35,10 +34,11 @@ static inline long long digits_to_int(const int *digits,int n,int base) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id int_reverse_digits
  * @title 反转十进制数位
+ * @tags 整数 转换
+ * @summary 反转整数的十进制数位。
+ * @keywords 数位 反转 倒序
  * @members int_reverse_digits
  * 反转十进制数位，返回整数，前导零自然消失。
  * @example
@@ -62,11 +62,11 @@ static inline long long int_reverse_digits(long long n) {
 /**
  * @public
  * @requires int_to_digits_into
- * @category 数学、数位与二分
- */
-/**
  * @id digit_array
  * @title 整数与数位数组转换
+ * @tags 整数 数组 转换
+ * @summary 在整数与数位数组之间转换。
+ * @keywords 数位 拆位 合并
  * @members int_to_digits digits_to_int int_to_digits_into
  * int_to_digits 按最高位到最低位写入数位并返回个数；digits_to_int 按同一顺序合并，base 为 2..36。
  * @example

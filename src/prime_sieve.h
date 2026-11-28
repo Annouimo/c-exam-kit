@@ -1,4 +1,3 @@
-/** @category 数学、数位与二分 */
 /**
  * @public
  * @requires exam_algo_fail
@@ -19,10 +18,12 @@ static inline void sieve_primes_into(unsigned char *flags, int limit,
 /**
  * @public
  * @requires sieve_primes_into
- */
-/**
  * @id prime_sieve
  * @title 质数筛法
+ * @tags 整数 数学计算 数组
+ * @summary 批量标记指定范围内的质数。
+ * @pre flags 至少有 limit+1 项。
+ * @keywords 筛法 素数 埃氏筛
  * @members sieve_primes sieve_primes_into
  * @related prime_test
  * 标记 0..limit 是否为质数，flags 为至少 limit+1 项 unsigned char 数组。

@@ -1,7 +1,5 @@
-/** @category 大整数、枚举及其他类型 */
 /**
  * @public
- * @category 大整数、枚举及其他类型
  */
 typedef struct {
     double re, im;
@@ -9,10 +7,11 @@ typedef struct {
 /**
  * @public
  * @requires Complex
- */
-/**
  * @id complex_create
  * @title 构造复数
+ * @tags 复数 构造
+ * @summary 构造含实部和虚部的复数。
+ * @keywords 实部 虚部 complex
  * @members Complex complex_new
  * @related complex_arithmetic complex_output
  * Complex 是包含实部 re 和虚部 im 的值类型。complex_new(real, imaginary) 构造复数。
@@ -26,10 +25,12 @@ static inline Complex complex_new(double real, double imaginary) {
 /**
  * @public
  * @requires Complex complex_new
- */
-/**
  * @id complex_arithmetic
  * @title 复数四则运算
+ * @tags 复数 数学计算
+ * @summary 对两个复数进行四则运算。
+ * @pre 除数不能为零。
+ * @keywords 加减乘除 四则
  * @members complex_add complex_sub complex_mul complex_div
  * 接收两个 Complex 值，返回运算结果，不修改原值。除数不能为零。
  * @example
@@ -72,10 +73,11 @@ static inline Complex complex_div(Complex a, Complex b) {
 /**
  * @public
  * @requires Complex
- */
-/**
  * @id complex_output
  * @title 复数模长与输出
+ * @tags 复数 输出 数学计算
+ * @summary 计算复数模长或按指定精度输出复数。
+ * @keywords 模长 绝对值 打印
  * @members complex_abs complex_print
  * complex_abs 返回模；complex_print 指定小数位数 digits 和结束字符串 end。
  * @example

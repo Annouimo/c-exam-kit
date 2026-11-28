@@ -1,15 +1,15 @@
-/** @category 数学、数位与二分 */
+
 static inline unsigned long long exam_abs_ull(long long a) {
     return a >= 0 ? (unsigned long long)a : 0ULL - (unsigned long long)a;
 }
 /**
  * @public
  * @requires exam_abs_ull
- * @category 数学、数位与二分
- */
-/**
  * @id gcd_lcm
  * @title 最大公约数与最小公倍数
+ * @tags 整数 数学计算
+ * @summary 计算最大公约数或最小公倍数。
+ * @keywords GCD LCM 公因数 公倍数
  * @members gcd lcm
  * 返回非负的 unsigned long long 结果。输入可以为负数。
  * @example
@@ -32,7 +32,9 @@ static inline unsigned long long lcm(long long a, long long b) {
     if (k > ULLONG_MAX / y) exam_algo_fail("lcm overflow");
     return k * y;
 }
-/** @requires exam_algo_fail */
+/**
+ * @requires exam_algo_fail
+ */
 static inline long long exam_mul_ll(long long a, long long b) {
     if ((a > 0 && b > 0 && a > LLONG_MAX / b) ||
         (a > 0 && b < 0 && b < LLONG_MIN / a) ||
@@ -41,7 +43,9 @@ static inline long long exam_mul_ll(long long a, long long b) {
         exam_algo_fail("signed integer multiplication overflow");
     return a * b;
 }
-/** @requires exam_algo_fail */
+/**
+ * @requires exam_algo_fail
+ */
 static inline long long exam_add_ll(long long a, long long b) {
     if ((b > 0 && a > LLONG_MAX - b) ||
         (b < 0 && a < LLONG_MIN - b))
@@ -51,10 +55,12 @@ static inline long long exam_add_ll(long long a, long long b) {
 /**
  * @public
  * @requires exam_mul_ll
- */
-/**
  * @id integer_power
  * @title 整数幂与模幂
+ * @tags 整数 数学计算
+ * @summary 计算整数幂或带模数的整数幂。
+ * @pre 指数非负，模幂的模数为正，普通整数幂结果在 long long 范围内。
+ * @keywords 幂 次方 快速幂 取模
  * @members int_pow mod_pow
  * 指数为非负整数；mod_pow 的模数为正，适合大指数取模。int_pow 的结果必须在 long long 范围内。
  * @example
@@ -73,11 +79,14 @@ static inline long long int_pow(long long base, unsigned int exponent) {
 /**
  * @public
  * @requires exam_algo_fail
- * @category 数学、数位与二分
- */
-/**
  * @id factorial_basic
  * @title 阶乘
+ * @tags 整数 数学计算
+ * @summary 计算非负整数的阶乘。
+ * @param n 待计算阶乘的整数。
+ * @return n!，类型为 long long。
+ * @pre n 的范围为 0..20。
+ * @keywords n! 连乘 factorial
  * @members factorial_basic
  * @related bigint_factorial
  * 计算 n!，n 范围 0..20，返回 long long。更大的阶乘使用 bigint_factorial。
@@ -90,10 +99,14 @@ static inline long long factorial_basic(int n) {
     for (int i = 2; i <= n; ++i) result *= i;
     return result;
 }
-/** @public */
 /**
+ * @public
  * @id prime_test
  * @title 质数判断
+ * @tags 整数 判断 数学计算
+ * @summary 判断单个整数是否为质数。
+ * @return 是质数返回 true，小于 2 或非质数返回 false。
+ * @keywords 质数 素数 prime
  * @members is_prime
  * @related prime_sieve
  * 判断单个整数是否为质数，小于 2 返回 false。多次查询可使用筛法。
@@ -112,7 +125,9 @@ static inline unsigned long long exam_mod_add(unsigned long long a,
                                               unsigned long long mod) {
     return a >= mod - b ? a - (mod - b) : a + b;
 }
-/** @requires exam_mod_add */
+/**
+ * @requires exam_mod_add
+ */
 static inline unsigned long long exam_mod_mul(unsigned long long a,
                                               unsigned long long b,
                                               unsigned long long mod) {

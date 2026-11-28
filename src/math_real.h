@@ -1,12 +1,12 @@
-/** @category 数学、数位与二分 */
 /**
  * @public
  * @requires exam_algo_fail
- * @category 数学、数位与二分
- */
-/**
  * @id nearly_equal
  * @title 浮点数比较
+ * @tags 浮点数 判断
+ * @summary 用绝对和相对误差容限判断浮点数近似相等。
+ * @pre 容限非负。
+ * @keywords 比较 精度 误差 近似 相等
  * @members nearly_equal
  * 用绝对误差和相对误差容限判断两个数是否近似相等；容限为非负数。
  * @example
@@ -26,10 +26,12 @@ static inline bool nearly_equal(double a, double b,
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id round_digits
  * @title 四舍五入
+ * @tags 浮点数 数学计算
+ * @summary 将浮点数舍入到指定小数位数。
+ * @return 舍入后的 double 数值。
+ * @keywords 舍入 保留小数 四舍五入
  * @members round_digits
  * 将数舍入到指定小数位数，返回 double。输出固定小数位仍需 printf 或 print_double。
  * @example

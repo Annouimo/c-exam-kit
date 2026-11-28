@@ -1,13 +1,14 @@
-/** @category 数学、数位与二分 */
+
 /* Bisection on [left,right]; continuous f with opposite endpoint signs. */
 /**
  * @public
  * @requires exam_algo_fail
- * @category 数学、数位与二分
- */
-/**
  * @id bisect_root
  * @title 二分求根
+ * @tags 浮点数 数学计算 二分
+ * @summary 在连续函数的异号区间内二分求根。
+ * @pre 连续函数在区间端点异号或端点为根，误差容限为正。
+ * @keywords 零点 方程 求根
  * @members bisect_root
  * 在连续函数的异号区间 [left,right] 内二分求根，端点为根也可。tolerance 为正的误差容限，iterations 为最大迭代次数。
  * @example

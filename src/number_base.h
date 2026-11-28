@@ -1,4 +1,4 @@
-/** @category 数学、数位与二分 */
+
 static inline int exam_digit_value(int c) {
     if (c >= '0' && c <= '9') return c-'0';
     if (c >= 'a' && c <= 'z') return c-'a'+10;
@@ -8,11 +8,12 @@ static inline int exam_digit_value(int c) {
 /**
  * @public
  * @requires exam_algo_fail exam_digit_value
- * @category 数学、数位与二分
- */
-/**
  * @id base_conversion
  * @title 进制转换
+ * @tags 整数 字符串 转换
+ * @summary 在整数与指定进制字符串之间转换。
+ * @pre base 的范围为 2..36；输出容量包含结束符。
+ * @keywords 进制 二进制 十六进制
  * @members base_to_int int_to_base int_to_base_into
  * base 为 2..36。base_to_int 将字符串解析为 long long；int_to_base 将整数写成指定进制的字符串，目标容量包含结束符。
  * @example
@@ -66,10 +67,11 @@ static inline void int_to_base_into(long long value, int base,
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id digit_stats
  * @title 数位统计与取位
+ * @tags 整数 统计
+ * @summary 统计数位数、数位和或获取指定数位。
+ * @keywords 数位 位数 数位和 取位
  * @members int_digit_count int_digit_sum int_digit_at
  * 按指定进制统计数位数、数位和，或取指定数位。pos 从最低位开始编号 0。
  * @example
