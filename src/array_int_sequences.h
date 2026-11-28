@@ -1,11 +1,12 @@
-/** @category 数组 */
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id max_subarray_sum_ints
  * @title 最大连续子段和
+ * @tags 数组 整数 区间 统计
+ * @summary 计算最大非空连续子段和。
+ * @pre n > 0。
+ * @keywords 最大子段和 连续子数组
  * @members max_subarray_sum_ints
  * 返回最大非空连续子段和，n > 0。
  * @example
@@ -24,11 +25,11 @@ static inline long long max_subarray_sum_ints(const int *a, int n) {
 /**
  * @public
  * @requires exam_check_n
- * @category 数组
- */
-/**
  * @id longest_runs
  * @title 最长连续段
+ * @tags 数组 整数 统计
+ * @summary 查找最长相等段或逐项增加 1 的连续段长度。
+ * @keywords 连续相同 逐项加一 最长段
  * @members longest_equal_run_ints longest_plus_one_run_ints
  * 分别返回最长相等连续段和逐项增加 1 的连续段长度。
  * @example
@@ -63,10 +64,12 @@ static inline int longest_plus_one_run_ints(const int *a, int n) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id max_forward_diff_ints
  * @title 前项减后项的最大差
+ * @tags 数组 整数 统计
+ * @summary 计算前项减后项的最大差值。
+ * @pre 至少两项。
+ * @keywords 最大差 前后差
  * @members max_forward_diff_ints
  * 求 i < j 时 a[i] - a[j] 的最大值，至少两项。
  * @example

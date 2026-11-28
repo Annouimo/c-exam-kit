@@ -1,4 +1,4 @@
-/** @category 数组 */
+
 /* Count nonnegative values in [0,max_value] using user-owned storage. */
 /**
  * @public
@@ -22,11 +22,12 @@ static inline void frequency_ints_into(const int *values, int n,
 /**
  * @public
  * @requires frequency_ints_into
- * @category 数组
- */
-/**
  * @id frequency_ints
  * @title 统计频数
+ * @tags 数组 整数 统计
+ * @summary 统计指定范围内每个非负整数的出现次数。
+ * @pre 元素在 0..max_value 范围内，freq 至少 max_value+1 项。
+ * @keywords 计数 频率 桶
  * @members frequency_ints frequency_ints_into
  * 统计整数 0..max_value 出现的次数，freq 至少 max_value+1 项；函数初始化计数数组。
  * @example

@@ -1,5 +1,6 @@
-/** @category 数组 */
-/** @requires Record */
+/**
+ * @requires Record
+ */
 static inline void exam_swap_records(Record *records, size_t a, size_t b, size_t size) {
     unsigned char *bytes = (unsigned char *)records;
     for (size_t i = 0; i < size; ++i) {
@@ -8,7 +9,9 @@ static inline void exam_swap_records(Record *records, size_t a, size_t b, size_t
         bytes[(size_t)b * size + i] = t;
     }
 }
-/** @requires Record exam_swap_records */
+/**
+ * @requires Record exam_swap_records
+ */
 static inline void exam_sift_records(Record *records, size_t root, size_t n, size_t size,
                                      int (*compare)(const Record *, const Record *)) {
     unsigned char *bytes = (unsigned char *)records;
@@ -24,7 +27,9 @@ static inline void exam_sift_records(Record *records, size_t root, size_t n, siz
         root = child;
     }
 }
-/** @requires Record exam_check_n exam_algo_fail exam_sift_records exam_swap_records */
+/**
+ * @requires Record exam_check_n exam_algo_fail exam_sift_records exam_swap_records
+ */
 static inline void exam_sort_records(Record *records, int n, size_t element_size,
                                      int (*compare)(const Record *, const Record *)) {
     exam_check_n(n);
@@ -43,6 +48,11 @@ static inline void exam_sort_records(Record *records, int n, size_t element_size
  * @public
  * @requires exam_sort_records
  * @title 结构体排序
+ * @tags 结构体 数组 排序
+ * @summary 按自定义比较函数原地排序结构体数组。
+ * @pre 定义命名 struct Record，并提供比较函数。
+ * @complexity 最坏 O(n log n)。
+ * @keywords 排名 成绩 多关键字 比较函数
  * @related record_type find_records_by
  * 定义命名结构体 struct Record，再传入比较函数。负数表示 a 排在 b 前面，正数表示排在后面，0 表示相等。原地排序，不保证稳定，最坏 O(n log n)。
  * @example

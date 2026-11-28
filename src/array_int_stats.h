@@ -1,12 +1,11 @@
-/** @category 数组 */
 /**
  * @public
  * @requires exam_check_n
- * @category 数组
- */
-/**
  * @id sum_mean_arrays
  * @title 求和与平均值
+ * @tags 数组 统计
+ * @summary 计算数组元素之和或算术平均数。
+ * @keywords 总和 求和 平均数
  * @variant int sum_ints mean_ints
  * @variant ll sum_lls mean_lls
  * @variant double sum_doubles mean_doubles
@@ -27,10 +26,11 @@ static inline long long sum_ints(const int *a, int n) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id extrema_arrays
  * @title 最大值与最小值
+ * @tags 数组 统计
+ * @summary 计算数组最大值、最小值及其首次出现下标。
+ * @keywords 最值 最大 最小 下标
  * @variant int min_ints max_ints argmin_ints argmax_ints
  * @variant ll min_lls max_lls argmin_lls argmax_lls
  * @variant double min_doubles max_doubles argmin_doubles argmax_doubles
@@ -89,10 +89,13 @@ static inline double mean_ints(const int *a, int n) {
 /**
  * @public
  * @requires exam_algo_fail sum_ints
- */
-/**
  * @id variance_arrays
  * @title 方差与标准差
+ * @tags 数组 统计
+ * @summary 计算总体方差或标准差。
+ * @pre n > 0。
+ * @return 总体方差或标准差，类型为 double。
+ * @keywords 方差 标准差 离散程度
  * @variant int variance_ints stddev_ints
  * @variant ll variance_lls stddev_lls
  * @variant double variance_doubles stddev_doubles
@@ -122,10 +125,12 @@ static inline double stddev_ints(const int *a, int n) {
 /**
  * @public
  * @requires exam_algo_fail exam_cmp_int_asc
- */
-/**
  * @id median_arrays
  * @title 中位数
+ * @tags 数组 统计
+ * @summary 计算数组中位数，不改变原数组。
+ * @pre n > 0。
+ * @keywords 中间值 中位数
  * @variant int median_ints
  * @variant ll median_lls
  * @variant double median_doubles

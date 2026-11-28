@@ -1,4 +1,4 @@
-/** @category 数组 */
+
 static inline int exam_cmp_int_asc(const void *a, const void *b) {
     int x = *(const int *)a, y = *(const int *)b;
     return (x > y) - (x < y);
@@ -10,11 +10,11 @@ static inline int exam_cmp_int_desc(const void *a, const void *b) {
 /**
  * @public
  * @requires exam_check_n exam_cmp_int_asc
- * @category 数组
- */
-/**
  * @id sort_arrays
  * @title 数组排序
+ * @tags 数组 排序
+ * @summary 原地对数组进行升序或降序排序。
+ * @keywords 升序 降序 排列
  * @variant int sort_ints sort_ints_desc
  * @variant ll sort_lls sort_lls_desc
  * @variant double sort_doubles sort_doubles_desc
@@ -41,10 +41,11 @@ static inline void sort_ints_desc(int *a, int n) {
 /**
  * @public
  * @requires exam_check_n
- */
-/**
  * @id bubble_sort_ints
  * @title 冒泡排序
+ * @tags 数组 整数 排序
+ * @summary 使用冒泡算法对整数数组原地升序排序。
+ * @keywords 冒泡 升序
  * @members bubble_sort_ints
  * @related sort_arrays
  * 对 int 数组原地升序冒泡排序，时间 O(n²)。普通排序优先使用 sort_ints。
@@ -78,10 +79,11 @@ static inline int unique_sorted_ints(int *a, int n) {
 /**
  * @public
  * @requires exam_check_n
- */
-/**
  * @id unique_arrays
  * @title 数组去重
+ * @tags 数组 修改 统计
+ * @summary 原地移除重复元素并返回新长度。
+ * @keywords 去重 重复 不同元素
  * @variant int unique_ints unique_sorted_ints
  * @variant ll unique_lls unique_sorted_lls
  * @variant double unique_doubles unique_sorted_doubles

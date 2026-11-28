@@ -1,4 +1,4 @@
-/** @category 数组 */
+
 /* Destination must be a true array for the lowercase convenience macros. */
 /**
  * @public
@@ -51,10 +51,11 @@ static inline int range_ints_into(int *destination, int first, int stop,
 /**
  * @public
  * @requires exam_check_n
- */
-/**
  * @id reverse_arrays
  * @title 反转数组
+ * @tags 数组 修改
+ * @summary 原地反转数组的前 n 项。
+ * @keywords 倒序 翻转
  * @variant int reverse_ints
  * @variant ll reverse_lls
  * @variant double reverse_doubles
@@ -74,10 +75,11 @@ static inline void reverse_ints(int *array, int n) {
 /**
  * @public
  * @requires exam_algo_fail
- */
-/**
  * @id swap_ints
  * @title 交换两项
+ * @tags 数组 整数 修改
+ * @summary 交换两个指定下标的整数元素。
+ * @keywords 交换 位置
  * @members swap_ints
  * 交换下标 i、j 对应的两个 int 元素。调用者保证下标有效。
  * @example
@@ -91,11 +93,11 @@ static inline void swap_ints(int *array, int i, int j) {
 /**
  * @public
  * @requires fill_ints_into
- * @category 数组
- */
-/**
  * @id fill_arrays
  * @title 填充数组
+ * @tags 数组 构造 修改
+ * @summary 将数组前 n 项设为指定值。
+ * @keywords 初始化 填满 赋值
  * @variant int fill_ints fill_ints_into
  * @variant ll fill_lls fill_lls_into
  * @variant double fill_doubles fill_doubles_into
@@ -109,10 +111,11 @@ static inline void swap_ints(int *array, int i, int j) {
 /**
  * @public
  * @requires copy_ints_into
- */
-/**
  * @id copy_arrays
  * @title 复制数组
+ * @tags 数组 构造 修改
+ * @summary 将源数组的前 n 项复制到目标数组。
+ * @keywords 拷贝 复制
  * @variant int copy_ints copy_ints_into
  * @variant ll copy_lls copy_lls_into
  * @variant double copy_doubles copy_doubles_into
@@ -126,10 +129,11 @@ static inline void swap_ints(int *array, int i, int j) {
 /**
  * @public
  * @requires values_ints_into
- */
-/**
  * @id values_arrays
  * @title 从给定数据构造数组
+ * @tags 数组 构造
+ * @summary 把给定的数据依次写入数组。
+ * @keywords 初始化 参数列表
  * @variant int values_ints values_ints_into
  * @variant ll values_lls values_lls_into
  * @variant double values_doubles values_doubles_into
@@ -144,10 +148,11 @@ static inline void swap_ints(int *array, int i, int j) {
 /**
  * @public
  * @requires range_ints_into
- */
-/**
  * @id range_arrays
  * @title 生成整数等差序列
+ * @tags 数组 整数 构造
+ * @summary 生成指定起点、终点和步长的整数序列。
+ * @keywords 等差数列 步长 序列 range
  * @variant int range_ints range_ints_into
  * @variant ll range_lls range_lls_into
  * 从 first 开始，每次增加 step，遇到或越过 stop 时停止（不含 stop）。step 不为 0，可为负。返回写入项数，容量须足够。

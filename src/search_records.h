@@ -1,5 +1,6 @@
-/** @category 数组 */
-/** @requires Record exam_failf */
+/**
+ * @requires Record exam_failf
+ */
 static inline int exam_find_records_by(const Record *records, int n,
     size_t element_size, const Record *key,
     int (*compare)(const Record *, const Record *)) {
@@ -16,7 +17,9 @@ static inline int exam_find_records_by(const Record *records, int n,
     return -1;
 }
 
-/** @requires Record exam_failf */
+/**
+ * @requires Record exam_failf
+ */
 static inline int exam_binary_search_records_by(const Record *records, int n,
     size_t element_size, const Record *key,
     int (*compare)(const Record *, const Record *)) {
@@ -41,8 +44,12 @@ static inline int exam_binary_search_records_by(const Record *records, int n,
 /**
  * @public
  * @requires exam_find_records_by
- * @category 数组
  * @title 结构体查找
+ * @tags 结构体 数组 查找
+ * @summary 按比较函数查找结构体数组中首个匹配元素。
+ * @return 首个匹配的 0 基下标，找不到返回 -1。
+ * @pre 二分查找前按相同比较规则排序，初始化比较函数读取的字段。
+ * @keywords 学号 匹配 比较函数 二分查找
  * @related record_type sort_records
  * @members find_records_by binary_search_records_by
  * `find_records_by(a, n, &key, compare)` 按当前顺序扫描。`binary_search_records_by(a, n, &key, compare)` 要求数组已按 `compare` 排序。 两者返回首个匹配的下标，找不到返回 `-1`。比较函数接收数组元素和查找键，类型均为 `const Record *`。初始化比较函数会读到的所有字段。n 须非负；n 为 0 时返回 -1；n 大于 0 时，数组、键和比较函数都必须非空。排序与查找规则相同时，传入同一个比较函数。

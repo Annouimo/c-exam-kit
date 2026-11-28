@@ -1,4 +1,4 @@
-/** @category 数组 */
+
 /* A difference array of long long values, length at least n+1. */
 /**
  * @public
@@ -41,10 +41,13 @@ static inline void diff_to_lls_into(const long long *difference, int n,
 /**
  * @public
  * @requires build_diff_ints_into
- */
-/**
  * @id difference_array
  * @title 多次区间加值（差分）
+ * @tags 数组 区间 修改
+ * @summary 使用差分表对多个区间加值并还原数组。
+ * @pre 差分表至少 n+1 项，输出数组至少 n 项。
+ * @complexity 单次区间更新 O(1)。
+ * @keywords 差分 区间加值 批量更新
  * @members build_diff_ints diff_range_add diff_to_lls build_diff_ints_into diff_to_lls_into
  * @related prefix_sum
  * 差分表至少 n+1 项 long long。先建表，再对 [l,r) 加 delta，最后还原到 n 项 long long 数组。区间更新 O(1)。

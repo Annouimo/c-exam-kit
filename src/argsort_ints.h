@@ -1,4 +1,4 @@
-/** @category 数组 */
+
 /* Stable indirect sorting: order[i] is an ORIGINAL, zero-based index.
  * The input array is never modified. Equal values use original index order.
  */
@@ -6,7 +6,9 @@ typedef struct {
     int value;
     int index;
 } ExamIntIndexPair;
-/** @requires ExamIntIndexPair */
+/**
+ * @requires ExamIntIndexPair
+ */
 static inline int exam_int_index_compare(const void *left, const void *right) {
     const ExamIntIndexPair *a = (const ExamIntIndexPair *)left;
     const ExamIntIndexPair *b = (const ExamIntIndexPair *)right;
@@ -40,10 +42,12 @@ static inline void argsort_ints_into(const int *a, int n, int *order,
 /**
  * @public
  * @requires argsort_ints_into
- */
-/**
  * @id argsort_ints
  * @title 间接排序（原下标）
+ * @tags 数组 排序
+ * @summary 不修改原数组，生成按值升序排列的原下标。
+ * @pre order 至少 n 项，不能与 a 重叠。
+ * @keywords 间接排序 原下标 排名
  * @members argsort_ints argsort_ints_into
  * @related sort_arrays
  * 不修改 a，把升序排列对应的原下标写入 order；相等值按原下标排序。order 至少 n 项，不能与 a 重叠。
